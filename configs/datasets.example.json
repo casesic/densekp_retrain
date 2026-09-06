@@ -1,0 +1,14 @@
+{
+  "train": {
+    "bedlam-mini": {
+      "image_root": "/ABSOLUTE/PATH/TO/images",
+      "annotation_npz": "/ABSOLUTE/PATH/TO/bedlam-mini.npz"
+    }
+  },
+  "val": {
+    "emdb-smpl": {
+      "image_root": "/ABSOLUTE/PATH/TO/EMDB",
+      "annotation_npz": "/ABSOLUTE/PATH/TO/emdb_test.npz"
+    }
+  }
+}
