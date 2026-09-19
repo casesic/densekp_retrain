@@ -8,6 +8,7 @@ p=argparse.ArgumentParser()
 p.add_argument('--output',required=True,type=Path)
 p.add_argument('--frames',type=int,default=1)
 p.add_argument('--resolution',type=int,default=512)
+p.add_argument('--camera-placement',type=Path)
 a=p.parse_args()
 root=Path(__file__).resolve().parents[1]
 baseline=root/'outputs/p0_dressed_hdri_eye_fixed'
@@ -21,6 +22,7 @@ cmd=['/mnt/data1/khb/app/blender-5.1.1-linux-x64/blender','-b','-t','4','--pytho
      '--manual-lights','fill','--eye-render-mode','procedural','--eye-mapping',str(root/'outputs/eye_fix_v2/procedural_eye_coordinates.npz'),
      '--ground-mode','shadow_catcher','--render-frame-count',str(a.frames)]
 cmd += ['--resolution',str(a.resolution)]
+if a.camera_placement: cmd += ['--camera-placement',str(a.camera_placement.resolve())]
 a.output.mkdir(parents=True,exist_ok=True)
 with (a.output/'render.log').open('w') as log:
     subprocess.run(cmd,cwd=root,stdout=log,stderr=subprocess.STDOUT,check=True)

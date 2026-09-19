@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""从匹配的 BEDLAM 6 fps clothing NPZ 提取 P0 的 16 帧衣物几何。"""
+"""从匹配的 BEDLAM 6 fps clothing NPZ 提取衣物几何。"""
 import argparse, hashlib, json
 from pathlib import Path
 import numpy as np
 from scipy.spatial import cKDTree
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('--body-geometry',type=Path,required=True); p.add_argument('--clothing-npz',type=Path,required=True); p.add_argument('--output-dir',type=Path,required=True); a=p.parse_args()
-    clothing_ids=np.asarray([0,2,5,7,10,12,15,17,20,22,25,27,30,32,35,38],np.int64); motion_ids=clothing_ids*5; source_ids=101+motion_ids
+    p=argparse.ArgumentParser(); p.add_argument('--body-geometry',type=Path,required=True); p.add_argument('--clothing-npz',type=Path,required=True); p.add_argument('--output-dir',type=Path,required=True); p.add_argument('--all-frames',action='store_true'); a=p.parse_args()
+    clothing_ids=np.arange(39,dtype=np.int64) if a.all_frames else np.asarray([0,2,5,7,10,12,15,17,20,22,25,27,30,32,35,38],np.int64); motion_ids=clothing_ids*5; source_ids=101+motion_ids
     with np.load(a.clothing_npz,allow_pickle=True) as z:
         vertices=np.asarray(z['vertices_seq'][clothing_ids],np.float32); faces=np.asarray(z['faces'],np.int32); vertices_uv=np.asarray(z['vertices_uv']); faces_uv=np.asarray(z['faces_uv']); metadata=dict(z['metadata'].item())
     body=np.load(a.body_geometry/'vertices.npy')
-    if vertices.shape!=(16,13027,3) or faces.shape!=(26328,3): raise RuntimeError(f'clothing shape 异常: {vertices.shape}, {faces.shape}')
+    if vertices.shape!=(len(clothing_ids),13027,3) or faces.shape!=(26328,3): raise RuntimeError(f'clothing shape 异常: {vertices.shape}, {faces.shape}')
     if metadata!={'fps':6,'source_fps':30,'start_frame':101,'end_frame':292}: raise RuntimeError(f'metadata 与已审计映射不符: {metadata}')
     if not np.array_equal(np.load(a.body_geometry/'motion_params.npz')['source_frame_ids'],motion_ids): raise RuntimeError('body/clothing frame mapping 不一致')
     before=hashlib.blake2b(body.tobytes(),digest_size=16).hexdigest(); nearest=[]

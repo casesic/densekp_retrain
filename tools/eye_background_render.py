@@ -113,12 +113,14 @@ def shadow_composite(scene, output_node, body, clothing, ground, out, frame):
     save_linear(scene, shadowed)
     output_node.mute = True
     # Clean receiver uses exactly the same plane, lighting, camera and color space.
-    clean = raw/'clean_receiver.exr'
+    clean = raw/(f'{frame:06d}_clean_receiver.exr' if scene.get('shadow_receiver_per_frame',False) else 'clean_receiver.exr')
     if frame == 0 or not clean.exists():
-        body.hide_render = clothing.hide_render = True
+        body.hide_render = True
+        if clothing is not None: clothing.hide_render = True
         bpy.ops.render.render()
         save_linear(scene, clean)
-        body.hide_render = clothing.hide_render = False
+        body.hide_render = False
+        if clothing is not None: clothing.hide_render = False
     ground.hide_render = True
     bpy.ops.render.render()
     no_ground = raw/f'{frame:06d}_no_ground.exr'
@@ -128,9 +130,10 @@ def shadow_composite(scene, output_node, body, clothing, ground, out, frame):
     foreground = read_linear(raw/f'{frame:06d}_foreground.exr')
     occupied = foreground[..., 3] > .001
     protected = occupied.copy()
+    padded = np.pad(occupied, 1, mode='constant')
     for dy in (-1, 0, 1):
         for dx in (-1, 0, 1):
-            protected |= np.roll(np.roll(occupied, dy, 0), dx, 1)
+            protected |= padded[1+dy:1+dy+occupied.shape[0],1+dx:1+dx+occupied.shape[1]]
     luminance = np.array([.2126, .7152, .0722], np.float32)
     numerator = receiver[..., :3] @ luminance
     denominator = clean_pixels[..., :3] @ luminance

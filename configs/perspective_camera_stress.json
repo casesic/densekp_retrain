@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "geometry_source": "outputs/p0_dressed_eye_background_fixed/geometry",
+  "appearance_baseline": "outputs/p0_dressed_eye_background_fixed",
+  "placement_policy": "Per-frame deterministic camera translation; fixed camera rotation and intrinsics; full SMPL-X bbox",
+  "baseline_note": "Original framing is 76% high with ~2px bottom clipping. C0 is a 60% centered camera-only reference so near_70 increases size and baseline is complete.",
+  "near_safety_margin_m": 0.10,
+  "configs": [
+    {"id": "C0", "name": "baseline", "height": 0.60, "horizontal": "center", "vertical": "center"},
+    {"id": "C1", "name": "near_70", "height": 0.70, "height_tolerance": 0.03, "horizontal": "center", "vertical": "center"},
+    {"id": "C2", "name": "near_90", "height": 0.90, "height_tolerance": 0.03, "horizontal": "center", "vertical": "center"},
+    {"id": "C3", "name": "near_110", "height": 1.10, "height_tolerance": 0.05, "horizontal": "center", "vertical": "center"},
+    {"id": "C4", "name": "edge_left", "height": 0.60, "horizontal": "left_margin", "margin": 0.035, "vertical": "center"},
+    {"id": "C5", "name": "edge_right", "height": 0.60, "horizontal": "right_margin", "margin": 0.035, "vertical": "center"},
+    {"id": "C6", "name": "trunc_left_25", "height": 0.60, "horizontal": "left_truncation", "truncation": 0.25, "vertical": "center"},
+    {"id": "C7", "name": "trunc_bottom_25", "height": 0.60, "horizontal": "center", "vertical": "bottom_truncation", "truncation": 0.25}
+  ]
+}
