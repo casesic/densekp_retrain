@@ -66,7 +66,8 @@ for name in ['path','river_bed','river_water','fog']:
     o=bpy.data.objects.get(name)
     if o:
         o.hide_render=True
-        o.hide_set(True)
+        if o.name in bpy.context.view_layer.objects:
+            o.hide_set(True)
 
 # Blend the original topography into a planar corridor. The asphalt is Z=0;
 # its shoulders join the ground at Z=-0.10, with no centerline undulation.
@@ -292,7 +293,7 @@ report={'source':'https://polyhaven.com/collections/pine_forest',
         'samples':args.samples,'camera_location':list(camera.location),
         'bounds_xy':[-103,-100,100,100]}
 (OUT/'validation.json').write_text(json.dumps(report,indent=2)+'\n')
-bpy.ops.wm.save_as_mainfile(filepath=str(DEST/'cycling_forest.blend'))
+bpy.ops.wm.save_as_mainfile(filepath=str(DEST/'cycling_forest.blend'),relative_remap=False)
 print('CYCLING_FOREST_SAVED',json.dumps(report),flush=True)
 if not args.skip_render:
     for cam,name,w,h in [(camera,'perspective.png',args.width,round(args.width*9/16)),
