@@ -108,7 +108,7 @@ densekp_3d[t]  = R @ vertices[t]
 
 ## Renderer regression
 
-复用 P0 的 `tools/render_p0_blender.py` 和 `tools/finalize_p0_outputs.py`，没有改变 camera、projection、depth、mask 或 visibility 算法。真实 motion 暴露了一个旧代码问题：manifest 的 `avatar_id`/`motion_id` 曾硬编码为 procedural toy。唯一 renderer 修改是从 `geometry_manifest.json` 读取这两个已有 schema 字段；不在 Blender 内解析 motion。
+复用 P0 的 `tools/render/render_p0_blender.py` 和 `tools/render/finalize_p0_outputs.py`，没有改变 camera、projection、depth、mask 或 visibility 算法。真实 motion 暴露了一个旧代码问题：manifest 的 `avatar_id`/`motion_id` 曾硬编码为 procedural toy。唯一 renderer 修改是从 `geometry_manifest.json` 读取这两个已有 schema 字段；不在 Blender 内解析 motion。
 
 `finalize_p0_outputs.py` 仅新增逐帧 visibility 统计输出，分类算法不变。
 

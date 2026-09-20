@@ -3,7 +3,8 @@ set -euo pipefail
 
 # 仅下载 BEDLAM clothing NPZ 6 fps shard 0 及该数据类型的校验清单。
 # 凭据只在内存中使用；不要用命令行参数传入。
-target_dir="/home/yy/datasets/BEDLAM/clothing_data/clothing_npz_6fps"
+bedlam_root="${BEDLAM_ROOT:-$HOME/datasets/BEDLAM}"
+target_dir="$bedlam_root/clothing_data/clothing_npz_6fps"
 base_url="https://download.is.tue.mpg.de/download.php?domain=bedlam&resume=1&sfile=clothing_data/clothing_npz_6fps"
 shard="clothing_npz_6fps.0.tar"
 limit_bytes=40000000000

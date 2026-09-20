@@ -29,9 +29,15 @@ densekp_retrain/
 │   ├── datasets.example.json   # 数据路径示例（当前无代码读取，见 POTENTIAL_ISSUES）
 │   ├── fisheye_scene_p0.json   # Phase 18 场景资产 spec（场景 .blend 的摆放约定）
 │   └── perspective_camera_stress.json  # 8 个确定性相机压力配置
-├── tools/                      # 全部 synthetic pipeline 与审计脚本（本项目新增）
-│   ├── fisheye/                # Omni-Radtan 相机模型 + ERP 源渲染 + 单元测试
-│   └── scene/                  # .blend 场景加载/搭建/检查脚本
+├── tools/                      # 全部 synthetic pipeline 脚本（本项目新增，2026-09-19 整理后）
+│   ├── generate/               # SMPL-X motion → 几何制品（vertices/faces/densekp_3d）
+│   ├── render/                 # Perspective Blender 渲染 + 后处理 + 相机压力
+│   ├── fisheye/                # Omni-Radtan 相机模型 + ERP 源渲染 + fisheye pipeline + 单测
+│   ├── annotation/             # DenseKP GT / 标注生成与检查（BEDLAM tiny 链）
+│   ├── scene/                  # .blend 场景 build / validate / inspect 脚本
+│   ├── validate/               # 验证与冒烟测试
+│   ├── visualize/              # 对照图 / review 生成
+│   └── experiments/            # 一次性审计、运动数据审计、sweep/验证性生成
 ├── scripts/                    # 工作区审计 + BEDLAM 纹理下载 shell 脚本
 ├── third_party/                # BEDLAM 官方 render / retargeting / clothing 工具（gitignored）
 ├── assets/                     # densekp_regressor_R.npy（138×10475 算子）、场景资产、示例
@@ -79,31 +85,31 @@ densekp_retrain/
 
 | 文件 | 用途 | 状态 |
 |---|---|---|
-| `tools/generate_p0_toy_motion.py` | 确定性 16 帧 toy motion → SMPL-X 前向 → `vertices.npy/faces.npy/densekp_3d.npy/motion_params.npz/geometry_manifest.json`（几何制品的标准目录布局） | **在用**（P0 基线几何来源） |
-| `tools/load_real_smplx_motion.py` | 真实 SMPL-X motion（`poses[T,165]`）→ canonical 参数 NPZ + 帧映射 | **在用** |
-| `tools/generate_real_motion_geometry.py` | canonical motion → SMPL-X 前向 → 几何制品；`densekp_3d = einsum('kv,tvc->tkc', R, V)` | **在用**（当前主路径） |
-| `tools/generate_cyclic_validation_motion.py` | 验证用确定性 cyclic gait（非真实 mocap） | 实验/验证 |
-| `tools/prepare_p0_dressed_geometry.py` | BEDLAM 6fps clothing NPZ → `clothing_vertices/faces/uv` + manifest（固定映射 clothing_id*5, source=101+…） | **在用** |
+| `tools/generate/generate_p0_toy_motion.py` | 确定性 16 帧 toy motion → SMPL-X 前向 → `vertices.npy/faces.npy/densekp_3d.npy/motion_params.npz/geometry_manifest.json`（几何制品的标准目录布局） | **在用**（P0 基线几何来源） |
+| `tools/generate/load_real_smplx_motion.py` | 真实 SMPL-X motion（`poses[T,165]`）→ canonical 参数 NPZ + 帧映射 | **在用** |
+| `tools/generate/generate_real_motion_geometry.py` | canonical motion → SMPL-X 前向 → 几何制品；`densekp_3d = einsum('kv,tvc->tkc', R, V)` | **在用**（当前主路径） |
+| `tools/experiments/generate_cyclic_validation_motion.py` | 验证用确定性 cyclic gait（非真实 mocap） | 实验/验证 |
+| `tools/generate/prepare_p0_dressed_geometry.py` | BEDLAM 6fps clothing NPZ → `clothing_vertices/faces/uv` + manifest（固定映射 clothing_id*5, source=101+…） | **在用** |
 
 ### B. Blender 渲染（RGB / Depth / Mask）
 
 | 文件 | 用途 | 状态 |
 |---|---|---|
-| `tools/render_p0_blender.py` | **核心渲染器**。必须在 Blender 内运行（`import bpy`）。加载几何，应用 `T_smpl_to_blender` + Z 抬升，渲染 RGB PNG 与 Depth/Mask multilayer EXR；同时解析计算 `densekp_2d` 并与 `world_to_camera_view` 交叉验证；写 `manifest.jsonl`（相机/内参/外参/物体矩阵）与 `annotations/densekp_2d.npy`、`annotations/densekp_camera_xyz.npy`；含 depth 语义平面测试与 `--camera-placement` | **在用，入口** |
-| `tools/eye_background_render.py` | bpy 侧库：procedural 眼睛材质 + 线性差分阴影合成（被 render_p0_blender import） | **在用（库）** |
-| `tools/finalize_p0_outputs.py` | 渲染后处理：EXR→NPY depth、mask PNG、自动判定 depth 语义（CAMERA_SPACE_Z / EUCLIDEAN）、visibility 状态 0-3、容差、overlay/contact sheet、`annotations/densekp_visible.npy` 等 | **在用** |
-| `tools/run_eye_background_fix.py` | 包装器：用冻结的外观参数调 `render_p0_blender.py`（硬编码 Blender 路径 `/mnt/data1/khb/app/blender-5.1.1-linux-x64/blender`） | **在用** |
-| `tools/run_temporal_case.py` / `tools/finalize_temporal_case.py` | 渲染一个时间序列 case / 生成视频与时间统计 | **在用** |
-| `tools/p0_pyrender_crosscheck.py` | pyrender EGL 独立渲染 0/8/15 帧 silhouette，与 Blender mask 求 IoU | 验证 |
-| `tools/blender_headless_smoke_test.py` / `pyrender_headless_smoke_test.py` | 无头渲染环境冒烟测试 | 环境验证 |
+| `tools/render/render_p0_blender.py` | **核心渲染器**。必须在 Blender 内运行（`import bpy`）。加载几何，应用 `T_smpl_to_blender` + Z 抬升，渲染 RGB PNG 与 Depth/Mask multilayer EXR；同时解析计算 `densekp_2d` 并与 `world_to_camera_view` 交叉验证；写 `manifest.jsonl`（相机/内参/外参/物体矩阵）与 `annotations/densekp_2d.npy`、`annotations/densekp_camera_xyz.npy`；含 depth 语义平面测试与 `--camera-placement` | **在用，入口** |
+| `tools/render/eye_background_render.py` | bpy 侧库：procedural 眼睛材质 + 线性差分阴影合成（被 render_p0_blender import） | **在用（库）** |
+| `tools/render/finalize_p0_outputs.py` | 渲染后处理：EXR→NPY depth、mask PNG、自动判定 depth 语义（CAMERA_SPACE_Z / EUCLIDEAN）、visibility 状态 0-3、容差、overlay/contact sheet、`annotations/densekp_visible.npy` 等 | **在用** |
+| `tools/render/run_eye_background_fix.py` | 包装器：用冻结的外观参数调 `render_p0_blender.py`；Blender 和服装纹理路径由 CLI/环境配置 | **在用** |
+| `tools/render/run_temporal_case.py` / `tools/render/finalize_temporal_case.py` | 渲染一个时间序列 case / 生成视频与时间统计 | **在用** |
+| `tools/validate/p0_pyrender_crosscheck.py` | pyrender EGL 独立渲染 0/8/15 帧 silhouette，与 Blender mask 求 IoU | 验证 |
+| `tools/validate/blender_headless_smoke_test.py` / `pyrender_headless_smoke_test.py` | 无头渲染环境冒烟测试 | 环境验证 |
 
 ### C. 相机压力测试（Perspective：近距/边缘/截断）
 
 | 文件 | 用途 | 状态 |
 |---|---|---|
-| `tools/solve_camera_stress_placement.py` | 由 `configs/perspective_camera_stress.json` 用 `least_squares` 求每帧相机平移（内参固定） | **在用** |
-| `tools/run_camera_stress.py` | 8 个配置逐个调用 `run_eye_background_fix.py --camera-placement` | **在用** |
-| `tools/finalize_camera_stress.py` | 汇总 128 样本注记（densekp_3d/2d/depth/valid/in_frame/visible/visibility_state + manifests）与验收 gate | **在用** |
+| `tools/render/solve_camera_stress_placement.py` | 由 `configs/perspective_camera_stress.json` 用 `least_squares` 求每帧相机平移（内参固定） | **在用** |
+| `tools/render/run_camera_stress.py` | 8 个配置逐个调用 `run_eye_background_fix.py --camera-placement` | **在用** |
+| `tools/render/finalize_camera_stress.py` | 汇总 128 样本注记（densekp_3d/2d/depth/valid/in_frame/visible/visibility_state + manifests）与验收 gate | **在用** |
 
 ### D. Fisheye / ERP / 场景
 
@@ -113,9 +119,9 @@ densekp_retrain/
 | `tools/fisheye/test_omni_radtan.py` | 单元测试：光轴、对称性、roundtrip（`python -m unittest tools.fisheye.test_omni_radtan`） | **在用（唯一现成单测）** |
 | `tools/fisheye/render_equirectangular_source.py` | Blender 内：HDRI-only ERP 源渲染（Combined/Depth/IndexOB） | **在用** |
 | `tools/fisheye/render_equirectangular_scene_source.py` | Blender 内：带静态 .blend 场景的 ERP 源渲染（Phase 18），import `tools/scene/blender_scene_bridge.py` | **在用** |
-| `tools/run_fisheye_camera_p0.py` | ERP→fisheye warp（`warp_case`：remap、mask/depth、Omni-Radtan 投影 DenseKP、4cm 深度可见性、注记 npy、report）+ `pose()` 相机位姿构造 | **在用（核心）** |
-| `tools/run_fisheye_scene_p0.py` | Phase 18：场景 spec 校验（缺失则报 SCENE_ASSET_MISSING）→ 场景渲染 → 复用 warp_case | **在用** |
-| `tools/run_fisheye_seam_sweep.py` / `run_human_scale_sweep.py` | 相机 yaw / 人像尺度扫描（复用 Phase 17 pipeline） | 实验 |
+| `tools/fisheye/run_fisheye_camera_p0.py` | ERP→fisheye warp（`warp_case`：remap、mask/depth、Omni-Radtan 投影 DenseKP、4cm 深度可见性、注记 npy、report）+ `pose()` 相机位姿构造 | **在用（核心）** |
+| `tools/fisheye/run_fisheye_scene_p0.py` | Phase 18：场景 spec 校验（缺失则报 SCENE_ASSET_MISSING）→ 场景渲染 → 复用 warp_case | **在用** |
+| `tools/fisheye/run_fisheye_seam_sweep.py` / `run_human_scale_sweep.py` | 相机 yaw / 人像尺度扫描（复用 Phase 17 pipeline） | 实验 |
 | `tools/scene/scene_loader.py` | 场景资产 spec（dataclass + 校验，不含资产本体） | **在用（库）** |
 | `tools/scene/blender_scene_bridge.py` | bpy 侧：链接 .blend、可见性/地面控制、场景包围盒 | **在用（库）** |
 | `tools/scene/build_cycling_forest.py` / `build_reference_riverfront.py` / `prepare_hidden_alley.py` | 在 Blender 中构建骑行森林 / 河岸参考 / hidden alley 场景（需在 Blender 内或带 .blend 运行） | 场景资产制作 |
@@ -126,21 +132,21 @@ densekp_retrain/
 
 | 文件 | 用途 | 状态 |
 |---|---|---|
-| `tools/generate_bedlam_densekp.py` | 从少量 BEDLAM 几何记录生成 `DatasetKeypoints` 可读 NPZ（imgname/center/scale/proj_verts）；第三通道 = BEDLAM 官方齐次常数 1 | **在用（唯一"标注→训练格式"生成器）** |
-| `tools/validate_bedlam_densekp_tiny.py` | 用真实 `DatasetKeypoints` 读取 tiny NPZ、执行裁剪、可视化验证 | **在用（GT↔训练闭环验证）** |
-| `tools/inspect_annotation.py` | 只读检查任意 DenseKP NPZ（结构/数值/第三通道分布） | **在用** |
-| `tools/visualize_annotation.py` | 把 NPZ 的 proj_verts 画回原图与无增强裁剪图 | **在用** |
-| `tools/inspect_surface_operator.py` | 导出/打印 138 行算子的顶点 ID 与权重 | **在用** |
-| `tools/build_bedlam_tiny_frame_manifest.py` | BEDLAM v1 官方状态机 frame→person 映射 | 数据准备 |
-| `tools/validate_p0_textured_regression.py` | 纹理接入前后的几何/监督回归比对 | 验证 |
+| `tools/annotation/generate_bedlam_densekp.py` | 从少量 BEDLAM 几何记录生成 `DatasetKeypoints` 可读 NPZ（imgname/center/scale/proj_verts）；第三通道 = BEDLAM 官方齐次常数 1 | **在用（唯一"标注→训练格式"生成器）** |
+| `tools/validate/validate_bedlam_densekp_tiny.py` | 用真实 `DatasetKeypoints` 读取 tiny NPZ、执行裁剪、可视化验证 | **在用（GT↔训练闭环验证）** |
+| `tools/annotation/inspect_annotation.py` | 只读检查任意 DenseKP NPZ（结构/数值/第三通道分布） | **在用** |
+| `tools/annotation/visualize_annotation.py` | 把 NPZ 的 proj_verts 画回原图与无增强裁剪图 | **在用** |
+| `tools/annotation/inspect_surface_operator.py` | 导出/打印 138 行算子的顶点 ID 与权重 | **在用** |
+| `tools/annotation/build_bedlam_tiny_frame_manifest.py` | BEDLAM v1 官方状态机 frame→person 映射 | 数据准备 |
+| `tools/validate/validate_p0_textured_regression.py` | 纹理接入前后的几何/监督回归比对 | 验证 |
 
 ### F. 外观 / 眼睛 / 纹理审计（历史 phase，冻结使用）
 
-`tools/audit_body_uv.py`、`audit_clothing_uv.py`、`audit_skin_texture.py`、`audit_eye_geometry.py`、`audit_eye_realism.py`、`prepare_procedural_eyes.py`、`make_appearance_comparison.py`、`make_environment_comparison.py`、`make_eye_fix_comparison.py`、`make_skin_texture_review.py`、`review_eye_background_fix.py` —— 均为一次性审计/对照图生成器，输出在 `outputs/`。它们已产出被后续脚本引用的资产（如 `outputs/eye_fix_v2/procedural_eye_coordinates.npz`），**不要删除**。
+`tools/experiments/audit_body_uv.py`、`audit_clothing_uv.py`、`audit_skin_texture.py`、`audit_eye_geometry.py`、`audit_eye_realism.py`、`prepare_procedural_eyes.py`、`make_appearance_comparison.py`、`make_environment_comparison.py`、`make_eye_fix_comparison.py`、`make_skin_texture_review.py`、`review_eye_background_fix.py` —— 均为一次性审计/对照图生成器，输出在 `outputs/`。它们已产出被后续脚本引用的资产（如 `outputs/eye_fix_v2/procedural_eye_coordinates.npz`），**不要删除**。
 
 ### G. 运动数据审计（骑行/BABEL/BVH）
 
-`tools/audit_cycling_motion.py`、`audit_cyclist_bvh.py`、`find_cyclist_clip.py`、`search_babel_cycling.py`、`review_cyclist_audit.py` —— 只读运动数据审计，为"骑行数据"阶段准备，不渲染。
+`tools/experiments/audit_cycling_motion.py`、`audit_cyclist_bvh.py`、`find_cyclist_clip.py`、`search_babel_cycling.py`、`review_cyclist_audit.py` —— 只读运动数据审计，为"骑行数据"阶段准备，不渲染。
 
 ### H. 外部脚本与资产
 
@@ -158,20 +164,20 @@ densekp_retrain/
 | 目的 | 命令 |
 |---|---|
 | 训练 DenseKP | `python densekp/train_keypoints.py data=densekp_train experiment=densekp exp_name=...`（当前不可运行：缺 `densekp/core/losses`、`VITPOSE_BACKBONE` 权重、`data/` 标注） |
-| 生成 toy 几何 | `python tools/generate_p0_toy_motion.py --model-dir <SMPLX_NPZ dir>` |
-| 真实 motion → 几何 | `python tools/load_real_smplx_motion.py <npz> --output ...` → `python tools/generate_real_motion_geometry.py --motion ... --model-dir ...` |
-| Perspective 渲染 | Blender 内跑 `tools/render_p0_blender.py`（建议经 `tools/run_eye_background_fix.py` 封装） |
-| 渲染后处理 + visibility | `python tools/finalize_p0_outputs.py --output-dir <render dir>` |
-| 相机压力集 | `python tools/solve_camera_stress_placement.py` → `python tools/run_camera_stress.py` → `python tools/finalize_p0_outputs.py`（每渲染目录）→ `python tools/finalize_camera_stress.py` |
-| Fisheye P0 | `python tools/run_fisheye_camera_p0.py`（内部再调 Blender ERP 源渲染） |
-| Fisheye + 场景 | `python tools/run_fisheye_scene_p0.py`（需 `configs/fisheye_scene_p0.json` 指向的 .blend） |
-| 训练格式标注生成（BEDLAM tiny） | `python tools/generate_bedlam_densekp.py <input.npz> --image-root ...` |
-| GT 验证 | `python tools/validate_bedlam_densekp_tiny.py` / `inspect_annotation.py` / `visualize_annotation.py` |
+| 生成 toy 几何 | `python tools/generate/generate_p0_toy_motion.py --model-dir <SMPLX_NPZ dir>` |
+| 真实 motion → 几何 | `python tools/generate/load_real_smplx_motion.py <npz> --output ...` → `python tools/generate/generate_real_motion_geometry.py --motion ... --model-dir ...` |
+| Perspective 渲染 | Blender 内跑 `tools/render/render_p0_blender.py`（建议经 `tools/render/run_eye_background_fix.py` 封装） |
+| 渲染后处理 + visibility | `python tools/render/finalize_p0_outputs.py --output-dir <render dir>` |
+| 相机压力集 | `python tools/render/solve_camera_stress_placement.py` → `python tools/render/run_camera_stress.py` → `python tools/render/finalize_p0_outputs.py`（每渲染目录）→ `python tools/render/finalize_camera_stress.py` |
+| Fisheye P0 | `python tools/fisheye/run_fisheye_camera_p0.py`（内部再调 Blender ERP 源渲染） |
+| Fisheye + 场景 | `python tools/fisheye/run_fisheye_scene_p0.py`（需 `configs/fisheye_scene_p0.json` 指向的 .blend） |
+| 训练格式标注生成（BEDLAM tiny） | `python tools/annotation/generate_bedlam_densekp.py <input.npz> --image-root ...` |
+| GT 验证 | `python tools/validate/validate_bedlam_densekp_tiny.py` / `inspect_annotation.py` / `visualize_annotation.py` |
 | 快速检查 | `bash scripts/audit_workspace.sh`；`python -m unittest tools.fisheye.test_omni_radtan` |
 
 ## 4. debug / legacy / experimental 分类
 
-- **核心可复用库（被多个 entry import，勿动）**：`tools/fisheye/omni_radtan.py`、`tools/run_fisheye_camera_p0.py::warp_case/pose`、`tools/eye_background_render.py`、`tools/scene/{scene_loader,blender_scene_bridge}.py`。
+- **核心可复用库（被多个 entry import，勿动）**：`tools/fisheye/omni_radtan.py`、`tools/fisheye/run_fisheye_camera_p0.py::warp_case/pose`、`tools/render/eye_background_render.py`、`tools/scene/{scene_loader,blender_scene_bridge}.py`。
 - **一次性审计（历史 phase 产物，保留不删）**：第 2.2 F/G 类全部。
 - **实验脚本（验证性 sweep）**：`run_fisheye_seam_sweep.py`、`run_human_scale_sweep.py`、`generate_cyclic_validation_motion.py`。
 - **没有发现** `old_xxx / xxx_final / xxx_v2` 命名的可删脚本；`eye_fix_v2` 是输出目录名而非脚本。
@@ -185,11 +191,11 @@ densekp_retrain/
   load_real_smplx_motion.py → generate_real_motion_geometry.py┤→ geometry/ (vertices, faces,
       │  densekp_3d = R @ V (assets/densekp_regressor_R.npy)  │   densekp_3d, motion_params, manifest)
       ▼                                                       ▼
-      └──────────────→ tools/render_p0_blender.py (Blender headless)
+      └──────────────→ tools/render/render_p0_blender.py (Blender headless)
                               │  T_smpl_to_blender + Z-lift；RGB PNG / Depth+Mask EXR
                               │  解析投影 densekp_2d ↔ world_to_camera_view 交叉验证
                               ▼
-                       tools/finalize_p0_outputs.py
+                       tools/render/finalize_p0_outputs.py
                               │  EXR→NPY depth、mask、visibility 状态 0-3
                               ▼
               RGB / Depth / Mask / annotations（可训练样本的原料）

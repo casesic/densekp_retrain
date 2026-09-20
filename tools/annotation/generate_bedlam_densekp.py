@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OPERATOR = ROOT / "assets" / "densekp_regressor_R.npy"
 DEFAULT_OUTPUT = ROOT / "datasets" / "densekp_bedlam_tiny"
 ROWS_TO_CHECK = (0, 1, 10, 50, 100, 137)
@@ -232,7 +232,7 @@ def main() -> int:
     readme = args.output / "README.md"
     readme.write_text(
         "# Tiny BEDLAM DenseKP 数据\n\n"
-        f"本目录由 `tools/generate_bedlam_densekp.py` 生成，共 {len(records)} 个 landscape 样本。\n\n"
+        f"本目录由 `tools/annotation/generate_bedlam_densekp.py` 生成，共 {len(records)} 个 landscape 样本。\n\n"
         "- `images/`：复制后的 RGB 图像；\n"
         "- `annotations/bedlam_densekp_tiny.npz`：供 `DatasetKeypoints` 读取的主标注；\n"
         "- `annotations/bedlam_densekp_tiny_debug.npz`：审计字段，不参与训练。\n\n"

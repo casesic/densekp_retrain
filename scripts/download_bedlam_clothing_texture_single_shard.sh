@@ -2,7 +2,8 @@
 set -euo pipefail
 
 # 仅下载 rp_aaron_posed_009 所在的官方 clothing texture shard 0。
-target_dir="/home/yy/datasets/BEDLAM/clothing_data/clothing_textures"
+bedlam_root="${BEDLAM_ROOT:-$HOME/datasets/BEDLAM}"
+target_dir="$bedlam_root/clothing_data/clothing_textures"
 base_url="https://download.is.tue.mpg.de/download.php?domain=bedlam&resume=1&sfile=clothing_data/clothing_textures"
 shard="clothing_textures.0.tar"
 limit_bytes=40000000000

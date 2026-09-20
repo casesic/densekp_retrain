@@ -8,10 +8,10 @@
 
 ```text
 SMPL-X local (米, Y-up, 右手)
-   ↓ tools/render_p0_blender.py:133 / tools/fisheye/render_equirectangular_scene_source.py:60
+   ↓ tools/render/render_p0_blender.py:133 / tools/fisheye/render_equirectangular_scene_source.py:60
 Blender world (米, Z-up)
-   ↓ tools/render_p0_blender.py:197-199 (perspective)
-   ↓ tools/run_fisheye_camera_p0.py:77 (fisheye，NumPy 等价变换)
+   ↓ tools/render/render_p0_blender.py:197-199 (perspective)
+   ↓ tools/fisheye/run_fisheye_camera_p0.py:77 (fisheye，NumPy 等价变换)
 camera coordinate（两种：Blender 相机局部 / CV 相机坐标）
    ↓ 投影
 image coordinate（左上原点像素）
@@ -33,13 +33,13 @@ DenseKP network input coordinate（中心原点归一化）
 | 手性 | 右手 | conv 矩阵 det=+1，变换不改变手性 |
 | shape | `vertices [T,10475,3] float32`，`densekp_3d [T,138,3] float32` | render_p0_blender.py:68 的 shape 断言 |
 | 原点 | SMPL-X 模型定义（pelvis 附近） | 模型内部；代码未做平移（transl 通常为 0，`source_translation_used` 可选） |
-| 生成 | tools/generate_real_motion_geometry.py :: main（smplx 前向）；`densekp_3d = einsum('kv,tvc->tkc', R, V)` | — |
+| 生成 | tools/generate/generate_real_motion_geometry.py :: main（smplx 前向）；`densekp_3d = einsum('kv,tvc->tkc', R, V)` | — |
 
 注意：`geometry/densekp_3d.npy` 与 `vertices.npy` **同一坐标系**（SMPL-X local），渲染阶段才做 world 变换。
 
 ## 2. SMPL-X local → Blender world
 
-实现：`tools/render_p0_blender.py:133`
+实现：`tools/render/render_p0_blender.py:133`
 
 ```python
 conv = Matrix(((1,0,0,0),(0,0,-1,0),(0,1,0,0),(0,0,0,1)))
@@ -47,14 +47,14 @@ ob.matrix_world = Matrix.Translation((0,0,-float(vs[0,:,1].min()))) @ conv
 ```
 
 即 `(x_b, y_b, z_b) = (x_s, -z_s, y_s)`，再加世界 Z 平移使 frame 0 最低点 `z_b=0`。
-fisheye 路径的 NumPy 等价：`tools/run_fisheye_camera_p0.py:77`
+fisheye 路径的 NumPy 等价：`tools/fisheye/run_fisheye_camera_p0.py:77`
 
 ```python
 lift = -float(vertices[:,1].min())
 world = np.column_stack((x, -z, y + lift))
 ```
 
-（Phase 18 再叠加场景 yaw 旋转与 body_location：tools/run_fisheye_scene_p0.py:47-51。）
+（Phase 18 再叠加场景 yaw 旋转与 body_location：tools/fisheye/run_fisheye_scene_p0.py:47-51。）
 
 | 项 | 值 |
 |---|---|
@@ -71,7 +71,7 @@ world = np.column_stack((x, -z, y + lift))
 
 ### 3.2 像素投影（左上原点）
 
-实现：`tools/render_p0_blender.py:165,199`
+实现：`tools/render/render_p0_blender.py:165,199`
 
 ```python
 fx = fy = cd.lens / cd.sensor_width * w     # 50/36*512 = 711.111… px
@@ -99,8 +99,8 @@ matrix[:3,0] = r[:,0]; matrix[:3,1] = -r[:,1]; matrix[:3,2] = -r[:,2]
 ```
 
 - `camera_to_world` 采用 **CV 约定**（+X right, +Y down, +Z forward），由
-  `tools/run_fisheye_camera_p0.py::pose(target, origin, yaw_deg)` 构造（列：right/down/forward）。
-- ERP 像素映射（warp 采样）：`tools/run_fisheye_camera_p0.py:47`
+  `tools/fisheye/run_fisheye_camera_p0.py::pose(target, origin, yaw_deg)` 构造（列：right/down/forward）。
+- ERP 像素映射（warp 采样）：`tools/fisheye/run_fisheye_camera_p0.py:47`
 
 ```python
 lon = arctan2(rays[:,0], rays[:,2]); lat = arcsin(-rays[:,1])
@@ -140,10 +140,10 @@ roundtrip 单测：`tools/fisheye/test_omni_radtan.py`（<3e-8 rad）。**不改
 
 两套生成端（数学一致，来源不同）：
 
-1. **BEDLAM 官方**：`tools/generate_bedlam_densekp.py::official_bbox`
+1. **BEDLAM 官方**：`tools/annotation/generate_bedlam_densekp.py::official_bbox`
    - 前 22 个 joints2d → 图内过滤（0≤x≤W，0≤y≤H，且 <8 个有效则丢弃）
    - center = bbox 中心（原图像素）；`scale = max(w,h)/200 × 1.2`
-2. **相机压力 solver**：`tools/solve_camera_stress_placement.py::bbox_metrics`（记录 full/in-frame bbox、截断比例等，用于 gate，不进训练 NPZ）。
+2. **相机压力 solver**：`tools/render/solve_camera_stress_placement.py::bbox_metrics`（记录 full/in-frame bbox、截断比例等，用于 gate，不进训练 NPZ）。
 
 消费端（训练）：`densekp/core/datasets/dataset_keypoints.py:59`
 
@@ -180,7 +180,7 @@ proj_verts[:, :-1] = proj_verts[:, :-1] / patch_width - 0.5
 
 ## 9. fisheye 域的注记坐标（现状）
 
-`warp_case` 输出（tools/run_fisheye_camera_p0.py:63-64）：
+`warp_case` 输出（tools/fisheye/run_fisheye_camera_p0.py:63-64）：
 `densekp_fisheye_2d [T,138,2] float32`：左上原点像素，投影自 `project_points_omni_radtan`；
 `densekp_valid [T,138]`（在图像内）、`densekp_visible [T,138]`（深度差 <4cm）。
 可见性深度用 `point_range = ||camera_points||`（欧氏距离）与 warped depth 比较 —— 注意这与 perspective 域 camera-space-Z 语义不同，是每个域单独验证的（P0_DEPTH_VISIBILITY.md §3 明确警告不得跨域沿用）。

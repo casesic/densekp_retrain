@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from scipy.optimize import least_squares
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 OUT=ROOT/'outputs/perspective_camera_stress'
 
 def project(points,world,camera,k):

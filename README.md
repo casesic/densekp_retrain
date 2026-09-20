@@ -63,7 +63,8 @@ densekp/                 DenseKP 模型、数据模块和训练入口
 configs/hydra/           Hydra 训练配置
 configs/datasets.example.json
                          数据集路径配置示例
-tools/                   标注与表面算子检查工具
+tools/                   合成数据 pipeline（generate/render/fisheye/annotation/scene/
+                         validate/visualize/experiments）
 scripts/                 工作区审计脚本
 assets/                  静态资源说明及小型资源文件
 datasets/                数据集放置说明（不包含实际数据）
@@ -76,10 +77,21 @@ docs/                    审计、数据格式和迁移文档
 
 ```bash
 bash scripts/audit_workspace.sh
-python tools/inspect_annotation.py /path/to/labels.npz
+python tools/annotation/inspect_annotation.py /path/to/labels.npz
 ```
 
 第一条命令用于检查表面算子、Python 语法以及工作区中是否存在超过 100 MB 的文件；第二条命令用于检查指定的 DenseKP 标注文件。请将 `/path/to/labels.npz` 替换为实际标注路径。
+
+## 运行环境路径
+
+从仓库根目录直接运行 `python tools/.../script.py` 是当前受支持的方式；本仓库仍有意保持为脚本工作区，`pyproject.toml` 不安装 Python package。调用 Blender 的 wrapper 按以下优先级寻找可执行文件：`--blender-bin`、环境变量 `BLENDER_BIN`、`PATH` 中的 `blender`。例如：
+
+```bash
+BLENDER_BIN=/opt/blender/blender \
+python tools/fisheye/run_fisheye_camera_p0.py --skip-render
+```
+
+使用 frozen appearance 的 wrapper 默认读取 `outputs/p0_dressed_eye_background_fixed/manifest.jsonl`，可用 `--appearance-manifest` 覆盖。`run_eye_background_fix.py` 的 BEDLAM 服装纹理目录通过 `--clothing-texture-dir` 或 `BEDLAM_CLOTHING_TEXTURE_DIR` 提供。
 
 ## 与上游代码的差异
 

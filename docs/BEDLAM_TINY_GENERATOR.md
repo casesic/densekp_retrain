@@ -11,7 +11,7 @@ READY_FOR_TINY_OVERFIT = NO
 
 ## Inputs（输入）
 
-生成器是 `tools/generate_bedlam_densekp.py`。它有意不在内部猜测不同 BEDLAM 发布版本的参数字段，也不负责调用 SMPL-X；输入必须先整理为一个小型几何 NPZ：
+生成器是 `tools/annotation/generate_bedlam_densekp.py`。它有意不在内部猜测不同 BEDLAM 发布版本的参数字段，也不负责调用 SMPL-X；输入必须先整理为一个小型几何 NPZ：
 
 | 字段 | shape | 含义 |
 |---|---:|---|
@@ -27,7 +27,7 @@ READY_FOR_TINY_OVERFIT = NO
 示例命令：
 
 ```bash
-python tools/generate_bedlam_densekp.py \
+python tools/annotation/generate_bedlam_densekp.py \
   /path/to/bedlam_tiny_geometry.npz \
   --image-root /path/to/bedlam/rgb \
   --min-samples 8 \

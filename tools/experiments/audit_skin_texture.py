@@ -7,7 +7,7 @@ from PIL import Image
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 from audit_body_uv import read_obj
-root=Path(__file__).resolve().parents[1]; out=root/'outputs/body_texture_audit'
+root=Path(__file__).resolve().parents[2]; out=root/'outputs/body_texture_audit'
 obj=Path('/mnt/hdd/yuyue/home/yuyue/Projects/pano-stitch/tools/PEAR/assets/SMPLX/smplx_uv.obj')
 v,u,f,t,*_=read_obj(obj)
 geometry=root/'outputs/p0_dressed_dataset/geometry'

@@ -168,6 +168,6 @@ BEDLAM 官方 preprocessing 和两个 operator 的专项审计已经明确了 ge
 
 ## 本轮产物
 
-- 扩展 `tools/inspect_annotation.py`：支持 keys、shape、dtype、样本数、路径示例、center/scale/proj_verts 统计、第三通道 percentile/unique、NaN/Inf、sentinel 和 `--index`。
-- 新增 `tools/visualize_annotation.py`：复用当前 `get_example_projverts`，支持原图 bbox + 138 点、256x256 无增强裁剪 + 反归一化点、point ID、指定 index、坐标误差报告。
+- 扩展 `tools/annotation/inspect_annotation.py`：支持 keys、shape、dtype、样本数、路径示例、center/scale/proj_verts 统计、第三通道 percentile/unique、NaN/Inf、sentinel 和 `--index`。
+- 新增 `tools/annotation/visualize_annotation.py`：复用当前 `get_example_projverts`，支持原图 bbox + 138 点、256x256 无增强裁剪 + 反归一化点、point ID、指定 index、坐标误差报告。
 - 未生成 `outputs/annotation_audit/original/sample_*.png` 和 `cropped/sample_*.png`，因为没有可信真实训练 annotation；避免用推理预测冒充 ground truth。

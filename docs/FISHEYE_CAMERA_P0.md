@@ -3,7 +3,7 @@
 Status: **PASS**（冻结 baseline，commit `1ad4259 synthetic-render-baseline-before-cycling`）
 
 本报告冻结 Phase 17 的 Omni-Radtan fisheye camera P0 验证结果。所有数值由
-`tools/run_fisheye_camera_p0.py` 生成，机器可读结果见
+`tools/fisheye/run_fisheye_camera_p0.py` 生成，机器可读结果见
 `outputs/fisheye_camera_p0/regression_report.json` 与 `outputs/fisheye_camera_p0/report.json`。
 
 ## 1. Camera Parameter
@@ -127,8 +127,8 @@ Annotation 保存于各 case 目录，格式：
 
 ```bash
 # 全量（含 Blender equirectangular 源渲染）
-/home/yy/conda_envs/densekp_render/bin/python tools/run_fisheye_camera_p0.py
+BLENDER_BIN=/path/to/blender python tools/fisheye/run_fisheye_camera_p0.py
 # 仅 warp + 注解 + 报告（跳过 Blender 渲染）
-/home/yy/conda_envs/densekp_render/bin/python tools/run_fisheye_camera_p0.py --skip-render
-PYTHONPATH=. /home/yy/conda_envs/densekp_render/bin/python tools/fisheye/test_omni_radtan.py
+python tools/fisheye/run_fisheye_camera_p0.py --skip-render
+python -m unittest tools.fisheye.test_omni_radtan
 ```

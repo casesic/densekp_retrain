@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 
-root=Path(__file__).resolve().parents[1]
+root=Path(__file__).resolve().parents[2]
 before=root/'outputs/p0_dressed_textured'; after=root/'outputs/p0_dressed_skin_textured'
 rows=[json.loads(x) for x in (after/'manifest.jsonl').read_text().splitlines()]
 v=np.load(after/'geometry/vertices.npy')

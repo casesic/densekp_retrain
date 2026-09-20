@@ -45,7 +45,7 @@ class SceneAssetSpec:
                 'Phase 18 requires a static outdoor house/courtyard .blend:\n'
                 '  - mesh objects for the static environment, meters, scene >= 24x24 m around origin\n'
                 '  - ground object optional (ground_mode=add_procedural_ground otherwise)\n'
-                '  - configure configs/fisheye_scene_p0.json -> blend_path, rerun tools/run_fisheye_scene_p0.py')
+                '  - configure configs/fisheye_scene_p0.json -> blend_path, rerun tools/fisheye/run_fisheye_scene_p0.py')
         if self.ground_mode!='scene_native' and self.hide_objects: pass
         return self
 

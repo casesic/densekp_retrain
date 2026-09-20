@@ -5,5 +5,5 @@
   "ground_mode": "scene_native",
   "body_location": [0.0, 0.0, 0.0],
   "body_yaw_deg": 0.0,
-  "notes": "Phase 18 scene asset contract: static outdoor house/courtyard .blend, meters, sized >= 24x24 m around the origin, body rests on Z=0 (ground at world Z=0). Optional ground object; if the scene has no ground set ground_mode to 'add_procedural_ground'. No cameras or lights required. Provide the file at blend_path and rerun tools/run_fisheye_scene_p0.py."
+  "notes": "Phase 18 scene asset contract: static outdoor house/courtyard .blend, meters, sized >= 24x24 m around the origin, body rests on Z=0 (ground at world Z=0). Optional ground object; if the scene has no ground set ground_mode to 'add_procedural_ground'. No cameras or lights required. Provide the file at blend_path and rerun tools/fisheye/run_fisheye_scene_p0.py."
 }

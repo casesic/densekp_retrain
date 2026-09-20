@@ -2,7 +2,8 @@
 set -euo pipefail
 
 # 仅下载 BEDLAM v1 官方 body texture archive；不会解压或下载其他资源。
-readonly target_dir="/home/yy/datasets/BEDLAM/body_textures"
+readonly bedlam_root="${BEDLAM_ROOT:-$HOME/datasets/BEDLAM}"
+readonly target_dir="$bedlam_root/body_textures"
 readonly filename="bedlam_body_textures_meshcapade.zip"
 readonly url="https://download.is.tue.mpg.de/download.php?domain=bedlam&resume=1&sfile=${filename}"
 readonly expected_md5="4963ae5f8d7a5f77857313acc7ef4846"

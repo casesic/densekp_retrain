@@ -5,7 +5,7 @@ import numpy as np
 import smplx
 import torch
 
-root=Path(__file__).resolve().parents[1]
+root=Path(__file__).resolve().parents[2]
 gd=root/'outputs/p0_dressed_dataset/geometry'
 out=root/'outputs/eye_fix_v2'; out.mkdir(exist_ok=True)
 gm=json.loads((gd/'geometry_manifest.json').read_text())

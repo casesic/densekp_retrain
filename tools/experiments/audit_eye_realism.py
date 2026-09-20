@@ -6,7 +6,7 @@ import smplx
 import torch
 from audit_eye_geometry import kabsch, project
 
-root = Path(__file__).resolve().parents[1]
+root = Path(__file__).resolve().parents[2]
 out = root/'outputs/eye_fix_v2'
 gd = root/'outputs/p0_dressed_dataset/geometry'
 params = np.load(gd/'motion_params.npz')

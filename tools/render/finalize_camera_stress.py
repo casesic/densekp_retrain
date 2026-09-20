@@ -7,7 +7,7 @@ import numpy as np
 import OpenEXR
 from PIL import Image, ImageDraw
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 OUT=ROOT/'outputs/perspective_camera_stress'
 NAMES=['baseline','near_70','near_90','near_110','edge_left','edge_right','trunc_left_25','trunc_bottom_25']
 

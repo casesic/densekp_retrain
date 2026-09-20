@@ -114,7 +114,7 @@ scene/png/seq_000019/seq_000019_0133.png
 - 与上述 sequence/frame 对齐的 SMPL-X motion/body 参数，或直接提供完整 `[10475,3]` 顶点和至少前 22 个三维 joints；
 - SMPL-X body model。有限搜索未找到 `SMPLX_NEUTRAL/MALE/FEMALE` 的 NPZ 或 PKL；
 - 对 `be_seq.csv` 和 camera CSV 的实际字段解析，以及每张 tiny PNG 到相机记录的精确映射；
-- 将这些数据整理为 `tools/generate_bedlam_densekp.py` 所需的小型几何 NPZ。
+- 将这些数据整理为 `tools/annotation/generate_bedlam_densekp.py` 所需的小型几何 NPZ。
 
 本轮未运行 DenseKP generator、DatasetKeypoints 验证或训练。
 

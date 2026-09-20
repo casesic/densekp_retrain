@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 p=argparse.ArgumentParser(); p.add_argument('--after',type=Path,required=True); a=p.parse_args()
-root=Path(__file__).resolve().parents[1]
+root=Path(__file__).resolve().parents[2]
 before=root/'outputs/p0_dressed_hdri_eye_fixed'; eye=root/'outputs/eye_fix_v2'; bg=root/'outputs/background_fix'
 bg.mkdir(exist_ok=True)
 im0=Image.open(before/'rgb/000000.png').convert('RGB'); im1=Image.open(a.after/'rgb/000000.png').convert('RGB')

@@ -69,7 +69,7 @@ val: batch['proj_verts'](原图) → trans_points2d_parallel(batch['_trans']) �
 
 ## 5. synthetic generator 必须产出什么
 
-要让当前 `DatasetKeypoints` 正确读取，生成器（如 `tools/generate_bedlam_densekp.py`）必须：
+要让当前 `DatasetKeypoints` 正确读取，生成器（如 `tools/annotation/generate_bedlam_densekp.py`）必须：
 
 1. **NPZ**（路径写入 `DATASET_FILES[1]` 注册表，或新增注册项）：
    - `imgname`：相对 `DATASET_FOLDERS[ds]` 根目录的路径字符串；
@@ -80,11 +80,11 @@ val: batch['proj_verts'](原图) → trans_points2d_parallel(batch['_trans']) �
 2. **图像**：放在 `DATASET_FOLDERS[ds]` 指向的目录。
 3. **注册**：数据集名加入 `densekp/core/configs/__init__.py::DATASET_FOLDERS`（[1] 训练 dict 的 `DATASET_FILES`）与 `configs/hydra/data/*.yaml` 的 `DATASETS_AND_RATIOS`。
 4. **不要在数据集名中使用 'closeup' / 'portrait' 子串**，除非确认标注坐标对应旋转 90° 后的图像（get_example_projverts 会按数据集名旋转 RGB，utils.py:540-541）。
-5. 建议同时输出非训练用的审计数组（如 camera-stress 的 densekp_valid/visible/depth），方便 `tools/inspect_annotation.py` 与 overlay 验收 —— 但这些字段不会被 loader 读取。
+5. 建议同时输出非训练用的审计数组（如 camera-stress 的 densekp_valid/visible/depth），方便 `tools/annotation/inspect_annotation.py` 与 overlay 验收 —— 但这些字段不会被 loader 读取。
 6. flip 增强：当前配置 `DO_FLIP=True` 且 `FLIP_AUG_RATE=0.5` 在 yacs 默认里，但 densekp.yaml 的实验数据集为 BEDLAM 集合——上游审计确认 138 点镜像置换未定义，**训练前必须确认所用配置不触发 flip**（TRAINING_AUDIT.md 警告；见 POTENTIAL_ISSUES #4）。
 
 ## 6. 现成参考实现
 
-- `tools/generate_bedlam_densekp.py` — 最小可运行生成器（248 行，含校验与 debug NPZ）；
-- `tools/validate_bedlam_densekp_tiny.py` — 用真实 `DatasetKeypoints` 走一遍 crop 并可视化；
-- `tools/inspect_annotation.py` / `tools/visualize_annotation.py` — 人工核对工具。
+- `tools/annotation/generate_bedlam_densekp.py` — 最小可运行生成器（248 行，含校验与 debug NPZ）；
+- `tools/validate/validate_bedlam_densekp_tiny.py` — 用真实 `DatasetKeypoints` 走一遍 crop 并可视化；
+- `tools/annotation/inspect_annotation.py` / `tools/annotation/visualize_annotation.py` — 人工核对工具。

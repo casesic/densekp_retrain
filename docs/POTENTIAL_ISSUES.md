@@ -53,19 +53,16 @@
 
 ## #7 `finalize_p0_outputs.py` 将所有点的 `densekp_valid` 写为全 1
 
-- 文件：`tools/finalize_p0_outputs.py`
+- 文件：`tools/render/finalize_p0_outputs.py`
 - 位置：`np.save(out/'annotations/densekp_valid.npy', np.ones_like(vis, dtype=np.uint8))`
 - 怀疑原因：`valid` 字段按 P0_DEPTH_VISIBILITY.md 语义应为"有效候选"，但这里无条件写 1（OUT_OF_FRAME/BEHIND_CAMERA 点也标 valid=1，只有 visible 状态区分）。camera-stress 分支（finalize_camera_stress.py:41-49）则按 z<0 与图内过滤重算了 valid/in_frame。两处语义不一致。
 - 可能影响：下游若直接把 p0 渲染目录的 `densekp_valid.npy` 当"在画面内"使用会得到错误结论。当前训练不消费这些数组，暂无实际影响。
 
-## #8 硬编码的机器特定路径
+## #8 机器特定路径（runtime wrapper 已配置化，历史/数据路径仍保留）
 
-- 文件/位置：
-  - `tools/run_eye_background_fix.py`：Blender 路径 `/mnt/data1/khb/app/blender-5.1.1-linux-x64/blender`、纹理目录 `/home/yy/datasets/BEDLAM/...`
-  - `tools/run_fisheye_camera_p0.py`、`tools/run_fisheye_scene_p0.py`：同一 Blender 路径与 `outputs/p0_dressed_eye_background_fixed` 基线 manifest 依赖
-  - `densekp/core/constants.py:3-9,48-51`：`data/pretrained-models/...`、`assets_external/vitpose_backbone.pth`
-- 怀疑原因：多机/多人协作时路径漂移是最高频的"跑不起来"来源。
-- 可能影响：环境可移植性。属已知现状，未修改。
+- 当前状态：正式 render/fisheye wrapper 已统一按 `--blender-bin` → `BLENDER_BIN` → `PATH` 解析 Blender；frozen appearance manifest 可用 `--appearance-manifest` 覆盖；BEDLAM 服装纹理目录可用 CLI 或 `BEDLAM_CLOTHING_TEXTURE_DIR` 提供。
+- 故意保留：`tools/experiments/` 的一次性审计数据路径、`configs/perspective_camera_stress.json` 和 `finalize_camera_stress.py` 对仓库内 frozen baseline 的数据引用，以及 `densekp/core/constants.py` 的项目相对权重路径。
+- 下载脚本默认使用 `$HOME/datasets/BEDLAM`，并支持 `BEDLAM_ROOT`；历史实验仍需用户按本机数据布局调整，训练权重仍需按既有相对目录准备。
 
 ## #9 `densekp/core/configs/__init__.py` 中部分注册项图像根路径为相对路径
 
@@ -82,12 +79,12 @@
 
 ## #11 `warp_case` 对 `densekp_2d.npy` 与 `densekp_fisheye_2d.npy` 双写
 
-- 文件：`tools/run_fisheye_camera_p0.py`（:64）；`tools/run_fisheye_scene_p0.py`（:67 又把 fisheye_2d 复制为 densekp_2d.npy）
+- 文件：`tools/fisheye/run_fisheye_camera_p0.py`（:64）；`tools/fisheye/run_fisheye_scene_p0.py`（:67 又把 fisheye_2d 复制为 densekp_2d.npy）
 - 怀疑原因：同一数组两个文件名，历史兼容；读代码时容易以为两者语义不同。
 - 可能影响：仅混淆；未修改。
 
 ## #12 Blender 5.1 中 `IndexOB` pass 的可用性分支
 
-- 文件：`tools/render_p0_blender.py`（outputs() 用 Alpha 当 mask）与 `tools/fisheye/render_equirectangular_source.py`（使用 IndexOB，且 :39-40 有回退检测）
+- 文件：`tools/render/render_p0_blender.py`（outputs() 用 Alpha 当 mask）与 `tools/fisheye/render_equirectangular_source.py`（使用 IndexOB，且 :39-40 有回退检测）
 - 怀疑原因：P0_DEPTH_VISIBILITY.md 记录 Blender 5.1 Eevee 不再暴露 IndexOB，故 perspective 用 Alpha；fisheye 路径用 CYCLES + IndexOB。两域 mask 语义来源不同（Alpha vs object index）。若未来perspective 渲染加入场景物体，Alpha-mask 将无法区分人体与场景。
 - 可能影响：多人/场景遮挡阶段的 mask 需要重新设计（P0_DEPTH_VISIBILITY.md §5 已预警）。当前单人体无影响。

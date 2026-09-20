@@ -1,4 +1,4 @@
-"""用法：blender -b --python tools/blender_headless_smoke_test.py"""
+"""用法：blender -b --python tools/validate/blender_headless_smoke_test.py"""
 
 import json
 import os

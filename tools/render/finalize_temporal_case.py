@@ -9,7 +9,7 @@ def video(pattern, output, input_fps, output_fps=None):
     cmd=['ffmpeg','-y','-loglevel','error','-framerate',str(input_fps),'-i',str(pattern)]
     if output_fps: cmd += ['-vf',f'fps={output_fps}']
     cmd += ['-c:v','libx264','-pix_fmt','yuv420p','-crf','18',str(output)]
-    subprocess.run(cmd,check=True)
+    subprocess.run(cmd,check=True,cwd=Path.cwd())
 
 def main():
     p=argparse.ArgumentParser(); p.add_argument('--output-dir',type=Path,required=True); p.add_argument('--gt-fps',type=float,required=True); p.add_argument('--preview-fps',type=float,default=24); p.add_argument('--case-id',required=True); a=p.parse_args(); out=a.output_dir

@@ -67,7 +67,7 @@ densekp_retrain/
 ```bash
 cd /mnt/data1/yy/home/yy/Projects/densekp_retrain
 bash scripts/audit_workspace.sh
-python tools/inspect_annotation.py /path/to/tiny_labels.npz
+python tools/annotation/inspect_annotation.py /path/to/tiny_labels.npz
 ```
 
 随后更新复制后的数据集注册表（或将其替换为清单适配器），把 `DENSEKP_VITPOSE_BACKBONE` 指向 ViTPose 权重文件，并运行下面的最小实验。

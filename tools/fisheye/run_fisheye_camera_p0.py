@@ -2,16 +2,21 @@
 """Run independent Omni-Radtan center and dual-camera overlap validation."""
 import argparse, hashlib, json, subprocess, sys, time
 from pathlib import Path
-import cv2, numpy as np, OpenEXR
+import cv2, numpy as np
 from PIL import Image, ImageDraw
-sys.path.insert(0,str(Path(__file__).resolve().parent))
+ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT))
+sys.path.insert(0,str(ROOT/'tools'))
 from fisheye.omni_radtan import OmniRadtanIntrinsics, project_points_omni_radtan, unproject_pixels_omni_radtan
+from tools.common.runtime import find_blender_executable, load_appearance_baseline
 
 def pose(target, origin, yaw_deg):
     yaw=np.deg2rad(yaw_deg); right=np.array([np.cos(yaw),-np.sin(yaw),0.]); down=np.array([0.,0.,-1.]); forward=np.array([np.sin(yaw),np.cos(yaw),0.])
     p=np.eye(4); p[:3,:3]=np.column_stack((right,down,forward)); p[:3,3]=origin; return p
 
 def read_exr(path):
+    import OpenEXR
+
     f=OpenEXR.File(str(path)); channels={}
     for part in f.parts:
         for name,c in part.channels.items(): channels[name]=np.asarray(c.pixels,np.float32)
@@ -69,7 +74,7 @@ def warp_case(source, output, points, camera, k, source_keypoints=None, source_f
     (output/'case_report.json').write_text(json.dumps(report,indent=2)+'\n'); return report
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('--geometry',type=Path,default=Path('outputs/temporal_case_aaron_1095/geometry')); p.add_argument('--clothing-geometry',type=Path,default=Path('outputs/temporal_case_aaron_1095/clothing_geometry')); p.add_argument('--output-dir',type=Path,default=Path('outputs/fisheye_camera_p0')); p.add_argument('--frame',type=int,default=0); p.add_argument('--pano-width',type=int,default=2048); p.add_argument('--pano-height',type=int,default=1024); p.add_argument('--skip-render',action='store_true'); a=p.parse_args(); root=Path(__file__).resolve().parents[1]; out=a.output_dir; out.mkdir(parents=True,exist_ok=True); started=time.perf_counter()
+    p=argparse.ArgumentParser(); p.add_argument('--geometry',type=Path,default=Path('outputs/temporal_case_aaron_1095/geometry')); p.add_argument('--clothing-geometry',type=Path,default=Path('outputs/temporal_case_aaron_1095/clothing_geometry')); p.add_argument('--output-dir','--output',dest='output_dir',type=Path,default=Path('outputs/fisheye_camera_p0')); p.add_argument('--frame',type=int,default=0); p.add_argument('--pano-width',type=int,default=2048); p.add_argument('--pano-height',type=int,default=1024); p.add_argument('--skip-render',action='store_true'); p.add_argument('--blender-bin',type=Path); p.add_argument('--appearance-manifest',type=Path); a=p.parse_args(); root=ROOT; out=a.output_dir; out.mkdir(parents=True,exist_ok=True); started=time.perf_counter()
     vertices_all=np.load(a.geometry/'vertices.npy'); dense_all=np.load(a.geometry/'densekp_3d.npy'); vertices=vertices_all[a.frame]; dense=dense_all[a.frame]
     source_fingerprint=hashlib.blake2b(dense[None].tobytes(),digest_size=16).hexdigest()
     np.save(out/'densekp_3d_source.npy',dense[None])
@@ -78,7 +83,7 @@ def main():
     cams=[{'id':'fisheye_center','camera_to_world':pose(target,origin,0).tolist()},{'id':'cam_left','camera_to_world':pose(target,origin,75).tolist()},{'id':'cam_right','camera_to_world':pose(target,origin,-75).tolist()}]; camera_file=out/'camera_config.json'; intr=OmniRadtanIntrinsics(); camera_file.write_text(json.dumps({'camera_model':'Omni-Radtan','intrinsics':intr.as_dict(),'coordinate_system':'CV +X right, +Y down, +Z forward; camera_to_world','cameras':cams},indent=2)+'\n')
     source=out/'equirectangular_source'; source.mkdir(exist_ok=True)
     if not a.skip_render:
-        baseline=json.loads((root/'outputs/p0_dressed_eye_background_fixed/manifest.jsonl').read_text().splitlines()[0]); cmd=['/mnt/data1/khb/app/blender-5.1.1-linux-x64/blender','-b','--python',str(root/'tools/fisheye/render_equirectangular_source.py'),'--','--geometry',str(a.geometry.resolve()),'--clothing-geometry',str(a.clothing_geometry.resolve()),'--cameras',str(camera_file.resolve()),'--output-dir',str(source.resolve()),'--frame',str(a.frame),'--body-texture',baseline['body_diffuse_texture_path'],'--body-uv',baseline['body_uv_path'],'--hdri',baseline['hdri_path'],'--width',str(a.pano_width),'--height',str(a.pano_height)]
+        baseline,_=load_appearance_baseline(a.appearance_manifest); cmd=[str(find_blender_executable(a.blender_bin)),'-b','--python',str(root/'tools/fisheye/render_equirectangular_source.py'),'--','--geometry',str(a.geometry.resolve()),'--clothing-geometry',str(a.clothing_geometry.resolve()),'--cameras',str(camera_file.resolve()),'--output-dir',str(source.resolve()),'--frame',str(a.frame),'--body-texture',baseline['body_diffuse_texture_path'],'--body-uv',baseline['body_uv_path'],'--hdri',baseline['hdri_path'],'--width',str(a.pano_width),'--height',str(a.pano_height)]
         with (out/'render.log').open('w') as log: subprocess.run(cmd,cwd=root,stdout=log,stderr=subprocess.STDOUT,check=True)
         if not (source/'source_manifest.json').is_file(): raise RuntimeError(f'Blender source render failed; inspect {out/"render.log"}')
     reports={}

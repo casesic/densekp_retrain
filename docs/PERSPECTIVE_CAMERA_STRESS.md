@@ -27,7 +27,7 @@ the appearance and all local geometry remain the same.
 | C6 | trunc_left_25 | height 60%; 25% of full bbox width left of image |
 | C7 | trunc_bottom_25 | height 60%; 25% of full bbox height below image |
 
-`tools/solve_camera_stress_placement.py` solves three camera-local translation
+`tools/render/solve_camera_stress_placement.py` solves three camera-local translation
 components per frame against the full 10,475-vertex SMPL-X body projection.
 It uses neither clothing, visible pixels, nor masks to define the bbox. Clothing
 is included only in the near-plane safety constraint. Least-squares residuals
@@ -105,7 +105,7 @@ show configs by column and configs by row respectively.
 
 ## Reproduction
 
-Run the placement solver, then `tools/run_camera_stress.py`, finalize each raw
-render with the existing `tools/finalize_p0_outputs.py`, and run
+Run the placement solver, then `tools/render/run_camera_stress.py`, finalize each raw
+render with the existing `tools/render/finalize_p0_outputs.py`, and run
 `tools/finalize_camera_stress.py`. Rendering is headless Blender. This phase
 does not implement fisheye; Phase 15B is the next isolated projection task.

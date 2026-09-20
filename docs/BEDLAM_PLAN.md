@@ -64,5 +64,5 @@ flowchart LR
 1. 检查有代表性的 BEDLAM/BEDLAM2 记录，明确记录单位、坐标轴、左右手系、相机约定和拓扑；
 2. 通过投影已知关节/顶点来复现一帧渲染结果，要求叠加结果达到像素级一致；
 3. 应用 `assets/densekp_regressor_R.npy`，验证全部 138 个点及其可见性；
-4. 生成一个小型 NPZ，并使用 `tools/inspect_annotation.py` 验证；
+4. 生成一个小型 NPZ，并使用 `tools/annotation/inspect_annotation.py` 验证；
 5. 只有在测量并确认上游第 3 通道的行为后，才能加入可见性感知损失。

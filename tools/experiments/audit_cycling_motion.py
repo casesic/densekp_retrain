@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 import numpy as np
 
-root = Path(__file__).resolve().parents[1]
+root = Path(__file__).resolve().parents[2]
 out = root/'outputs/cycling_motion_audit'
 paths = [Path(x) for x in (out/'local_inventory.txt').read_text().splitlines()]
 motions, errors, babel_files = [], [], []

@@ -6,7 +6,7 @@ import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SOURCE = Path('/home/yy/datasets/BABEL/babel_v1.0_release')
 OUT = ROOT/'outputs/cycling_motion_audit'
 SPLITS = ['train','val','test','extra_train','extra_val']
