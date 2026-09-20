@@ -115,14 +115,14 @@ densekp_retrain/
 
 | 文件 | 用途 | 状态 |
 |---|---|---|
-| `tools/fisheye/omni_radtan.py` | Omni-Radtan 相机模型（NumPy）：`project_points_omni_radtan` / `unproject_pixels_omni_radtan`，CV 相机坐标约定 | **在用（核心）** |
-| `tools/fisheye/test_omni_radtan.py` | 单元测试：光轴、对称性、roundtrip（`python -m unittest tools.fisheye.test_omni_radtan`） | **在用（唯一现成单测）** |
+| `src/densekp_retrain/camera/omni_radtan.py` | Omni-Radtan 相机模型（NumPy）：`project_points_omni_radtan` / `unproject_pixels_omni_radtan`，CV 相机坐标约定 | **在用（核心）** |
+| `tests/test_omni_radtan.py` | 单元测试：光轴、对称性、roundtrip（`python -m unittest tests.test_omni_radtan`） | **在用** |
 | `tools/fisheye/render_equirectangular_source.py` | Blender 内：HDRI-only ERP 源渲染（Combined/Depth/IndexOB） | **在用** |
 | `tools/fisheye/render_equirectangular_scene_source.py` | Blender 内：带静态 .blend 场景的 ERP 源渲染（Phase 18），import `tools/scene/blender_scene_bridge.py` | **在用** |
 | `tools/fisheye/run_fisheye_camera_p0.py` | ERP→fisheye warp（`warp_case`：remap、mask/depth、Omni-Radtan 投影 DenseKP、4cm 深度可见性、注记 npy、report）+ `pose()` 相机位姿构造 | **在用（核心）** |
 | `tools/fisheye/run_fisheye_scene_p0.py` | Phase 18：场景 spec 校验（缺失则报 SCENE_ASSET_MISSING）→ 场景渲染 → 复用 warp_case | **在用** |
 | `tools/fisheye/run_fisheye_seam_sweep.py` / `run_human_scale_sweep.py` | 相机 yaw / 人像尺度扫描（复用 Phase 17 pipeline） | 实验 |
-| `tools/scene/scene_loader.py` | 场景资产 spec（dataclass + 校验，不含资产本体） | **在用（库）** |
+| `src/densekp_retrain/scene/spec.py` | 场景资产 spec（dataclass + 校验，不含资产本体） | **在用（库）** |
 | `tools/scene/blender_scene_bridge.py` | bpy 侧：链接 .blend、可见性/地面控制、场景包围盒 | **在用（库）** |
 | `tools/scene/build_cycling_forest.py` / `build_reference_riverfront.py` / `prepare_hidden_alley.py` | 在 Blender 中构建骑行森林 / 河岸参考 / hidden alley 场景（需在 Blender 内或带 .blend 运行） | 场景资产制作 |
 | `tools/scene/inspect_*.py`（inspect_downloaded_scene / inspect_forest_nodes / inspect_pine_forest） | 只读检查下载场景的 Blender 内脚本 | 审计 |
@@ -173,11 +173,11 @@ densekp_retrain/
 | Fisheye + 场景 | `python tools/fisheye/run_fisheye_scene_p0.py`（需 `configs/fisheye_scene_p0.json` 指向的 .blend） |
 | 训练格式标注生成（BEDLAM tiny） | `python tools/annotation/generate_bedlam_densekp.py <input.npz> --image-root ...` |
 | GT 验证 | `python tools/validate/validate_bedlam_densekp_tiny.py` / `inspect_annotation.py` / `visualize_annotation.py` |
-| 快速检查 | `bash scripts/audit_workspace.sh`；`python -m unittest tools.fisheye.test_omni_radtan` |
+| 快速检查 | `bash scripts/audit_workspace.sh`；`python -m unittest discover -s tests` |
 
 ## 4. debug / legacy / experimental 分类
 
-- **核心可复用库（被多个 entry import，勿动）**：`tools/fisheye/omni_radtan.py`、`tools/fisheye/run_fisheye_camera_p0.py::warp_case/pose`、`tools/render/eye_background_render.py`、`tools/scene/{scene_loader,blender_scene_bridge}.py`。
+- **核心可复用库**：`src/densekp_retrain/{runtime,io,camera,annotation,rendering,scene}`；尚未迁移的高风险实现为 `tools/fisheye/run_fisheye_camera_p0.py::warp_case/pose`、`tools/render/eye_background_render.py` 和 `tools/scene/blender_scene_bridge.py`。
 - **一次性审计（历史 phase 产物，保留不删）**：第 2.2 F/G 类全部。
 - **实验脚本（验证性 sweep）**：`run_fisheye_seam_sweep.py`、`run_human_scale_sweep.py`、`generate_cyclic_validation_motion.py`。
 - **没有发现** `old_xxx / xxx_final / xxx_v2` 命名的可删脚本；`eye_fix_v2` 是输出目录名而非脚本。

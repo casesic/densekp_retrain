@@ -1,50 +1,30 @@
 #!/usr/bin/env python3
 """Run independent Omni-Radtan center and dual-camera overlap validation."""
-import argparse, hashlib, json, subprocess, sys, time
+import argparse, hashlib, json, sys, time
 from pathlib import Path
 import cv2, numpy as np
 from PIL import Image, ImageDraw
 ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT/'src'))
 sys.path.insert(0,str(ROOT))
 sys.path.insert(0,str(ROOT/'tools'))
-from fisheye.omni_radtan import OmniRadtanIntrinsics, project_points_omni_radtan, unproject_pixels_omni_radtan
-from tools.common.runtime import find_blender_executable, load_appearance_baseline
+from densekp_retrain.camera import OmniRadtanIntrinsics, project_points_omni_radtan, unproject_pixels_omni_radtan
+from densekp_retrain.io import linear_to_srgb, read_combined_depth_index
+from densekp_retrain.rendering.process import run_logged
+from densekp_retrain.runtime import find_blender_executable, load_appearance_baseline
 
 def pose(target, origin, yaw_deg):
     yaw=np.deg2rad(yaw_deg); right=np.array([np.cos(yaw),-np.sin(yaw),0.]); down=np.array([0.,0.,-1.]); forward=np.array([np.sin(yaw),np.cos(yaw),0.])
     p=np.eye(4); p[:3,:3]=np.column_stack((right,down,forward)); p[:3,3]=origin; return p
 
 def read_exr(path):
-    import OpenEXR
-
-    f=OpenEXR.File(str(path)); channels={}
-    for part in f.parts:
-        for name,c in part.channels.items(): channels[name]=np.asarray(c.pixels,np.float32)
-    def pick(token):
-        for n,v in channels.items():
-            if n==token or n.endswith('.'+token) or n.split('.')[0]==token: return v
-        return None
-    combined=pick('Combined')
-    if combined is not None and combined.ndim==3: rgb=combined[...,:3]
-    else:
-        values=[]
-        for name in ('R','G','B'):
-            value=pick('Combined.'+name)
-            if value is None: value=pick(name)
-            values.append(value)
-        rgb=np.stack(values,axis=-1)
-    depth=pick('Depth'); index=pick('IndexOB')
-    if depth is None or index is None: raise RuntimeError(f'missing EXR passes: {list(channels)}')
-    return rgb,depth,index,list(channels)
+    return read_combined_depth_index(path)
 
 def scalar_reference(points, camera, k):
     inv=np.linalg.inv(camera); out=[]
     for p in points:
         q=(inv@np.r_[p,1])[:3]; q=q/np.linalg.norm(q); theta=np.arctan2(np.hypot(q[0],q[1]),q[2]); phi=np.arctan2(q[1],q[0]); m=np.sin(theta)/(np.cos(theta)+k.xi); r=k.f*(m+k.k1*m**3+k.k2*m**5); out.append((k.cx+r*np.cos(phi),k.cy+r*np.sin(phi)))
     return np.asarray(out)
-
-def linear_to_srgb(x):
-    x=np.maximum(x,0); return np.where(x<=.0031308,12.92*x,1.055*np.power(x,1/2.4)-.055)
 
 def warp_case(source, output, points, camera, k, source_keypoints=None, source_fingerprint=None):
     output.mkdir(parents=True,exist_ok=True); rgb,depth,index,channels=read_exr(source); h,w=depth.shape
@@ -84,7 +64,7 @@ def main():
     source=out/'equirectangular_source'; source.mkdir(exist_ok=True)
     if not a.skip_render:
         baseline,_=load_appearance_baseline(a.appearance_manifest); cmd=[str(find_blender_executable(a.blender_bin)),'-b','--python',str(root/'tools/fisheye/render_equirectangular_source.py'),'--','--geometry',str(a.geometry.resolve()),'--clothing-geometry',str(a.clothing_geometry.resolve()),'--cameras',str(camera_file.resolve()),'--output-dir',str(source.resolve()),'--frame',str(a.frame),'--body-texture',baseline['body_diffuse_texture_path'],'--body-uv',baseline['body_uv_path'],'--hdri',baseline['hdri_path'],'--width',str(a.pano_width),'--height',str(a.pano_height)]
-        with (out/'render.log').open('w') as log: subprocess.run(cmd,cwd=root,stdout=log,stderr=subprocess.STDOUT,check=True)
+        run_logged(cmd,cwd=root,log_path=out/'render.log')
         if not (source/'source_manifest.json').is_file(): raise RuntimeError(f'Blender source render failed; inspect {out/"render.log"}')
     reports={}
     reports['center']=warp_case(source/'fisheye_center.exr',out/'center',world,np.asarray(cams[0]['camera_to_world']),intr,dense[None],source_fingerprint)

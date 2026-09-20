@@ -109,7 +109,7 @@ mapx = (lon/(2π)+0.5)*w ; mapy = (0.5 - lat/π)*h
 
   即 x 向东经、y 从上（北极）向下，左上原点。**UNCERTAIN**：Blender EQUIRECTANGULAR 相机自身的经纬起点与该映射的严格一致性未从代码单独验证，仅由 warp 后 mask/深度 gate 与 roundtrip 测试间接覆盖（fisheye_camera_p0 报告 pass）。
 
-## 5. Omni-Radtan fisheye（tools/fisheye/omni_radtan.py）
+## 5. Omni-Radtan fisheye（src/densekp_retrain/camera/omni_radtan.py）
 
 代码 docstring（omni_radtan.py:1-6）明确：**CV-style：+X right，+Y down，+Z optical forward；`camera_pose` 为 camera-to-world**。
 
@@ -134,7 +134,7 @@ theta = atan(m) + asin( xi·m / sqrt(1+m²) )
 ray = (sinθ·cosφ, sinθ·sinφ, cosθ)
 ```
 
-roundtrip 单测：`tools/fisheye/test_omni_radtan.py`（<3e-8 rad）。**不改投影定义。**
+roundtrip 单测：`tests/test_omni_radtan.py`（<3e-8 rad）。**不改投影定义。**
 
 ## 6. bbox / center / scale
 

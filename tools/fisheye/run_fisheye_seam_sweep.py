@@ -4,16 +4,18 @@
 Reuses the Phase 17 Omni-Radtan module, warp pipeline and Blender equirectangular
 source renderer without modification; only the camera yaw placement varies.
 """
-import argparse, json, subprocess, sys, time
+import argparse, json, sys, time
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT/'src'))
 sys.path.insert(0,str(ROOT))
 sys.path.insert(0,str(ROOT/'tools'))
-from fisheye.omni_radtan import OmniRadtanIntrinsics
+from densekp_retrain.camera import OmniRadtanIntrinsics
 from fisheye.run_fisheye_camera_p0 import warp_case, pose
-from tools.common.runtime import find_blender_executable, load_appearance_baseline
+from densekp_retrain.runtime import find_blender_executable, load_appearance_baseline
+from densekp_retrain.rendering.process import run_logged
 
 YAWS=(75,90,100,110)
 
@@ -33,7 +35,7 @@ def main():
     source=out/'equirectangular_source'; source.mkdir(exist_ok=True)
     if not a.skip_render:
         baseline,_=load_appearance_baseline(a.appearance_manifest); cmd=[str(find_blender_executable(a.blender_bin)),'-b','--python',str(root/'tools/fisheye/render_equirectangular_source.py'),'--','--geometry',str(a.geometry.resolve()),'--clothing-geometry',str(a.clothing_geometry.resolve()),'--cameras',str(camera_file.resolve()),'--output-dir',str(source.resolve()),'--frame',str(a.frame),'--body-texture',baseline['body_diffuse_texture_path'],'--body-uv',baseline['body_uv_path'],'--hdri',baseline['hdri_path'],'--width',str(a.pano_width),'--height',str(a.pano_height)]
-        with (out/'render.log').open('w') as log: subprocess.run(cmd,cwd=root,stdout=log,stderr=subprocess.STDOUT,check=True)
+        run_logged(cmd,cwd=root,log_path=out/'render.log')
         if not (source/'source_manifest.json').is_file(): raise RuntimeError(f'Blender source render failed; inspect {out/"render.log"}')
     poses={c['id']:np.asarray(c['camera_to_world']) for c in cams}
     stats={}

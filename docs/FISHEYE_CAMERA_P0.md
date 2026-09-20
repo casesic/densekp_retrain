@@ -8,7 +8,7 @@ Status: **PASS**（冻结 baseline，commit `1ad4259 synthetic-render-baseline-b
 
 ## 1. Camera Parameter
 
-独立于 Blender 的纯 NumPy 实现：`tools/fisheye/omni_radtan.py`。
+独立于 Blender 的纯 NumPy 实现：`src/densekp_retrain/camera/omni_radtan.py`。
 
 Camera model: **Unified Camera Model (UCM) + radial distortion (Omni-Radtan)**
 
@@ -78,8 +78,8 @@ x∈[100, 454]，cam_right 中位于右边缘 x∈[2556, 2904]，两机朝向相
 | DenseKP reprojection vs scalar reference | max 7.2e-13 px（center 2.3e-13, left 7.2e-13, right 4.5e-13） |
 | warp 后 roundtrip angular error | max 2.6e-8 rad |
 
-单元测试：`tools/fisheye/test_omni_radtan.py`（3 tests, OK），
-运行方式 `PYTHONPATH=. python tools/fisheye/test_omni_radtan.py`。
+单元测试：`tests/test_omni_radtan.py`（3 tests, OK），
+运行方式 `python -m unittest tests.test_omni_radtan`。
 
 ## 6. DenseKP Validation
 
@@ -130,5 +130,5 @@ Annotation 保存于各 case 目录，格式：
 BLENDER_BIN=/path/to/blender python tools/fisheye/run_fisheye_camera_p0.py
 # 仅 warp + 注解 + 报告（跳过 Blender 渲染）
 python tools/fisheye/run_fisheye_camera_p0.py --skip-render
-python -m unittest tools.fisheye.test_omni_radtan
+python -m unittest tests.test_omni_radtan
 ```

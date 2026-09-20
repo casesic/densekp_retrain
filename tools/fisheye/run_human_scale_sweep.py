@@ -11,11 +11,13 @@ import argparse, hashlib, json, os, subprocess, sys, time
 from pathlib import Path
 import numpy as np
 ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT/'src'))
 sys.path.insert(0,str(ROOT))
 sys.path.insert(0,str(ROOT/'tools'))
-from fisheye.omni_radtan import OmniRadtanIntrinsics
+from densekp_retrain.camera import OmniRadtanIntrinsics
 from fisheye.run_fisheye_camera_p0 import warp_case, pose
-from tools.common.runtime import find_blender_executable, load_appearance_baseline
+from densekp_retrain.runtime import find_blender_executable, load_appearance_baseline
+from densekp_retrain.rendering.process import run_logged
 
 SCALES=(1.0,0.8,0.7,0.6,0.5); BASELINE_DISTANCE=3.2; DIAMETER=3000
 
@@ -43,7 +45,7 @@ def main():
     source=out/'equirectangular_source'; source.mkdir(exist_ok=True)
     if not a.skip_render:
         baseline,_=load_appearance_baseline(a.appearance_manifest); cmd=[str(find_blender_executable(a.blender_bin)),'-b','--python',str(root/'tools/fisheye/render_equirectangular_source.py'),'--','--geometry',str(a.geometry.resolve()),'--clothing-geometry',str(a.clothing_geometry.resolve()),'--cameras',str(camera_file.resolve()),'--output-dir',str(source.resolve()),'--frame',str(a.frame),'--body-texture',baseline['body_diffuse_texture_path'],'--body-uv',baseline['body_uv_path'],'--hdri',baseline['hdri_path'],'--width',str(a.pano_width),'--height',str(a.pano_height)]
-        with (out/'render.log').open('w') as log: subprocess.run(cmd,cwd=root,stdout=log,stderr=subprocess.STDOUT,check=True)
+        run_logged(cmd,cwd=root,log_path=out/'render.log')
         if not (source/'source_manifest.json').is_file(): raise RuntimeError(f'Blender source render failed; inspect {out/"render.log"}')
     body_fp_after=fingerprint(np.load(a.geometry/'vertices.npy')[a.frame])
     rows=[]; poses={c['id']:np.asarray(c['camera_to_world']) for c in cams}
@@ -56,7 +58,7 @@ def main():
             case['cameras'][name]=human_metrics(out/f'scale_{scale:g}'/name)
         rows.append(case); (out/f'scale_{scale:g}'/'case_report.json').write_text(json.dumps(case,indent=2)+'\n')
     test_env=os.environ.copy(); test_env['PYTHONPATH']=str(root)
-    projection=subprocess.run([sys.executable,'-m','unittest','tools.fisheye.test_omni_radtan'],cwd=root,env=test_env,capture_output=True,text=True); projection_pass=projection.returncode==0
+    projection=subprocess.run([sys.executable,'-m','unittest','tests.test_omni_radtan'],cwd=root,env=test_env,capture_output=True,text=True); projection_pass=projection.returncode==0
     projection_ok=projection_pass and all(c['cameras'][n]['projection_error_px_max']<1e-9 for c in rows for n in c['cameras'])
     def seam_ok(c): l,r=c['cameras']['cam_left'],c['cameras']['cam_right']; return 50<=l['visible_keypoints']<=100 and 50<=r['visible_keypoints']<=100
     def center_gap(c):

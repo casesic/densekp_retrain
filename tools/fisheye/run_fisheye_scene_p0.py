@@ -11,12 +11,14 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT/'src'))
 sys.path.insert(0,str(ROOT))
 sys.path.insert(0,str(ROOT/'tools'))
-from fisheye.omni_radtan import OmniRadtanIntrinsics
-from scene.scene_loader import SceneAssetSpec, SceneAssetMissing
+from densekp_retrain.camera import OmniRadtanIntrinsics
+from densekp_retrain.scene import SceneAssetSpec, SceneAssetMissing
 from fisheye.run_fisheye_camera_p0 import warp_case, pose
-from tools.common.runtime import find_blender_executable, load_appearance_baseline
+from densekp_retrain.runtime import find_blender_executable, load_appearance_baseline
+from densekp_retrain.rendering.process import run_logged
 
 def fingerprint(array): return hashlib.blake2b(np.asarray(array).tobytes(),digest_size=16).hexdigest()
 
@@ -58,12 +60,12 @@ def main():
     source=out/'equirectangular_source'; scene_rendered=False
     if spec is not None and not a.skip_render:
         baseline,_=load_appearance_baseline(a.appearance_manifest); cmd=[str(find_blender_executable(a.blender_bin)),'-b','--python',str(root/'tools/fisheye/render_equirectangular_scene_source.py'),'--','--geometry',str(a.geometry.resolve()),'--clothing-geometry',str(a.clothing_geometry.resolve()),'--cameras',str(camera_file.resolve()),'--output-dir',str(source.resolve()),'--frame',str(a.frame),'--scene-blend',str((root/spec.blend_path).resolve()),'--scene-collection',spec.collection or '','--hide-objects',','.join(spec.hide_objects),'--ground-mode',spec.ground_mode,'--body-location',*[str(x) for x in spec.body_location],'--body-yaw-deg',str(spec.body_yaw_deg),'--body-texture',baseline['body_diffuse_texture_path'],'--body-uv',baseline['body_uv_path'],'--hdri',baseline['hdri_path'],'--width',str(a.pano_width),'--height',str(a.pano_height)]
-        with (out/'render.log').open('w') as log: subprocess.run(cmd,cwd=root,stdout=log,stderr=subprocess.STDOUT,check=True)
+        run_logged(cmd,cwd=root,log_path=out/'render.log')
         if not (source/'source_manifest.json').is_file(): raise RuntimeError(f'Blender scene render failed; inspect {out/"render.log"}')
         scene_rendered=True
     body_fp_after=fingerprint(np.load(a.geometry/'vertices.npy')[a.frame]); clothing_fp_after=fingerprint(np.load(a.clothing_geometry/'clothing_vertices.npy'))
     test_env=os.environ.copy(); test_env['PYTHONPATH']=str(root)
-    projection=subprocess.run([sys.executable,'-m','unittest','tools.fisheye.test_omni_radtan'],cwd=root,env=test_env,capture_output=True,text=True); projection_pass=projection.returncode==0
+    projection=subprocess.run([sys.executable,'-m','unittest','tests.test_omni_radtan'],cwd=root,env=test_env,capture_output=True,text=True); projection_pass=projection.returncode==0
     cases={}
     if scene_rendered or (spec is not None and a.skip_render and (source/'source_manifest.json').is_file()):
         for name,cam in (('cam_left',cams[0]),('cam_right',cams[1])):

@@ -46,7 +46,7 @@
 | 域 | 实现 | 公式（原样） |
 |---|---|---|
 | Perspective (P0) | tools/render/render_p0_blender.py:199 | `u=fx*qx/z+cx; v=cy-fy*qy/z; z=-q.z`，交叉验证 `world_to_camera_view` |
-| Fisheye | tools/fisheye/omni_radtan.py :: project_points_omni_radtan | `m=sinθ/(cosθ+xi); r=f(m+k1m³+k2m⁵); (cx+r·cosφ, cy+r·sinφ)` |
+| Fisheye | src/densekp_retrain/camera/omni_radtan.py :: project_points_omni_radtan | `m=sinθ/(cosθ+xi); r=f(m+k1m³+k2m⁵); (cx+r·cosφ, cy+r·sinφ)` |
 | BEDLAM 官方 | tools/annotation/generate_bedlam_densekp.py :: project_official | `p_cam = points + t; p_h = K @ (p_cam / z)`，输出 `[x,y,1]` |
 
 ### 2.4 visibility（分域，语义不同，逐域验证）

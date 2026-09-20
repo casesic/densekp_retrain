@@ -3,7 +3,13 @@
 import argparse
 import json
 from pathlib import Path
+import sys
 import numpy as np
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "src"))
+
+from densekp_retrain.annotation import describe_surface_operator, surface_operator_rows
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -13,11 +19,8 @@ def main() -> int:
     r = np.load(args.regressor)
     if r.shape != (138, 10475):
         raise SystemExit(f"unexpected shape: {r.shape}")
-    rows = []
-    for point_id, row in enumerate(r):
-        ids = np.flatnonzero(row)
-        rows.append({"point_id": point_id, "vertex_ids": ids.tolist(), "weights": row[ids].tolist()})
-    print(f"shape={r.shape} dtype={r.dtype} nnz={np.count_nonzero(r)} row_sum=[{r.sum(1).min():.8f},{r.sum(1).max():.8f}]")
+    rows = surface_operator_rows(r)
+    print(describe_surface_operator(r))
     if args.json:
         args.json.write_text(json.dumps(rows, indent=2) + "\n")
         print(f"wrote {args.json}")

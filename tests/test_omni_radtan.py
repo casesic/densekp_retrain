@@ -1,6 +1,11 @@
+import sys
 import unittest
+from pathlib import Path
 import numpy as np
-from tools.fisheye.omni_radtan import OmniRadtanIntrinsics, project_points_omni_radtan, unproject_pixels_omni_radtan
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+from densekp_retrain.camera import OmniRadtanIntrinsics, project_points_omni_radtan, unproject_pixels_omni_radtan
 
 class OmniRadtanTest(unittest.TestCase):
     def setUp(self): self.k=OmniRadtanIntrinsics(); self.pose=np.eye(4)

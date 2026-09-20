@@ -15,7 +15,7 @@ fi
 "$python_bin" - <<'PY'
 import ast
 from pathlib import Path
-for root in (Path('densekp'), Path('tools')):
+for root in (Path('densekp'), Path('src'), Path('tools'), Path('tests')):
     for path in root.rglob('*.py'):
         ast.parse(path.read_text(), filename=str(path))
 print('python syntax: PASS')

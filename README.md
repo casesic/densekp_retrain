@@ -60,6 +60,8 @@ Appearance V1-B 已完成 body texture 前置审计：当前 10475-vertex SMPL-X
 
 ```text
 densekp/                 DenseKP 模型、数据模块和训练入口
+src/densekp_retrain/     本项目 synthetic/retraining 可复用实现
+tests/                   infrastructure 单元测试与只读数值回归
 configs/hydra/           Hydra 训练配置
 configs/datasets.example.json
                          数据集路径配置示例
@@ -77,14 +79,15 @@ docs/                    审计、数据格式和迁移文档
 
 ```bash
 bash scripts/audit_workspace.sh
+python -m unittest discover -s tests
 python tools/annotation/inspect_annotation.py /path/to/labels.npz
 ```
 
-第一条命令用于检查表面算子、Python 语法以及工作区中是否存在超过 100 MB 的文件；第二条命令用于检查指定的 DenseKP 标注文件。请将 `/path/to/labels.npz` 替换为实际标注路径。
+第一条命令用于检查表面算子、Python 语法以及工作区中是否存在超过 100 MB 的文件；第二条运行 camera 单测和落盘数值回归（本机没有 baseline 时相应测试会 skip）；第三条检查指定的 DenseKP 标注文件。请将 `/path/to/labels.npz` 替换为实际标注路径。
 
 ## 运行环境路径
 
-从仓库根目录直接运行 `python tools/.../script.py` 是当前受支持的方式；本仓库仍有意保持为脚本工作区，`pyproject.toml` 不安装 Python package。调用 Blender 的 wrapper 按以下优先级寻找可执行文件：`--blender-bin`、环境变量 `BLENDER_BIN`、`PATH` 中的 `blender`。例如：
+从仓库根目录直接运行 `python tools/.../script.py` 仍是受支持的方式；这些入口会加载 `src/densekp_retrain/`。开发环境也可用 `python -m pip install -e .` 做最小 editable install；原 CameraHMR `densekp/` 不属于该 package。调用 Blender 的 wrapper 按以下优先级寻找可执行文件：`--blender-bin`、环境变量 `BLENDER_BIN`、`PATH` 中的 `blender`。例如：
 
 ```bash
 BLENDER_BIN=/opt/blender/blender \

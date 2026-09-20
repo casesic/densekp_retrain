@@ -97,7 +97,7 @@ tools/fisheye/run_fisheye_camera_p0.py :: warp_case()
    tools/fisheye/run_fisheye_seam_sweep.py        （yaw 扫描）
    tools/fisheye/run_human_scale_sweep.py         （距离扫描）
    tools/fisheye/run_fisheye_scene_p0.py          （Phase 18：场景资产 spec 校验
-        ↓ tools/scene/scene_loader.py :: SceneAssetSpec.validate()
+        ↓ src/densekp_retrain/scene/spec.py :: SceneAssetSpec.validate()
           缺资产 → SCENE_ASSET_MISSING（不伪造））
 ```
 
@@ -121,7 +121,7 @@ assets/densekp_regressor_R.npy  [138,10475] float32 线性顶点回归算子
    perspective：tools/render/render_p0_blender.py:199
      u = fx*q.x/z + cx ; v = cy - fy*q.y/z ; z = -q.z     # 左上原点
      交叉验证：bpy_extras.world_to_camera_view → (ndc.x*w, (1-ndc.y)*h)
-   fisheye：tools/fisheye/omni_radtan.py :: project_points_omni_radtan
+   fisheye：src/densekp_retrain/camera/omni_radtan.py :: project_points_omni_radtan
         ↓  visibility
    perspective：tools/render/finalize_p0_outputs.py（depth 状态 0-3，容差 max(0.002,2*median/fx)）
    fisheye：tools/fisheye/run_fisheye_camera_p0.py :: warp_case（4cm，5×5 邻域）
@@ -180,7 +180,7 @@ training_step（手动优化：zero_grad → manual_backward → step，AdamW）
 | 几何指纹 | 各脚本的 blake2b-128 fingerprint（vertices/clothing/densekp_3d） | 整理/纹理接入前后几何不变 |
 | depth 语义 | render_p0_blender :: plane_test + finalize_p0_outputs（自动判定） | Depth pass = camera-space Z |
 | silhouette | tools/validate/p0_pyrender_crosscheck.py | Blender mask vs pyrender IoU≈0.999 |
-| 相机模型单测 | tools/fisheye/test_omni_radtan.py | Omni-Radtan roundtrip <3e-8 rad |
+| 相机模型单测 | tests/test_omni_radtan.py | Omni-Radtan roundtrip <3e-8 rad |
 | 训练闭环 | tools/validate/validate_bedlam_densekp_tiny.py | 生成 NPZ 能被 DatasetKeypoints 正确消费 |
 | 相机压力 gate | finalize_camera_stress :: acceptance | bbox 高度比例/截断/边缘放置达标 |
 
