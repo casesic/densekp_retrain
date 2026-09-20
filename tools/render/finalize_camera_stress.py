@@ -8,7 +8,7 @@ import OpenEXR
 from PIL import Image, ImageDraw
 
 ROOT=Path(__file__).resolve().parents[2]
-OUT=ROOT/'outputs/perspective_camera_stress'
+OUT=ROOT/'outputs/experiments/perspective_camera_stress'
 NAMES=['baseline','near_70','near_90','near_110','edge_left','edge_right','trunc_left_25','trunc_bottom_25']
 
 def exr_depth(path):
@@ -29,7 +29,7 @@ def main():
     for folder in ['rgb','depth','masks','overlay','annotations','manifests']:(OUT/folder).mkdir(exist_ok=True)
     all_rows=[];stats={};projection_max=0.;ray_errors=[]
     body_hashes=set();clothing_hashes=set();by_name={}
-    geometry=ROOT/'outputs/p0_dressed_eye_background_fixed/geometry'
+    geometry=ROOT/'outputs/baselines/p0_dressed_eye_background_fixed/geometry'
     densekp3d=np.load(geometry/'densekp_3d.npy')
     for config_id,name in enumerate(NAMES):
         src=OUT/'_renders'/name

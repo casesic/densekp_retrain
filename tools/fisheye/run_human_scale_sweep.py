@@ -15,7 +15,8 @@ sys.path.insert(0,str(ROOT/'src'))
 sys.path.insert(0,str(ROOT))
 sys.path.insert(0,str(ROOT/'tools'))
 from densekp_retrain.camera import OmniRadtanIntrinsics
-from fisheye.run_fisheye_camera_p0 import warp_case, pose
+from densekp_retrain.camera import pose
+from fisheye.run_fisheye_camera_p0 import warp_case
 from densekp_retrain.runtime import find_blender_executable, load_appearance_baseline
 from densekp_retrain.rendering.process import run_logged
 
@@ -30,11 +31,11 @@ def human_metrics(case_dir):
     return {'human_pixel_height':height,'human_height_fraction_of_diameter':height/DIAMETER,'visible_keypoints':report['visible_keypoints'],'in_frame_keypoints':report['valid_keypoints'],'projection_error_px_max':report['projection_error_px']['max']}
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('--geometry',type=Path,default=Path('outputs/temporal_case_aaron_1095/geometry')); p.add_argument('--clothing-geometry',type=Path,default=Path('outputs/temporal_case_aaron_1095/clothing_geometry')); p.add_argument('--output-dir','--output',dest='output_dir',type=Path,default=Path('outputs/human_scale_sweep')); p.add_argument('--frame',type=int,default=0); p.add_argument('--pano-width',type=int,default=2048); p.add_argument('--pano-height',type=int,default=1024); p.add_argument('--scales',type=float,nargs='+',default=list(SCALES)); p.add_argument('--skip-render',action='store_true'); p.add_argument('--blender-bin',type=Path); p.add_argument('--appearance-manifest',type=Path); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--geometry',type=Path,default=Path('outputs/baselines/temporal_case_aaron_1095/geometry')); p.add_argument('--clothing-geometry',type=Path,default=Path('outputs/baselines/temporal_case_aaron_1095/clothing_geometry')); p.add_argument('--output-dir','--output',dest='output_dir',type=Path,default=Path('outputs/experiments/human_scale_sweep')); p.add_argument('--frame',type=int,default=0); p.add_argument('--pano-width',type=int,default=2048); p.add_argument('--pano-height',type=int,default=1024); p.add_argument('--scales',type=float,nargs='+',default=list(SCALES)); p.add_argument('--skip-render',action='store_true'); p.add_argument('--blender-bin',type=Path); p.add_argument('--appearance-manifest',type=Path); a=p.parse_args()
     root=ROOT; out=a.output_dir; out.mkdir(parents=True,exist_ok=True); started=time.perf_counter()
     vertices_all=np.load(a.geometry/'vertices.npy'); dense_all=np.load(a.geometry/'densekp_3d.npy'); vertices=vertices_all[a.frame]; dense=dense_all[a.frame]
     body_fp=fingerprint(vertices); dense_fp=fingerprint(dense[None]); np.save(out/'densekp_3d_source.npy',dense[None])
-    phase17_fp=json.loads((root/'outputs/fisheye_camera_p0/regression_report.json').read_text())['densekp_3d_fingerprint']['value']
+    phase17_fp=json.loads((root/'outputs/baselines/fisheye_camera_p0/regression_report.json').read_text())['densekp_3d_fingerprint']['value']
     lift=-float(vertices[:,1].min()); world=np.column_stack((dense[:,0],-dense[:,2],dense[:,1]+lift)); vw=np.column_stack((vertices[:,0],-vertices[:,2],vertices[:,1]+lift)); target=(vw.min(0)+vw.max(0))/2
     intr=OmniRadtanIntrinsics(); cams=[]; id_map={}
     for scale in a.scales:

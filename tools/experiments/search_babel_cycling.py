@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = Path('/home/yy/datasets/BABEL/babel_v1.0_release')
-OUT = ROOT/'outputs/cycling_motion_audit'
+OUT = ROOT/'outputs/audits/cycling_motion_audit'
 SPLITS = ['train','val','test','extra_train','extra_val']
 BROAD = re.compile(r'bik|bicycl|cycl|pedal|peddl|\bride\b|\briding\b|motor|horse|scooter',re.I)
 HIGH = re.compile(r'\b(?:rid(?:e|ing) (?:a )?bike|bicycle|bicycling|cycling|bike riding)\b',re.I)

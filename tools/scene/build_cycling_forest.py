@@ -16,7 +16,7 @@ from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[2]
 SOURCE=ROOT/'assets/scenes/photoreal/pine_forest'
 DEST=ROOT/'assets/scenes/photoreal/cycling_forest'
-OUT=ROOT/'outputs/cycling_forest'
+OUT=ROOT/'outputs/scenes/cycling_forest'
 parser=argparse.ArgumentParser()
 parser.add_argument('--samples',type=int,default=32)
 parser.add_argument('--width',type=int,default=1600)

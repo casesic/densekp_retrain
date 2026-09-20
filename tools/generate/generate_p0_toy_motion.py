@@ -3,30 +3,41 @@
 
 import argparse
 import json
+import sys
 import time
 from pathlib import Path
 
 import numpy as np
-import smplx
-import torch
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "src"))
+
+from densekp_retrain.body import (
+    compute_densekp_3d,
+    load_smplx_model,
+    validate_geometry,
+    write_geometry_arrays,
+)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--regressor", type=Path, default=Path("assets/densekp_regressor_R.npy"))
-    parser.add_argument("--output-dir", type=Path, default=Path("outputs/p0_perspective/geometry"))
+    parser.add_argument("--output-dir", type=Path, default=Path("outputs/baselines/p0_perspective/geometry"))
     parser.add_argument("--frames", type=int, default=16)
     args = parser.parse_args()
+    import torch
+
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     started = time.perf_counter()
-    kwargs = dict(gender="neutral", ext="npz", num_betas=10, use_pca=False,
-                  flat_hand_mean=True, batch_size=args.frames)
-    if (args.model_dir / "SMPLX_NEUTRAL.npz").is_file():
-        model = smplx.SMPLX(str(args.model_dir), **kwargs)
-    else:
-        model = smplx.create(str(args.model_dir), model_type="smplx", **kwargs)
+    model = load_smplx_model(
+        args.model_dir,
+        gender="neutral",
+        num_betas=10,
+        batch_size=args.frames,
+    )
 
     frames = args.frames
     phase = np.linspace(0.0, 1.0, frames, dtype=np.float32)
@@ -52,23 +63,21 @@ def main() -> None:
     vertices = result.vertices.cpu().numpy().astype(np.float32)
     faces = np.asarray(model.faces, dtype=np.int32)
     regressor = np.load(args.regressor)
-    if vertices.shape != (frames, 10475, 3):
-        raise RuntimeError(f"vertices shape 错误：{vertices.shape}")
+    validate_geometry(vertices, regressor, frames=frames)
     if faces.ndim != 2 or faces.shape[1] != 3:
         raise RuntimeError(f"faces shape 错误：{faces.shape}")
-    if regressor.shape != (138, 10475):
-        raise RuntimeError(f"DenseKP regressor shape 错误：{regressor.shape}")
-    if not np.isfinite(vertices).all():
-        raise RuntimeError("vertices 存在非有限值")
-    densekp_3d = np.einsum("kv,tvc->tkc", regressor, vertices, optimize=True).astype(np.float32)
+    densekp_3d = compute_densekp_3d(regressor, vertices)
     if not np.isfinite(densekp_3d).all():
         raise RuntimeError("densekp_3d 存在非有限值")
     if float(np.max(np.abs(vertices[-1] - vertices[0]))) <= 1e-4:
         raise RuntimeError("toy motion 没有产生可检测的顶点变化")
 
-    np.save(args.output_dir / "vertices.npy", vertices)
-    np.save(args.output_dir / "faces.npy", faces)
-    np.save(args.output_dir / "densekp_3d.npy", densekp_3d)
+    write_geometry_arrays(
+        args.output_dir,
+        vertices=vertices,
+        faces=faces,
+        densekp_3d=densekp_3d,
+    )
     np.savez(
         args.output_dir / "motion_params.npz",
         global_orient=global_orient,

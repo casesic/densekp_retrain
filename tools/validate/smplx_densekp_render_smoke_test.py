@@ -19,7 +19,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--regressor", type=Path, default=Path("assets/densekp_regressor_R.npy"))
-    parser.add_argument("--output-dir", type=Path, default=Path("outputs/headless_smoke"))
+    parser.add_argument("--output-dir", type=Path, default=Path("outputs/smoke/headless"))
     parser.add_argument("--size", type=int, default=512)
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)

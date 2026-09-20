@@ -15,7 +15,7 @@ from densekp_retrain.camera import OmniRadtanIntrinsics, project_points_omni_rad
 
 class FrozenNumericRegressionTest(unittest.TestCase):
     def test_perspective_densekp_and_camera_xyz(self):
-        output = ROOT / "outputs/p0_dressed_eye_background_fixed"
+        output = ROOT / "outputs/baselines/p0_dressed_eye_background_fixed"
         required = [
             output / "manifest.jsonl",
             output / "geometry/densekp_3d.npy",
@@ -43,8 +43,8 @@ class FrozenNumericRegressionTest(unittest.TestCase):
         self.assertLessEqual(max_xyz, 2e-7)
 
     def test_fisheye_densekp(self):
-        output = ROOT / "outputs/fisheye_camera_p0"
-        geometry = ROOT / "outputs/temporal_case_aaron_1095/geometry"
+        output = ROOT / "outputs/baselines/fisheye_camera_p0"
+        geometry = ROOT / "outputs/baselines/temporal_case_aaron_1095/geometry"
         required = [output / "camera_config.json", output / "densekp_3d_source.npy", geometry / "vertices.npy"]
         if not all(path.is_file() for path in required):
             self.skipTest("frozen fisheye output is not available")

@@ -20,7 +20,7 @@ parser.add_argument('--width', type=int, default=1600)
 parser.add_argument('--skip-render', action='store_true')
 args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else [])
 OUT = ROOT / 'assets/scenes/riverfront'
-PREVIEW = ROOT / 'outputs/riverfront'
+PREVIEW = ROOT / 'outputs/scenes/riverfront'
 OUT.mkdir(parents=True, exist_ok=True)
 PREVIEW.mkdir(parents=True, exist_ok=True)
 random.seed(41)

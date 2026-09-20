@@ -5,7 +5,7 @@ import numpy as np
 from scipy.optimize import least_squares
 
 ROOT=Path(__file__).resolve().parents[2]
-OUT=ROOT/'outputs/perspective_camera_stress'
+OUT=ROOT/'outputs/experiments/perspective_camera_stress'
 
 def project(points,world,camera,k):
     q=np.c_[points,np.ones(len(points))]@(np.linalg.inv(camera)@world).T

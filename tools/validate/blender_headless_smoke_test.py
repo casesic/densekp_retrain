@@ -8,7 +8,7 @@ from pathlib import Path
 import bpy
 
 
-output_dir = Path(os.environ.get("DENSEKP_SMOKE_OUTPUT", "outputs/headless_smoke")).resolve()
+output_dir = Path(os.environ.get("DENSEKP_SMOKE_OUTPUT", "outputs/smoke/headless")).resolve()
 output_dir.mkdir(parents=True, exist_ok=True)
 
 bpy.ops.wm.read_factory_settings(use_empty=True)

@@ -10,7 +10,7 @@ from pathlib import Path
 from mathutils import Vector
 
 ROOT=Path(__file__).resolve().parents[2]
-OUT=ROOT/'outputs/cycling_forest'
+OUT=ROOT/'outputs/scenes/cycling_forest'
 s=bpy.context.scene
 missing=[]
 for image in bpy.data.images:

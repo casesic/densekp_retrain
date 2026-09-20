@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from audit_cyclist_bvh import read_bvh
 
 ROOT=Path(__file__).resolve().parents[2]
-OUT=ROOT/'outputs/dedicated_cycling_mocap_audit'
+OUT=ROOT/'outputs/audits/dedicated_cycling_mocap_audit'
 mapping=[('Hips','pelvis',0),('LeftUpLeg','left_hip',1),('RightUpLeg','right_hip',2),
  ('Spine','spine1',3),('LeftLeg','left_knee',4),('RightLeg','right_knee',5),('Spine1','spine2',6),
  ('LeftFoot','left_ankle',7),('RightFoot','right_ankle',8),('Spine2','spine3',9),

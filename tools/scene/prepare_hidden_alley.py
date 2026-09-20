@@ -13,7 +13,7 @@ import bpy
 
 ROOT=Path(__file__).resolve().parents[2]
 ASSET=ROOT/'assets/scenes/photoreal/hidden_alley'
-OUT=ROOT/'outputs/photoreal_hidden_alley'
+OUT=ROOT/'outputs/scenes/photoreal_hidden_alley'
 p=argparse.ArgumentParser()
 p.add_argument('--samples',type=int,default=64)
 p.add_argument('--width',type=int,default=2048)

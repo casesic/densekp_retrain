@@ -1,7 +1,7 @@
 # 当前代码地图（CURRENT CODE MAP）
 
-> 生成日期：2026-09-19。本文档基于对仓库实际文件的逐个打开与调用链追踪，不是按文件名猜测。
-> 基线 commit：`d12b963`（"加入部分场景和暂存"），前一个 commit `1ad4259` 为 synthetic-render baseline。
+> 更新日期：2026-09-20。本文档基于对仓库实际文件与调用链的检查，不是按文件名猜测。
+> Phase 4 工作树基线 commit：`0b0e307`。
 
 ## 0. 一句话总结
 
@@ -88,6 +88,7 @@ densekp_retrain/
 | `tools/generate/generate_p0_toy_motion.py` | 确定性 16 帧 toy motion → SMPL-X 前向 → `vertices.npy/faces.npy/densekp_3d.npy/motion_params.npz/geometry_manifest.json`（几何制品的标准目录布局） | **在用**（P0 基线几何来源） |
 | `tools/generate/load_real_smplx_motion.py` | 真实 SMPL-X motion（`poses[T,165]`）→ canonical 参数 NPZ + 帧映射 | **在用** |
 | `tools/generate/generate_real_motion_geometry.py` | canonical motion → SMPL-X 前向 → 几何制品；`densekp_3d = einsum('kv,tvc->tkc', R, V)` | **在用**（当前主路径） |
+| `src/densekp_retrain/body/geometry.py` | 两个 geometry CLI 共用的 SMPL-X 创建、shape validation、原始 `einsum` 和数组写入 | **在用（库）** |
 | `tools/experiments/generate_cyclic_validation_motion.py` | 验证用确定性 cyclic gait（非真实 mocap） | 实验/验证 |
 | `tools/generate/prepare_p0_dressed_geometry.py` | BEDLAM 6fps clothing NPZ → `clothing_vertices/faces/uv` + manifest（固定映射 clothing_id*5, source=101+…） | **在用** |
 
@@ -119,13 +120,13 @@ densekp_retrain/
 | `tests/test_omni_radtan.py` | 单元测试：光轴、对称性、roundtrip（`python -m unittest tests.test_omni_radtan`） | **在用** |
 | `tools/fisheye/render_equirectangular_source.py` | Blender 内：HDRI-only ERP 源渲染（Combined/Depth/IndexOB） | **在用** |
 | `tools/fisheye/render_equirectangular_scene_source.py` | Blender 内：带静态 .blend 场景的 ERP 源渲染（Phase 18），import `tools/scene/blender_scene_bridge.py` | **在用** |
-| `tools/fisheye/run_fisheye_camera_p0.py` | ERP→fisheye warp（`warp_case`：remap、mask/depth、Omni-Radtan 投影 DenseKP、4cm 深度可见性、注记 npy、report）+ `pose()` 相机位姿构造 | **在用（核心）** |
+| `tools/fisheye/run_fisheye_camera_p0.py` | ERP→fisheye warp（`warp_case`：remap、mask/depth、Omni-Radtan 投影 DenseKP、4cm 深度可见性、注记 npy、report） | **在用（核心）** |
+| `src/densekp_retrain/camera/extrinsics.py` | `pose()` 相机位姿构造，供 fisheye CLI 共用 | **在用（库）** |
 | `tools/fisheye/run_fisheye_scene_p0.py` | Phase 18：场景 spec 校验（缺失则报 SCENE_ASSET_MISSING）→ 场景渲染 → 复用 warp_case | **在用** |
 | `tools/fisheye/run_fisheye_seam_sweep.py` / `run_human_scale_sweep.py` | 相机 yaw / 人像尺度扫描（复用 Phase 17 pipeline） | 实验 |
 | `src/densekp_retrain/scene/spec.py` | 场景资产 spec（dataclass + 校验，不含资产本体） | **在用（库）** |
 | `tools/scene/blender_scene_bridge.py` | bpy 侧：链接 .blend、可见性/地面控制、场景包围盒 | **在用（库）** |
 | `tools/scene/build_cycling_forest.py` / `build_reference_riverfront.py` / `prepare_hidden_alley.py` | 在 Blender 中构建骑行森林 / 河岸参考 / hidden alley 场景（需在 Blender 内或带 .blend 运行） | 场景资产制作 |
-| `tools/scene/inspect_*.py`（inspect_downloaded_scene / inspect_forest_nodes / inspect_pine_forest） | 只读检查下载场景的 Blender 内脚本 | 审计 |
 | `configs/fisheye_scene_p0.json` | 场景资产 spec（body 放置、ground_mode 等） | **在用** |
 
 ### E. DenseKP 标注生成与检查（喂给训练）
@@ -142,11 +143,11 @@ densekp_retrain/
 
 ### F. 外观 / 眼睛 / 纹理审计（历史 phase，冻结使用）
 
-`tools/experiments/audit_body_uv.py`、`audit_clothing_uv.py`、`audit_skin_texture.py`、`audit_eye_geometry.py`、`audit_eye_realism.py`、`prepare_procedural_eyes.py`、`make_appearance_comparison.py`、`make_environment_comparison.py`、`make_eye_fix_comparison.py`、`make_skin_texture_review.py`、`review_eye_background_fix.py` —— 均为一次性审计/对照图生成器，输出在 `outputs/`。它们已产出被后续脚本引用的资产（如 `outputs/eye_fix_v2/procedural_eye_coordinates.npz`），**不要删除**。
+`tools/experiments/audit_body_uv.py`、`audit_clothing_uv.py`、`audit_skin_texture.py`、`audit_eye_geometry.py`、`prepare_procedural_eyes.py`、`make_appearance_comparison.py`、`make_environment_comparison.py`、`make_eye_fix_comparison.py`、`make_skin_texture_review.py`、`review_eye_background_fix.py` —— 保留的审计/对照图生成器。`prepare_procedural_eyes.py` 仍是当前 eye asset 的生成来源；`audit_eye_geometry.py` 仍有代码调用方。
 
 ### G. 运动数据审计（骑行/BABEL/BVH）
 
-`tools/experiments/audit_cycling_motion.py`、`audit_cyclist_bvh.py`、`find_cyclist_clip.py`、`search_babel_cycling.py`、`review_cyclist_audit.py` —— 只读运动数据审计，为"骑行数据"阶段准备，不渲染。
+`audit_cyclist_bvh.py`、`find_cyclist_clip.py`、`search_babel_cycling.py`、`review_cyclist_audit.py` —— 可复现当前骑行候选检查的只读工具，不渲染。旧 local-inventory audit 的结论已固化在 `CYCLING_MOTION_AUDIT.md`，脚本已删除。
 
 ### H. 外部脚本与资产
 
@@ -177,7 +178,7 @@ densekp_retrain/
 
 ## 4. debug / legacy / experimental 分类
 
-- **核心可复用库**：`src/densekp_retrain/{runtime,io,camera,annotation,rendering,scene}`；尚未迁移的高风险实现为 `tools/fisheye/run_fisheye_camera_p0.py::warp_case/pose`、`tools/render/eye_background_render.py` 和 `tools/scene/blender_scene_bridge.py`。
+- **核心可复用库**：`src/densekp_retrain/{body,runtime,io,camera,annotation,rendering,scene}`；尚未迁移的高风险实现为 `tools/fisheye/run_fisheye_camera_p0.py::warp_case`、`tools/render/eye_background_render.py` 和 `tools/scene/blender_scene_bridge.py`。
 - **一次性审计（历史 phase 产物，保留不删）**：第 2.2 F/G 类全部。
 - **实验脚本（验证性 sweep）**：`run_fisheye_seam_sweep.py`、`run_human_scale_sweep.py`、`generate_cyclic_validation_motion.py`。
 - **没有发现** `old_xxx / xxx_final / xxx_v2` 命名的可删脚本；`eye_fix_v2` 是输出目录名而非脚本。
@@ -228,10 +229,10 @@ compute_loss（异方差 xy，×60）→ AdamW
 
 `outputs/`（gitignored）内含已验证样本，报告链见既有文档：
 
-- `outputs/p0_perspective/` — 16 帧 perspective 闭环（P0_PERSPECTIVE_CLOSED_LOOP.md）；
-- `outputs/p0_dressed_eye_background_fixed/` — 当前外观基线，被 `run_eye_background_fix.py`、`run_fisheye_*`、`run_temporal_case.py` 硬编码引用为 manifest 来源；
-- `outputs/fisheye_camera_p0/regression_report.json` — Phase 17 fisheye 基线（`densekp_3d_fingerprint` 被 Phase 18 比对）；
-- `outputs/perspective_camera_stress/` — 128 样本相机压力集；
+- `outputs/baselines/p0_perspective/` — 16 帧 perspective 闭环（`rendering/P0_PERSPECTIVE_CLOSED_LOOP.md`）；
+- `outputs/baselines/p0_dressed_eye_background_fixed/` — 当前外观基线，被 `run_eye_background_fix.py`、`run_fisheye_*`、`run_temporal_case.py` 引用为 manifest 来源；
+- `outputs/baselines/fisheye_camera_p0/regression_report.json` — Phase 17 fisheye 基线（`densekp_3d_fingerprint` 被 Phase 18 比对）；
+- `outputs/experiments/perspective_camera_stress/` — 128 样本相机压力集；
 - `datasets/densekp_bedlam_tiny/` — 训练格式闭环产物。
 
 任何"整理"都不应改变这些产物的数值链路（渲染器、投影、crop、visibility）。

@@ -12,7 +12,7 @@ def passes(p):
     if 'Depth' not in found or 'Mask' not in found: raise RuntimeError(f'EXR 缺少 Depth/Mask: {p}, {list(found)}')
     return found['Depth'],found['Mask']
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('--output-dir',type=Path,default=Path('outputs/p0_perspective')); a=p.parse_args(); out=a.output_dir
+    p=argparse.ArgumentParser(); p.add_argument('--output-dir',type=Path,default=Path('outputs/baselines/p0_perspective')); a=p.parse_args(); out=a.output_dir
     rec=[json.loads(x) for x in (out/'manifest.jsonl').read_text().splitlines()]; pts=np.load(out/'annotations/densekp_2d.npy'); xyz=np.load(out/'annotations/densekp_camera_xyz.npy')
     cfg=json.loads((out/'depth_test_config.json').read_text()); pd,_=passes(out/cfg['depth_file']); h,w=pd.shape; sx,sy=cfg['sample_pixel']; center=float(pd[h//2,w//2]); off=float(pd[sy,sx]); rx=((sx+.5)-w/2)/cfg['fx']; ez=cfg['plane_camera_z_m']; er=ez*math.sqrt(1+rx*rx); ze=abs(off-ez); re=abs(off-er); sem='EUCLIDEAN_RAY_DISTANCE' if re<ze else 'CAMERA_SPACE_Z'; dt=dict(cfg,center_depth=center,off_axis_depth=off,expected_camera_z=ez,expected_euclidean_range=er,camera_z_error=ze,euclidean_range_error=re,semantics=sem); (out/'depth_semantics.json').write_text(json.dumps(dt,indent=2)+'\n')
     frames=len(rec)

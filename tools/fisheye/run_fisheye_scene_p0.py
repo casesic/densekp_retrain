@@ -16,7 +16,8 @@ sys.path.insert(0,str(ROOT))
 sys.path.insert(0,str(ROOT/'tools'))
 from densekp_retrain.camera import OmniRadtanIntrinsics
 from densekp_retrain.scene import SceneAssetSpec, SceneAssetMissing
-from fisheye.run_fisheye_camera_p0 import warp_case, pose
+from densekp_retrain.camera import pose
+from fisheye.run_fisheye_camera_p0 import warp_case
 from densekp_retrain.runtime import find_blender_executable, load_appearance_baseline
 from densekp_retrain.rendering.process import run_logged
 
@@ -40,13 +41,13 @@ def gates(cam_dir, k):
     return {'mask':{'person_pixels':person_pixels,'valid_keypoints_on_person':on_person,'valid_keypoints_checked':checked,'mask_pass':mask_pass},'depth':{'person_depth_median_m':float(np.median(body_depth)) if body_depth.size else None,'scene_depth_median_m':float(np.median(scene_depth)) if scene_depth.size else None,'scene_pixels_fraction':float(scene_depth.size/depth.size),'depth_pass':depth_pass}}
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('--scene-spec',type=Path,default=Path('configs/fisheye_scene_p0.json')); p.add_argument('--geometry',type=Path,default=Path('outputs/temporal_case_aaron_1095/geometry')); p.add_argument('--clothing-geometry',type=Path,default=Path('outputs/temporal_case_aaron_1095/clothing_geometry')); p.add_argument('--output-dir','--output',dest='output_dir',type=Path,default=Path('outputs/fisheye_scene_p0')); p.add_argument('--frame',type=int,default=0); p.add_argument('--pano-width',type=int,default=2048); p.add_argument('--pano-height',type=int,default=1024); p.add_argument('--skip-render',action='store_true'); p.add_argument('--blender-bin',type=Path); p.add_argument('--appearance-manifest',type=Path); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--scene-spec',type=Path,default=Path('configs/fisheye_scene_p0.json')); p.add_argument('--geometry',type=Path,default=Path('outputs/baselines/temporal_case_aaron_1095/geometry')); p.add_argument('--clothing-geometry',type=Path,default=Path('outputs/baselines/temporal_case_aaron_1095/clothing_geometry')); p.add_argument('--output-dir','--output',dest='output_dir',type=Path,default=Path('outputs/experiments/fisheye_scene_p0')); p.add_argument('--frame',type=int,default=0); p.add_argument('--pano-width',type=int,default=2048); p.add_argument('--pano-height',type=int,default=1024); p.add_argument('--skip-render',action='store_true'); p.add_argument('--blender-bin',type=Path); p.add_argument('--appearance-manifest',type=Path); a=p.parse_args()
     root=ROOT; out=a.output_dir; out.mkdir(parents=True,exist_ok=True); started=time.perf_counter()
     vertices_all=np.load(a.geometry/'vertices.npy'); dense_all=np.load(a.geometry/'densekp_3d.npy'); vertices=vertices_all[a.frame]; dense=dense_all[a.frame]
     body_fp=fingerprint(vertices); clothing_fp=fingerprint(np.load(a.clothing_geometry/'clothing_vertices.npy')); dense_fp=fingerprint(dense[None])
     np.save(out/'densekp_3d_source.npy',dense[None])
-    phase17_fp=json.loads((root/'outputs/fisheye_camera_p0/regression_report.json').read_text())['densekp_3d_fingerprint']['value']
-    try: spec=SceneAssetSpec.from_file(root/a.scene_spec).validate(root); scene_error=None
+    phase17_fp=json.loads((root/'outputs/baselines/fisheye_camera_p0/regression_report.json').read_text())['densekp_3d_fingerprint']['value']
+    try: spec=SceneAssetSpec.from_file(root/a.scene_spec).validate(); scene_error=None
     except SceneAssetMissing as e: spec=None; scene_error=str(e)
     world=np.column_stack((dense[:,0],-dense[:,2],dense[:,1]+lift_offset(vertices)))
     if spec is not None and (spec.body_yaw_deg or any(spec.body_location)):

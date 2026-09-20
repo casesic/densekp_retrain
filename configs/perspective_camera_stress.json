@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "geometry_source": "outputs/p0_dressed_eye_background_fixed/geometry",
-  "appearance_baseline": "outputs/p0_dressed_eye_background_fixed",
+  "geometry_source": "outputs/baselines/p0_dressed_eye_background_fixed/geometry",
+  "appearance_baseline": "outputs/baselines/p0_dressed_eye_background_fixed",
   "placement_policy": "Per-frame deterministic camera translation; fixed camera rotation and intrinsics; full SMPL-X bbox",
   "baseline_note": "Original framing is 76% high with ~2px bottom clipping. C0 is a 60% centered camera-only reference so near_70 increases size and baseline is complete.",
   "near_safety_margin_m": 0.10,

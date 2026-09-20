@@ -8,17 +8,10 @@ ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'src'))
 sys.path.insert(0,str(ROOT))
 sys.path.insert(0,str(ROOT/'tools'))
-from densekp_retrain.camera import OmniRadtanIntrinsics, project_points_omni_radtan, unproject_pixels_omni_radtan
+from densekp_retrain.camera import OmniRadtanIntrinsics, pose, project_points_omni_radtan, unproject_pixels_omni_radtan
 from densekp_retrain.io import linear_to_srgb, read_combined_depth_index
 from densekp_retrain.rendering.process import run_logged
 from densekp_retrain.runtime import find_blender_executable, load_appearance_baseline
-
-def pose(target, origin, yaw_deg):
-    yaw=np.deg2rad(yaw_deg); right=np.array([np.cos(yaw),-np.sin(yaw),0.]); down=np.array([0.,0.,-1.]); forward=np.array([np.sin(yaw),np.cos(yaw),0.])
-    p=np.eye(4); p[:3,:3]=np.column_stack((right,down,forward)); p[:3,3]=origin; return p
-
-def read_exr(path):
-    return read_combined_depth_index(path)
 
 def scalar_reference(points, camera, k):
     inv=np.linalg.inv(camera); out=[]
@@ -27,7 +20,7 @@ def scalar_reference(points, camera, k):
     return np.asarray(out)
 
 def warp_case(source, output, points, camera, k, source_keypoints=None, source_fingerprint=None):
-    output.mkdir(parents=True,exist_ok=True); rgb,depth,index,channels=read_exr(source); h,w=depth.shape
+    output.mkdir(parents=True,exist_ok=True); rgb,depth,index,channels=read_combined_depth_index(source); h,w=depth.shape
     yy,xx=np.indices((k.height,k.width),dtype=np.float64); pixels=np.column_stack((xx.ravel(),yy.ravel())); rays,domain=unproject_pixels_omni_radtan(pixels,k,return_valid=True)
     lon=np.arctan2(rays[:,0],rays[:,2]); lat=np.arcsin(np.clip(-rays[:,1],-1,1)); mapx=((lon/(2*np.pi)+.5)*w).reshape(k.height,k.width).astype(np.float32); mapy=((.5-lat/np.pi)*h).reshape(k.height,k.width).astype(np.float32)
     valid=domain.reshape(k.height,k.width); mapx[~valid]=-1; mapy[~valid]=-1
@@ -54,7 +47,7 @@ def warp_case(source, output, points, camera, k, source_keypoints=None, source_f
     (output/'case_report.json').write_text(json.dumps(report,indent=2)+'\n'); return report
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('--geometry',type=Path,default=Path('outputs/temporal_case_aaron_1095/geometry')); p.add_argument('--clothing-geometry',type=Path,default=Path('outputs/temporal_case_aaron_1095/clothing_geometry')); p.add_argument('--output-dir','--output',dest='output_dir',type=Path,default=Path('outputs/fisheye_camera_p0')); p.add_argument('--frame',type=int,default=0); p.add_argument('--pano-width',type=int,default=2048); p.add_argument('--pano-height',type=int,default=1024); p.add_argument('--skip-render',action='store_true'); p.add_argument('--blender-bin',type=Path); p.add_argument('--appearance-manifest',type=Path); a=p.parse_args(); root=ROOT; out=a.output_dir; out.mkdir(parents=True,exist_ok=True); started=time.perf_counter()
+    p=argparse.ArgumentParser(); p.add_argument('--geometry',type=Path,default=Path('outputs/baselines/temporal_case_aaron_1095/geometry')); p.add_argument('--clothing-geometry',type=Path,default=Path('outputs/baselines/temporal_case_aaron_1095/clothing_geometry')); p.add_argument('--output-dir','--output',dest='output_dir',type=Path,default=Path('outputs/baselines/fisheye_camera_p0')); p.add_argument('--frame',type=int,default=0); p.add_argument('--pano-width',type=int,default=2048); p.add_argument('--pano-height',type=int,default=1024); p.add_argument('--skip-render',action='store_true'); p.add_argument('--blender-bin',type=Path); p.add_argument('--appearance-manifest',type=Path); a=p.parse_args(); root=ROOT; out=a.output_dir; out.mkdir(parents=True,exist_ok=True); started=time.perf_counter()
     vertices_all=np.load(a.geometry/'vertices.npy'); dense_all=np.load(a.geometry/'densekp_3d.npy'); vertices=vertices_all[a.frame]; dense=dense_all[a.frame]
     source_fingerprint=hashlib.blake2b(dense[None].tobytes(),digest_size=16).hexdigest()
     np.save(out/'densekp_3d_source.npy',dense[None])

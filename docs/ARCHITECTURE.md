@@ -15,11 +15,12 @@ BEDLAM clothing NPZ + SMPL-X motion
         ↓
    SMPL-X forward（pytorch smplx 模型）
    tools/generate/generate_real_motion_geometry.py :: main()
+     → src/densekp_retrain/body/geometry.py :: load_smplx_model()
      - smplx.SMPLX(model_dir, gender, num_betas, use_pca=False, flat_hand_mean=True)
      - vertices [T,10475,3] float32；faces = model.faces
         ↓
    DenseKP 3D（同一几何源）
-   tools/generate/generate_real_motion_geometry.py :: main()
+   src/densekp_retrain/body/geometry.py :: compute_densekp_3d()
      - dense = np.einsum('kv,tvc->tkc', R, vertices)   # R=assets/densekp_regressor_R.npy [138,10475]
    （toy 路径等价实现在 tools/generate/generate_p0_toy_motion.py）
         ↓
@@ -79,7 +80,7 @@ geometry/（同 A）
         ↓  SMPL-X→Blender world 在 NumPy 中做等价变换
 tools/fisheye/run_fisheye_camera_p0.py :: main()
    - lift = -min(y)；world = column_stack((x, -z, y)) + lift      # = conv 矩阵的列变换
-   - pose(target, origin, yaw_deg)                                # camera_to_world，CV 约定
+   - src/densekp_retrain/camera/extrinsics.py :: pose()           # camera_to_world，CV 约定
         ↓
 Blender ERP 源渲染（PANO EQUIRECTANGULAR 相机）
    tools/fisheye/render_equirectangular_source.py            （HDRI-only）

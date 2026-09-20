@@ -19,7 +19,7 @@ from PIL import Image
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output-dir", type=Path, default=Path("outputs/headless_smoke"))
+    parser.add_argument("--output-dir", type=Path, default=Path("outputs/smoke/headless"))
     parser.add_argument("--frames", type=int, default=10)
     parser.add_argument("--size", type=int, default=256)
     args = parser.parse_args()

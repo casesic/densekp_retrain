@@ -16,7 +16,7 @@ from PIL import Image
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output-dir", type=Path, default=Path("outputs/p0_perspective"))
+    parser.add_argument("--output-dir", type=Path, default=Path("outputs/baselines/p0_perspective"))
     args = parser.parse_args()
     geometry = args.output_dir / "geometry"
     vertices = np.load(geometry / "vertices.npy")

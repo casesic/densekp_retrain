@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 root=Path(__file__).resolve().parents[2]
-before=root/'outputs/p0_dressed_textured'; after=root/'outputs/p0_dressed_skin_textured'
+before=root/'outputs/baselines/p0_dressed_textured'; after=root/'outputs/baselines/p0_dressed_skin_textured'
 rows=[json.loads(x) for x in (after/'manifest.jsonl').read_text().splitlines()]
 v=np.load(after/'geometry/vertices.npy')
 model=np.load(Path(json.loads((after/'geometry/geometry_manifest.json').read_text())['model_dir'])/'SMPLX_MALE.npz',allow_pickle=True)
