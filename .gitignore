@@ -1,6 +1,8 @@
 data/
 !configs/hydra/data/
 configs/hydra/data/*
+!configs/hydra/data/unselected.yaml
+!configs/hydra/data/p0_dressed_tiny.yaml
 !configs/hydra/data/ds_multiperson_tiny.yaml
 !configs/hydra/data/omni_near_erp_tiny.yaml
 outputs/

@@ -25,18 +25,18 @@ from densekp.core.datasets.datamodule_keypoints import DataModule
 from densekp.core.densekp_trainer import DenseKP
 from densekp.core.utils.pylogger import get_pylogger
 from densekp.core.utils.misc import task_wrapper, log_hyperparameters
-from pytorch_lightning.strategies import DDPStrategy
+from densekp.core.training_config import validate_training_config
+from densekp.core.checkpointing import ValidationCheckpoint
 import signal
 signal.signal(signal.SIGUSR1, signal.SIG_DFL)
 log = get_pylogger(__name__)
 import torch
 torch.set_float32_matmul_precision('medium')
-torch.manual_seed(0)
 
 @pl.utilities.rank_zero.rank_zero_only
 def save_configs(model_cfg: CfgNode, dataset_cfg: CfgNode, rootdir: str):
     Path(rootdir).mkdir(parents=True, exist_ok=True)
-    OmegaConf.save(config=model_cfg, f=os.path.join(rootdir, 'model_config.yaml'))
+    OmegaConf.save(config=model_cfg, f=os.path.join(rootdir, 'model_config.yaml'), resolve=True)
     with open(os.path.join(rootdir, 'dataset_config.yaml'), 'w') as f:
         f.write(dataset_cfg.dump())
 
@@ -44,6 +44,9 @@ def save_configs(model_cfg: CfgNode, dataset_cfg: CfgNode, rootdir: str):
 @task_wrapper
 def train(cfg: DictConfig) -> Tuple[dict, dict]:
 
+    validate_training_config(cfg)
+    if cfg.get('seed') is not None:
+        pl.seed_everything(int(cfg.seed), workers=True)
     dataset_cfg = dataset_config()
     save_configs(cfg, dataset_cfg, cfg.paths.output_dir)
     datamodule = DataModule(cfg, dataset_cfg)
@@ -57,9 +60,9 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
     loggers = [logger]
 
     # Setup checkpoint saving
-    checkpoint_callback = pl.callbacks.ModelCheckpoint(
+    checkpoint_callback = ValidationCheckpoint(
         dirpath=os.path.join(cfg.paths.output_dir, 'checkpoints'), 
-        every_n_train_steps=cfg.GENERAL.CHECKPOINT_STEPS, 
+        every_n_steps=cfg.GENERAL.CHECKPOINT_STEPS,
         save_last=True,
         save_top_k=cfg.GENERAL.CHECKPOINT_SAVE_TOP_K,
         monitor='val_loss'
@@ -73,16 +76,7 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
         rich_callback
     ]
 
-    trainer = pl.Trainer(
-            accelerator='gpu',
-            devices=1,
-            log_every_n_steps=500,
-            val_check_interval=cfg.trainer.val_check_interval,
-            precision='16-mixed',
-            max_steps=cfg.trainer.max_steps,
-            logger=loggers,
-            callbacks=callbacks,
-        )
+    trainer = hydra.utils.instantiate(cfg.trainer, logger=loggers, callbacks=callbacks)
     object_dict = {
         "cfg": cfg,
         "datamodule": datamodule,
@@ -99,9 +93,14 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
 
     # Upstream hard-coded ``ckpt_path='last'``.  Keep fresh runs deterministic;
     # resume only when the caller supplies a checkpoint explicitly.
-    trainer.fit(model, datamodule=datamodule, ckpt_path=cfg.get('ckpt_path'))
+    if cfg.get('train', True):
+        trainer.fit(model, datamodule=datamodule, ckpt_path=cfg.get('ckpt_path'))
+    if cfg.get('test', False):
+        test_checkpoint = (checkpoint_callback.best_model_path or None) if cfg.get('train', True) else cfg.get('ckpt_path')
+        trainer.test(model, datamodule=datamodule, ckpt_path=test_checkpoint)
 
-    log.info("Fitting done")
+    log.info("Run finished")
+    return dict(trainer.callback_metrics), object_dict
 
 
 @hydra.main(version_base="1.2", config_path=str(root/"configs/hydra"), config_name="train.yaml")

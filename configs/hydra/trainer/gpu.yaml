@@ -3,4 +3,4 @@ defaults:
   - default_hmr.yaml
 
 accelerator: gpu
-devices: 2
+devices: 1

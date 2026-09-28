@@ -75,3 +75,7 @@
 - [Phase 4 delete candidates](refactor/PHASE4_DELETE_CANDIDATES.md) — dead-code decisions.
 - [Phase 4 deferred cleanup](refactor/PHASE4_DEFERRED_CLEANUP.md) — work deferred pending regression coverage.
 - [Phase 1–2 report](refactor/REFACTOR_REPORT.md) — earlier refactor history.
+
+## DenseKP correctness update
+
+- [2026-09-28 correctness fixes and boundary refactor](refactor/DENSEKP_CORRECTNESS_20260928.md) — current data contract, migration, tests and remaining training gates.

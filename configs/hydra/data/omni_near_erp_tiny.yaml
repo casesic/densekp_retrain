@@ -3,3 +3,5 @@
 DATASETS:
   DATASETS_AND_RATIOS: omni-near-erp-tiny
   VAL_DATASETS: omni-near-erp-tiny
+  # These generators explicitly write binary supervision masks in channel 2.
+  TARGET_VALUE_SEMANTICS: supervision_weight

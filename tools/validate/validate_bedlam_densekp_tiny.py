@@ -22,13 +22,14 @@ from densekp.core.datasets.utils import trans_points2d_parallel  # noqa: E402
 DATASET_NAME = "bedlam-densekp-tiny-audit"
 
 
-def audit_cfg() -> CN:
+def audit_cfg(value_semantics=None) -> CN:
     cfg = CN(new_allowed=True)
     cfg.MODEL = CN(new_allowed=True)
     cfg.MODEL.IMAGE_SIZE = 256
     cfg.MODEL.IMAGE_MEAN = [0.485, 0.456, 0.406]
     cfg.MODEL.IMAGE_STD = [0.229, 0.224, 0.225]
     cfg.DATASETS = CN(new_allowed=True)
+    cfg.DATASETS.TARGET_VALUE_SEMANTICS = value_semantics
     cfg.DATASETS.USE_SKIMAGE_ANTIALIAS = False
     cfg.DATASETS.BORDER_MODE = "constant"
     cfg.DATASETS.CONFIG = CN(new_allowed=True)
@@ -77,7 +78,7 @@ def main() -> int:
 
     DATASET_FOLDERS[DATASET_NAME] = str(image_root)
     DATASET_FILES[True][DATASET_NAME] = str(annotation)
-    dataset = DatasetKeypoints(audit_cfg(), DATASET_NAME, use_augmentation=False, is_train=True)
+    dataset = DatasetKeypoints(audit_cfg("supervision_weight"), DATASET_NAME, use_augmentation=False, is_train=True)
 
     original_dir = args.output / "original"
     cropped_dir = args.output / "cropped"

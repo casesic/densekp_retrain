@@ -4,5 +4,5 @@ val_check_interval: ${GENERAL.VAL_STEPS}
 precision: 16-mixed
 max_steps: ${GENERAL.TOTAL_STEPS}
 # move_metrics_to_cpu: True
-limit_val_batches: 1
+limit_val_batches: 1.0  # all validation batches, not one batch
 # track_grad_norm: -1

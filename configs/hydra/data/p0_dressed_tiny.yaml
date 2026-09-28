@@ -1,0 +1,7 @@
+# @package _global_
+# Local smoke fixture only; not an independent validation corpus.
+DATASETS:
+  DATASETS_AND_RATIOS: p0-dressed-tiny
+  VAL_DATASETS: p0-dressed-tiny
+  # This producer writes all-one supervision, including hidden points.
+  TARGET_VALUE_SEMANTICS: supervision_weight

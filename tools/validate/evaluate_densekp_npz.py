@@ -26,9 +26,12 @@ def main():
     parser.add_argument("--checkpoint", type=Path, default=ROOT / "assets_external/densekp.ckpt")
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--output", type=Path, default=ROOT / "outputs/experiments/fisheye_multiperson_hires/baseline.json")
+    parser.add_argument("--target-value-semantics", required=True, choices=["supervision_weight"],
+                        help="Confirm producer-defined target semantics; not model keypoint_value")
     args = parser.parse_args()
     with initialize_config_dir(version_base="1.2", config_dir=str(ROOT / "configs/hydra")):
         cfg = compose(config_name="train", overrides=["experiment=densekp"])
+    cfg.DATASETS.TARGET_VALUE_SEMANTICS = args.target_value_semantics
     device = torch.device(args.device)
     torch.set_float32_matmul_precision("medium")
     model = DenseKP.load_from_checkpoint(str(args.checkpoint), cfg=cfg, map_location="cpu")
@@ -37,8 +40,7 @@ def main():
     overlay_dir = args.output.parent / "baseline_overlays"
     overlay_dir.mkdir(parents=True, exist_ok=True)
     for split, is_train in (("train", True), ("val", False)):
-        dataset = DatasetKeypoints(cfg, args.dataset, is_train=is_train)
-        dataset.is_train = False  # select train NPZ without stochastic augmentation
+        dataset = DatasetKeypoints(cfg, args.dataset, is_train=is_train, use_augmentation=False)
         with np.load(DATASET_FILES[is_train][args.dataset]) as data:
             person_ids = data["person_id"] if "person_id" in data else np.full(len(dataset), -1)
             camera_ids = data["camera_id"] if "camera_id" in data else np.full(len(dataset), "unknown")
@@ -48,7 +50,12 @@ def main():
                 output = model({"img": torch.from_numpy(item["img"][None]).to(device)})["pred_keypoints"]
             predicted = output[0, :, :2].float().cpu().numpy()
             target = item["proj_verts_cropped"][:, :2]
-            visible = item["proj_verts_cropped"][:, 2] > .5
+            weights = item['proj_verts_cropped'][:, 2]
+            if not np.isin(weights, [0., 1.]).all():
+                raise ValueError('This diagnostic evaluator requires binary supervision masks')
+            if not np.isfinite(predicted).all():
+                raise ValueError(f"nonfinite model prediction: {item['imgname']}")
+            visible = weights > 0
             if not visible.any():
                 raise ValueError(f"no visible points: {item['imgname']}")
             error = np.linalg.norm(predicted - target, axis=1) * cfg.MODEL.IMAGE_SIZE

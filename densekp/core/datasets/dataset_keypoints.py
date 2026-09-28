@@ -1,13 +1,13 @@
 
 import os
 import cv2
-import torch
 import copy
 import numpy as np
 from torch.utils.data import Dataset
 
 from .utils import expand_to_aspect_ratio, get_example_projverts
 from ..configs import DATASET_FOLDERS, DATASET_FILES
+from ..keypoint_contract import validate_annotations
 from ..constants import FLIP_KEYPOINT_PERMUTATION, NUM_JOINTS
 from ..utils.pylogger import get_pylogger
 
@@ -19,6 +19,9 @@ class DatasetKeypoints(Dataset):
         self.dataset = dataset
         self.is_train = is_train
         self.cfg = cfg
+        self.use_augmentation = bool(use_augmentation)
+        if is_train and self.use_augmentation and cfg.DATASETS.CONFIG.DO_FLIP and cfg.DATASETS.CONFIG.FLIP_AUG_RATE > 0:
+            raise ValueError("DenseKP flipping requires a verified 138-point semantic permutation")
 
         self.IMG_SIZE = cfg.MODEL.IMAGE_SIZE
         self.BBOX_SHAPE = cfg.MODEL.get('BBOX_SHAPE', None)
@@ -31,7 +34,9 @@ class DatasetKeypoints(Dataset):
         }[cfg.DATASETS.get('BORDER_MODE', 'constant')]
 
         self.img_dir = DATASET_FOLDERS[dataset] 
-        self.data = np.load(DATASET_FILES[is_train][dataset], allow_pickle=True)
+        with np.load(DATASET_FILES[is_train][dataset], allow_pickle=True) as archive:
+            self.data = {key: archive[key] for key in ('imgname', 'scale', 'center', 'proj_verts', 'part', 'gtkps') if key in archive}
+        validate_annotations(self.data, cfg.DATASETS.get('TARGET_VALUE_SEMANTICS'))
         self.imgname = self.data['imgname']
         # Bounding boxes are assumed to be in the center and scale format
         self.scale = self.data['scale']
@@ -43,7 +48,10 @@ class DatasetKeypoints(Dataset):
             self.keypoints = self.data['gtkps'][:,:NUM_JOINTS]
         else:
             self.keypoints = np.zeros((len(self.imgname), NUM_JOINTS, 3))    
-        self.proj_verts = self.data['proj_verts']
+        if self.keypoints.shape != (len(self.imgname), NUM_JOINTS, 3):
+            raise ValueError(f'Auxiliary keypoints must have shape [N,{NUM_JOINTS},3]')
+        self.keypoints = self.keypoints.astype(np.float32)
+        self.proj_verts = self.data['proj_verts'].astype(np.float32)
         self.length = self.scale.shape[0]
 
         log.info(f'Loaded {self.dataset} dataset, num samples {self.length}')
@@ -53,12 +61,11 @@ class DatasetKeypoints(Dataset):
         scale = self.scale[index].copy()
         center = self.center[index].copy()
         keypoints_2d = self.keypoints[index].copy()
-        orig_keypoints_2d = self.keypoints[index].copy()
         center_x = center[0]
         center_y = center[1]
         bbox_size = expand_to_aspect_ratio(scale*200, target_aspect_ratio=self.BBOX_SHAPE).max()
         if bbox_size < 1:
-            breakpoint()
+            raise ValueError(f"{self.dataset}[{index}]: bbox size must be at least one pixel")
 
         imgname = os.path.join(self.img_dir, self.imgname[index])
         augm_config = copy.deepcopy(self.cfg.DATASETS.CONFIG)
@@ -74,7 +81,7 @@ class DatasetKeypoints(Dataset):
                                       FLIP_KEYPOINT_PERMUTATION,
                                       self.proj_verts[index].copy(),
                                       self.IMG_SIZE, self.IMG_SIZE,
-                                      self.MEAN, self.STD, self.is_train, augm_config,
+                                      self.MEAN, self.STD, self.is_train and self.use_augmentation, augm_config,
                                       is_bgr=True, 
                                       use_skimage_antialias=self.use_skimage_antialias,
                                       border_mode=self.border_mode,
