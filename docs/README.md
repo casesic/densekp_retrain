@@ -79,3 +79,5 @@
 ## DenseKP correctness update
 
 - [2026-09-28 correctness fixes and boundary refactor](refactor/DENSEKP_CORRECTNESS_20260928.md) — current data contract, migration, tests and remaining training gates.
+
+- [Real DenseKP GPU acceptance](refactor/DENSEKP_REAL_MODEL_ACCEPTANCE_20260928.md) — checkpoint lifecycle, AMP skipped updates and edge-truncated person evaluation scope.

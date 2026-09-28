@@ -5,6 +5,9 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 class ValidationCheckpoint(ModelCheckpoint):
     """Save at the first validation at least ``every_n_steps`` after the last save.
 
+    Steps mean Lightning global_step (optimizer attempts). AMP can skip a real
+    parameter update while this counter still advances.
+
     A train-batch callback sees the previous validation's metric. Saving there
     would associate a stale score with new weights. Epoch-end saves are disabled.
     """

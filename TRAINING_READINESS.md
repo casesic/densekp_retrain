@@ -8,6 +8,48 @@
 > Statements below that production code was unchanged refer to the archaeology phase;
 > baseline bug descriptions and unchecked checklists are not the current fix status.
 
+
+## Current target clarification: edge-truncated people (2026-09-28)
+
+The user's principal DenseKP target is the **same person observed incompletely at
+single-camera image/valid-FOV edges**, for semantic point correspondence across
+cameras. `20260320-riding-dataset3` and its 20260320 calibration remain the real
+reference. Complete people can still enter through the detector's restricted FOV;
+retain them as controls, but do not let them dominate the target evaluation.
+
+The downstream system already refines correspondence through two-view human
+reconstruction with shared pose and shape. This is user-provided deployment
+context, not a new code-level audit claim. DenseKP's primary acceptance metric
+must remain the raw, pre-reconstruction 2D localization error; record any
+reconstruction improvement separately. Shared pose/shape constraints can regularize
+observations, but do not establish that input DenseKP correspondences are accurate.
+
+- Keep existing detected boxes fixed. Detector recall and panorama compositing are
+  outside this conversation's implementation scope.
+- Record whether truncation comes from the native camera/valid-FOV boundary, the
+  detection ROI boundary, or the DenseKP crop. ERP longitude wrap is a separate
+  coordinate issue, not proof that body content was physically unobserved.
+- Build paired views of the same person at the same time, with verified 138-row
+  correspondence. The current synthetic independent camera/person placements do
+  not by themselves establish synchronized cross-camera pair supervision.
+- Group by distance to the physical/FOV edge, truncation/body coverage, distortion,
+  occlusion and neighboring people. Track bbox clipping and retain crop-to-full
+  image transforms for both views.
+- Evaluate per-view localization and paired semantic correspondence on annotated
+  shared-visible points. Separately report one-view-visible and neither-view-visible
+  points; a global 138-point average can conceal failures in useful shared points.
+  Raw pixel positions in distinct cameras are not directly comparable: correspondence
+  error needs per-view ground truth or a validated camera-geometric residual.
+- Annotate out-of-FOV, physical occlusion and crop exclusion separately. Choose the
+  supervision policy explicitly; the user's clarification does not establish that
+  all hidden points should be masked or that predicted keypoint_value is confidence.
+
+The pending data milestone is a fixed-box, paired, edge-truncation evaluation set,
+followed by a training corpus with matching coverage. The [true-model smoke](docs/refactor/DENSEKP_REAL_MODEL_ACCEPTANCE_20260928.md)
+passed bounded loading/update/save/resume checks but cannot demonstrate performance
+on this target. AMP skipped 14 of the first 16 optimizer attempts; longer-window
+numerical stability remains an open gate.
+
 Baseline: `8553ccd2d3117755e595ae97c8522c303bd05ceb`; audited 2026-09-28. This document is a handoff to the separate training conversation. It records verification/fix gates; it does not authorize or claim that this audit performed training or refactoring.
 
 **Assessment: not yet demonstrated ready for a full DenseKP retraining run.** Core local geometry, the small regression suite, and the subsequent same-bbox production preprocessing/restoration comparison pass. Reproducible configuration/data provenance, a formal deployment-targeted corpus and independent evaluation, the original-BEDLAM RGB correspondence chain if used, and actual model/backend inference parity remain unresolved. Some confirmed bugs are dormant under the default DenseKP augmentation settings and can be excluded by an explicit supported configuration while later fixes are reviewed.

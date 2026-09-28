@@ -78,7 +78,7 @@ NPZ + 显式标签语义
 只要期间参数更新，这就不能保证分数与权重对应。若 checkpoint 不参与排名、参数未变或回调实际
 安排在当前验证之后，则此具体触发条件不成立。
 
-现改为 `ValidationCheckpoint`：每经过 `GENERAL.CHECKPOINT_STEPS` 个更新后，在第一次完成的
+现改为 `ValidationCheckpoint`：每经过 `GENERAL.CHECKPOINT_STEPS` 个 Lightning 训练步后（AMP 跳步仍可能计数），在第一次完成的
 验证结束处保存。保存周期可能向下一次验证延后。`last` 也在这些验证保存点更新；这不是独立的
 训练中途故障恢复定时器。仍用 **loader 0 的 `val_loss`** 排名；其他验证集分别报告，不混合加权。
 
@@ -91,7 +91,8 @@ NPZ + 显式标签语义
 ## 验证证据
 
 同步到当前目录后，完整回归 **31 项全部通过，0 跳过**（原有 18 项 + 新增 13 项）；
-`git diff --check` 通过。未启动全量训练或真实 ViT 的 GPU 训练。
+`git diff --check` 通过。这一实现批次未启动全量训练或真实 ViT 的 GPU 训练；后续真实模型验收见
+[验收报告](DENSEKP_REAL_MODEL_ACCEPTANCE_20260928.md)。
 
 1. `tests/test_densekp_boundaries.py`：旋转/矩形裁剪与逆变换、增强后的图像与标签对齐、
    第三字段不被空间变换、翻转拒绝、平移概率、抗锯齿方向、标签契约、遮挡 NaN、

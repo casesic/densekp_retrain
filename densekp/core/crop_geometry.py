@@ -91,13 +91,13 @@ def trans_points2d_parallel(keypoints_2d: np.array, trans:np.array):
 
     ones = np.ones((keypoints_2d.shape[0], 1))
     keypoints_augmented = np.hstack([keypoints_2d, ones])
-    
+
     # Perform the transformation: (3, 3) dot (N, 3)^T => (3, N)
     transformed_keypoints = np.dot(trans, keypoints_augmented.T).T
-    
+
     # Extract the transformed 2D points by discarding the last row
     transformed_keypoints_2d = transformed_keypoints[:, :2]
-    
+
     return transformed_keypoints_2d
 
 

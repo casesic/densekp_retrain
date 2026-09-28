@@ -1,0 +1,343 @@
+{
+  "fresh": {
+    "status": "passed",
+    "phase": "fresh",
+    "git_commit": "35ad01e96e3821e3d0e08b03a1345ad673e0674c",
+    "torch": "2.0.0+cu118",
+    "lightning": "2.0.2",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "precision": "16-mixed",
+    "with_var": true,
+    "input_checkpoint": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/assets_external/densekp.ckpt",
+    "checkpoint": "outputs/acceptance/densekp_real_20260928/fresh_verified/checkpoints/last.ckpt",
+    "dataset": "p0-dressed-tiny (smoke only)",
+    "train_samples": 12,
+    "validation_samples": 4,
+    "initial_step": 0,
+    "final_step": 16,
+    "optimizer_attempts": [
+      {
+        "step_before_update": 0,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 65536.0
+      },
+      {
+        "step_before_update": 1,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 32768.0
+      },
+      {
+        "step_before_update": 2,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 16384.0
+      },
+      {
+        "step_before_update": 3,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 8192.0
+      },
+      {
+        "step_before_update": 4,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 4096.0
+      },
+      {
+        "step_before_update": 5,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 2048.0
+      },
+      {
+        "step_before_update": 6,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 1024.0
+      },
+      {
+        "step_before_update": 7,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 512.0
+      },
+      {
+        "step_before_update": 8,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 256.0
+      },
+      {
+        "step_before_update": 9,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 128.0
+      },
+      {
+        "step_before_update": 10,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 64.0
+      },
+      {
+        "step_before_update": 11,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": true
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": true
+          }
+        },
+        "finite": true,
+        "amp_scale": 32.0
+      },
+      {
+        "step_before_update": 12,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": false
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 32.0
+      },
+      {
+        "step_before_update": 13,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": true
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 16.0
+      },
+      {
+        "step_before_update": 14,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": true
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": false
+          }
+        },
+        "finite": false,
+        "amp_scale": 8.0
+      },
+      {
+        "step_before_update": 15,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": true
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": true
+          }
+        },
+        "finite": true,
+        "amp_scale": 4.0
+      }
+    ],
+    "successful_updates": 2,
+    "amp_skipped_updates": 14,
+    "final_amp_scale": 4.0,
+    "parameter_probe_changes": {
+      "backbone": 2.002716064453125e-05,
+      "head": 2.002716064453125e-05
+    },
+    "resume_prediction_max_error": null,
+    "metrics": {
+      "train/loss": 980.2080078125,
+      "train/loss_step": 915.3294067382812,
+      "val/scored_people_0": 4.0,
+      "val/empty_people_0": 0.0,
+      "val/crop_l2_0": 0.03192080184817314,
+      "val_loss": 0.03192080184817314,
+      "train/loss_epoch": 980.2080078125
+    },
+    "max_cuda_memory_bytes": 17915255808,
+    "scope": "real-model runtime compatibility; not an accuracy or dataset-independence evaluation"
+  },
+  "resume": {
+    "status": "passed",
+    "phase": "resume",
+    "git_commit": "35ad01e96e3821e3d0e08b03a1345ad673e0674c",
+    "torch": "2.0.0+cu118",
+    "lightning": "2.0.2",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "precision": "16-mixed",
+    "with_var": true,
+    "input_checkpoint": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/acceptance/densekp_real_20260928/fresh_verified/checkpoints/last.ckpt",
+    "checkpoint": "outputs/acceptance/densekp_real_20260928/resume_verified/checkpoints/last.ckpt",
+    "dataset": "p0-dressed-tiny (smoke only)",
+    "train_samples": 12,
+    "validation_samples": 4,
+    "initial_step": 16,
+    "final_step": 17,
+    "optimizer_attempts": [
+      {
+        "step_before_update": 16,
+        "gradients": {
+          "backbone": {
+            "gradient_tensors": 389,
+            "finite": true
+          },
+          "head": {
+            "gradient_tensors": 107,
+            "finite": true
+          }
+        },
+        "finite": true,
+        "amp_scale": 4.0
+      }
+    ],
+    "successful_updates": 1,
+    "amp_skipped_updates": 0,
+    "final_amp_scale": 4.0,
+    "parameter_probe_changes": {
+      "backbone": 1.0029703844338655e-05,
+      "head": 9.894371032714844e-06
+    },
+    "resume_prediction_max_error": 0.0,
+    "metrics": {
+      "val/scored_people_0": 4.0,
+      "val/empty_people_0": 0.0,
+      "val/crop_l2_0": 0.023962203413248062,
+      "val_loss": 0.023962203413248062,
+      "train/loss": 131.76023864746094,
+      "train/loss_step": 131.76023864746094,
+      "train/loss_epoch": 131.76023864746094
+    },
+    "max_cuda_memory_bytes": 17902006272,
+    "scope": "real-model runtime compatibility; not an accuracy or dataset-independence evaluation"
+  },
+  "asset_sha256": {
+    "assets_external/densekp.ckpt": "502d997b7eda3ffaa41669ade367fb5a087a4adc860b4355f67c553947a513df",
+    "assets_external/vitpose_backbone.pth": "9f6dc6a56dc20399e0eda43f3ba93b3a8ce493e362f542ae68f3c4c406efa638"
+  },
+  "notes": [
+    "First strict 2-batch probe stopped at the first AMP overflow.",
+    "A 12-batch probe recorded 11 AMP skips and one actual update; below the required two updates.",
+    "Reported passed status is a bounded lifecycle check, not steady-state numerical stability or edge-person accuracy.",
+    "Model source commit is 35ad01e; the acceptance harness is a subsequent change."
+  ]
+}
