@@ -91,11 +91,15 @@ class DenseKP(pl.LightningModule):
         dtype = output['pred_keypoints'].dtype
 
         num_landmarks = gt_keypoints_2d_cropped.shape[1]
+        # Legacy datasets store 1 in channel 2.  New occlusion-aware datasets
+        # store 0 for hidden/out-of-crop points, keeping the NPZ format intact.
+        weights = gt_keypoints_2d_cropped[:, :, 2].to(dtype=dtype).clamp(0, 1)
+        normalizer = weights.sum().clamp_min(1)
 
         if not self.cfg.MODEL.with_var:
             kpts_diffs = gt_keypoints_2d_cropped[:,:,:2] - pred_keypoints[:, :, :2]  # shape: (B, K, 2)
             kpts_sq_diffs = torch.sum(torch.square(kpts_diffs), axis=-1)  # shape: (B, K)
-            kpts_loss = torch.mean(kpts_sq_diffs)
+            kpts_loss = (kpts_sq_diffs * weights).sum() / normalizer
             sigmas_loss = 0.
         else:
             #https://microsoft.github.io/DenseLandmarks/ for confidence
@@ -108,8 +112,8 @@ class DenseKP(pl.LightningModule):
             pred_sigmas = torch.exp(pred_log_sigmas)
             pred_sigmas_square = torch.square(pred_sigmas)
             keypoint_2_sigma_sq = 2.0 * pred_sigmas_square
-            kpts_loss = torch.mean(kpts_sq_diffs * (1.0 / keypoint_2_sigma_sq))
-            sigmas_loss = torch.mean(torch.log(pred_sigmas_square))
+            kpts_loss = (kpts_sq_diffs * (1.0 / keypoint_2_sigma_sq) * weights).sum() / normalizer
+            sigmas_loss = (torch.log(pred_sigmas_square) * weights).sum() / normalizer
       
         loss_dict = {
             'loss/loss_keypoints': kpts_loss,
@@ -162,7 +166,8 @@ class DenseKP(pl.LightningModule):
         loss_dict = {}
 
         proj_verts_loss = torch.sqrt(((pred_keypoints[:, :, :-1] - gt_keypoints_2d_cropped[:, :, :-1]) ** 2).sum(dim=-1))
-        proj_verts_loss = (proj_verts_loss.mean(-1))
+        weights = gt_keypoints_2d_cropped[:, :, 2].to(proj_verts_loss.dtype).clamp(0, 1)
+        proj_verts_loss = (proj_verts_loss * weights).sum(-1) / weights.sum(-1).clamp_min(1)
 
         if dataloader_idx==0:
             self.log('val_loss',proj_verts_loss.mean(), logger=True, sync_dist=True)    

@@ -19,7 +19,8 @@ def scalar_reference(points, camera, k):
         q=(inv@np.r_[p,1])[:3]; q=q/np.linalg.norm(q); theta=np.arctan2(np.hypot(q[0],q[1]),q[2]); phi=np.arctan2(q[1],q[0]); m=np.sin(theta)/(np.cos(theta)+k.xi); r=k.f*(m+k.k1*m**3+k.k2*m**5); out.append((k.cx+r*np.cos(phi),k.cy+r*np.sin(phi)))
     return np.asarray(out)
 
-def warp_case(source, output, points, camera, k, source_keypoints=None, source_fingerprint=None):
+def warp_case(source, output, points, camera, k, source_keypoints=None, source_fingerprint=None,
+              person_ids=None, point_person_ids=None):
     output.mkdir(parents=True,exist_ok=True); rgb,depth,index,channels=read_combined_depth_index(source); h,w=depth.shape
     yy,xx=np.indices((k.height,k.width),dtype=np.float64); pixels=np.column_stack((xx.ravel(),yy.ravel())); rays,domain=unproject_pixels_omni_radtan(pixels,k,return_valid=True)
     lon=np.arctan2(rays[:,0],rays[:,2]); lat=np.arcsin(np.clip(-rays[:,1],-1,1)); mapx=((lon/(2*np.pi)+.5)*w).reshape(k.height,k.width).astype(np.float32); mapy=((.5-lat/np.pi)*h).reshape(k.height,k.width).astype(np.float32)
@@ -27,11 +28,19 @@ def warp_case(source, output, points, camera, k, source_keypoints=None, source_f
     warped=cv2.remap(rgb,mapx,mapy,cv2.INTER_LINEAR,borderMode=cv2.BORDER_CONSTANT); warped_depth=cv2.remap(depth,mapx,mapy,cv2.INTER_NEAREST,borderMode=cv2.BORDER_CONSTANT); warped_index=cv2.remap(index,mapx,mapy,cv2.INTER_NEAREST,borderMode=cv2.BORDER_CONSTANT)
     warped_depth[(~valid)|(~np.isfinite(warped_depth))]=0; mask=(valid&(warped_index>.5)).astype(np.uint8)*255
     display=(np.clip(linear_to_srgb(warped),0,1)*255+.5).astype(np.uint8); Image.fromarray(display).save(output/'rgb.png'); Image.fromarray(mask).save(output/'mask.png'); np.save(output/'depth.npy',warped_depth.astype(np.float32))
+    if person_ids is not None:
+        if point_person_ids is None or len(point_person_ids)!=len(points): raise ValueError('point_person_ids must match points')
+        for person_id in person_ids:
+            person_mask=(valid&(np.rint(warped_index)==person_id)).astype(np.uint8)*255
+            Image.fromarray(person_mask).save(output/f'person_{person_id}_mask.png')
     projected,details=project_points_omni_radtan(points,camera,k,True); finite=np.isfinite(projected).all(1); inside=finite&(projected[:,0]>=0)&(projected[:,0]<k.width)&(projected[:,1]>=0)&(projected[:,1]<k.height)
     camera_points=details['camera_points']; point_range=np.linalg.norm(camera_points,axis=1); visible=np.zeros(len(points),bool); depth_error=np.full(len(points),np.nan)
     for j,(u,v) in enumerate(projected):
         if not inside[j]: continue
-        x=int(np.floor(u)); y=int(np.floor(v)); q=warped_depth[max(0,y-2):min(k.height,y+3),max(0,x-2):min(k.width,x+3)]; q=q[q>0]
+        x=int(np.floor(u)); y=int(np.floor(v)); region=(slice(max(0,y-2),min(k.height,y+3)),slice(max(0,x-2),min(k.width,x+3)))
+        q=warped_depth[region]
+        if point_person_ids is not None: q=q[(q>0)&(np.rint(warped_index[region])==point_person_ids[j])]
+        else: q=q[q>0]
         if q.size: depth_error[j]=np.min(np.abs(q-point_range[j])); visible[j]=depth_error[j]<.04
     overlay=Image.fromarray(display); draw=ImageDraw.Draw(overlay)
     for j,(uv,ok) in enumerate(zip(projected,inside)):

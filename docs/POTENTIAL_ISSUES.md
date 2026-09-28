@@ -1,15 +1,12 @@
-# POTENTIAL ISSUES（只记录，不修改）
+# POTENTIAL ISSUES（当前状态与历史问题）
 
-> 原则：本文只记录疑似问题；所有列出的代码保持原样，行为不变。
-> 每条给出文件/函数/位置、怀疑原因、可能影响。修复与否由项目所有者决定。
+> 本文记录疑似问题及其处理状态；已解决的历史问题保留原因和验证限制。
 
-## #1 训练代码 import 会失败：缺少 `densekp/core/losses` 模块
+## #1 已解决：训练代码缺少 `densekp/core/losses.py`
 
-- 文件：`densekp/core/densekp_trainer.py`
-- 函数：模块顶层
-- 位置：第 12 行 `from .losses import Keypoint2DLoss`
-- 怀疑原因：仓库内不存在 `densekp/core/losses.py` 或 `densekp/core/losses/`（`find densekp -name 'losses*'` 无结果；`ls densekp/core` 证实）。`densekp.core.datasets`、`densekp.core.heads`、`densekp.core.backbones` 都能定位，唯独 losses 缺失。上游 CameraHMR 中存在 `core/losses/keypoints_loss.py`（TRAINING_AUDIT.md 提到损失定义），摘取训练代码时未包含。
-- 可能影响：`import densekp.core.densekp_trainer` 立即 ImportError，训练入口无法启动；这是当前训练不可运行的原因之一。修复需要从上游取回 `Keypoint2DLoss`（注意：`compute_loss` 内联实现了相同数学，损失类实际只在 `__init__` 实例化而未在 loss 路径使用——修复时不应改变 compute_loss 行为）。
+- 原因：暂存仓库曾遗漏上游 `tools/CameraHMR/core/losses.py`，而 `densekp/core/densekp_trainer.py` 在模块顶层导入 `Keypoint2DLoss`。
+- 处理：已从上游补入 `densekp/core/losses.py`。`compute_loss` 仍使用原有内联损失实现，行为未改。
+- 验证：使用 `/home/yy/conda_envs/camerahmr/bin/python` 成功导入 `Keypoint2DLoss` 和 `DenseKP`，并通过损失类数值检查、现有 7 个单元测试及训练入口的 Hydra 配置解析；尚未执行实际训练。历史审计记录保留在 `docs/refactor/REFACTOR_REPORT.md`。
 
 ## #2 `configs/datasets.example.json` 未被任何代码消费，且注册表缺 `bedlam-mini`
 

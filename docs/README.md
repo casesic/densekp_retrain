@@ -14,6 +14,8 @@
 
 ## Training
 
+- [Tiny reproduction](training/TINY_REPRODUCTION.md) — existing rendered samples through the DenseKP loader and CPU optimization check.
+- [Omni multi-person pilot](training/OMNI_MULTIPERSON_PILOT.md) — paired ERP/fisheye per-person labels, visibility-aware loss, and checkpoint fine-tuning smoke test.
 - [Training audit](training/TRAINING_AUDIT.md) — training implementation and dependency audit.
 - [Training data format](training/TRAINING_DATA_FORMAT.md) — expected model-training inputs.
 
@@ -57,6 +59,7 @@
 
 ## Scenes
 
+- [Urban Street](scenes/URBAN_STREET.md) — modern street environment, markers and validation.
 - [Photoreal outdoor assets](scenes/PHOTOREAL_OUTDOOR_ASSETS.md) — outdoor scene selection and validation.
 
 ## Environment

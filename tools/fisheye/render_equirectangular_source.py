@@ -9,11 +9,12 @@ def arguments():
     p.add_argument('--geometry',type=Path,required=True); p.add_argument('--clothing-geometry',type=Path)
     p.add_argument('--cameras',type=Path,required=True); p.add_argument('--output-dir',type=Path,required=True); p.add_argument('--frame',type=int,default=0)
     p.add_argument('--body-texture',type=Path); p.add_argument('--body-uv',type=Path); p.add_argument('--hdri',type=Path); p.add_argument('--width',type=int,default=2048); p.add_argument('--height',type=int,default=1024); p.add_argument('--samples',type=int,default=8)
+    p.add_argument('--people-config',type=Path,help='JSON with people: [{id, frame, location, yaw_deg}]')
     return p.parse_args(q)
 
 def main():
     a=arguments(); a.output_dir.mkdir(parents=True,exist_ok=True); vertices=np.load(a.geometry/'vertices.npy'); faces=np.load(a.geometry/'faces.npy'); f=a.frame
-    bpy.ops.wm.read_factory_settings(use_empty=True); s=bpy.context.scene; s.render.engine='BLENDER_EEVEE'; s.render.resolution_x=a.width; s.render.resolution_y=a.height; s.render.resolution_percentage=100
+    bpy.ops.wm.read_factory_settings(use_empty=True); s=bpy.context.scene; s.render.resolution_x=a.width; s.render.resolution_y=a.height; s.render.resolution_percentage=100
     # Eevee cannot render panoramic cameras, so use Cycles with the same static geometry.
     s.render.engine='CYCLES'; s.cycles.samples=a.samples; s.cycles.use_denoising=False; s.render.image_settings.file_format='PNG'; s.render.image_settings.color_mode='RGBA'; s.render.film_transparent=False
     s.view_layers[0].use_pass_z=True; s.view_layers[0].use_pass_object_index=True; s.view_settings.look='None'
@@ -34,17 +35,29 @@ def main():
         env=nodes.new('ShaderNodeTexEnvironment'); env.image=bpy.data.images.load(str(a.hdri.resolve())); env.image.colorspace_settings.name='Linear Rec.709'; links.new(env.outputs['Color'],bg.inputs['Color'])
     else: bg.inputs['Color'].default_value=(.08,.1,.14,1)
     links.new(bg.outputs['Background'],wo.inputs['Surface'])
-    mesh=bpy.data.meshes.new('SMPLX_Fisheye'); mesh.from_pydata(vertices[f].tolist(),[],faces.tolist()); body=bpy.data.objects.new('SMPLX_Fisheye',mesh); s.collection.objects.link(body); body.pass_index=1
-    mat=bpy.data.materials.new('Body'); mat.use_nodes=True; bs=mat.node_tree.nodes.get('Principled BSDF'); bs.inputs['Roughness'].default_value=.58; bs.inputs['Base Color'].default_value=(.55,.25,.16,1); mesh.materials.append(mat)
-    if a.body_texture and a.body_uv:
-        uv=np.load(a.body_uv); layer=mesh.uv_layers.new(name='SMPLX_UV')
-        for polygon,indices in zip(mesh.polygons,uv['faces_uv']):
-            for loop,index in zip(polygon.loop_indices,indices): layer.data[loop].uv=uv['uv'][index]
-        tex=mat.node_tree.nodes.new('ShaderNodeTexImage'); tex.image=bpy.data.images.load(str(a.body_texture.resolve())); tex.image.colorspace_settings.name='sRGB'; mat.node_tree.links.new(tex.outputs['Color'],bs.inputs['Base Color'])
-    conv=Matrix(((1,0,0,0),(0,0,-1,0),(0,1,0,0),(0,0,0,1))); body.matrix_world=Matrix.Translation((0,0,-float(vertices[f,:,1].min())))@conv
-    if a.clothing_geometry:
-        cg=a.clothing_geometry; cv=np.load(cg/'clothing_vertices.npy'); cf=np.load(cg/'clothing_faces.npy'); cm=bpy.data.meshes.new('Clothing'); cm.from_pydata(cv[f].tolist(),[],cf.tolist()); co=bpy.data.objects.new('Clothing',cm); s.collection.objects.link(co); co.pass_index=2; co.matrix_world=body.matrix_world
-        cmat=bpy.data.materials.new('ClothingMaterial'); cmat.use_nodes=True; cb=cmat.node_tree.nodes.get('Principled BSDF'); cb.inputs['Base Color'].default_value=(.04,.35,.5,1); cb.inputs['Roughness'].default_value=.6; cm.materials.append(cmat)
+    people=json.loads(a.people_config.read_text())['people'] if a.people_config else [{'id':1,'frame':f,'location':[0,0,0],'yaw_deg':0}]
+    if not people or len({int(p['id']) for p in people})!=len(people): raise ValueError('people must have unique IDs')
+    uv=np.load(a.body_uv) if a.body_texture and a.body_uv else None
+    body_texture=bpy.data.images.load(str(a.body_texture.resolve())) if uv is not None else None
+    cv=np.load(a.clothing_geometry/'clothing_vertices.npy') if a.clothing_geometry else None
+    cf=np.load(a.clothing_geometry/'clothing_faces.npy') if a.clothing_geometry else None
+    conv=Matrix(((1,0,0,0),(0,0,-1,0),(0,1,0,0),(0,0,0,1)))
+    for person in people:
+        person_id=int(person['id']); frame=int(person['frame']); location=person['location']; yaw=float(person['yaw_deg'])
+        if person_id<1 or frame<0 or frame>=len(vertices) or len(location)!=3: raise ValueError(f'invalid person {person}')
+        transform=Matrix.Translation(location)@Matrix.Rotation(math.radians(yaw),4,'Z')@(Matrix.Translation((0,0,-float(vertices[frame,:,1].min())))@conv)
+        mesh=bpy.data.meshes.new(f'SMPLX_{person_id}'); mesh.from_pydata(vertices[frame].tolist(),[],faces.tolist())
+        body=bpy.data.objects.new(f'SMPLX_{person_id}',mesh); s.collection.objects.link(body); body.pass_index=person_id; body.matrix_world=transform
+        mat=bpy.data.materials.new(f'Body_{person_id}'); mat.use_nodes=True; bs=mat.node_tree.nodes.get('Principled BSDF'); bs.inputs['Roughness'].default_value=.58; bs.inputs['Base Color'].default_value=(.55,.25,.16,1); mesh.materials.append(mat)
+        if uv is not None:
+            layer=mesh.uv_layers.new(name='SMPLX_UV')
+            for polygon,indices in zip(mesh.polygons,uv['faces_uv']):
+                for loop,index in zip(polygon.loop_indices,indices): layer.data[loop].uv=uv['uv'][index]
+            tex=mat.node_tree.nodes.new('ShaderNodeTexImage'); tex.image=body_texture; tex.image.colorspace_settings.name='sRGB'; mat.node_tree.links.new(tex.outputs['Color'],bs.inputs['Base Color'])
+        if cv is not None:
+            cm=bpy.data.meshes.new(f'Clothing_{person_id}'); cm.from_pydata(cv[frame].tolist(),[],cf.tolist())
+            co=bpy.data.objects.new(f'Clothing_{person_id}',cm); s.collection.objects.link(co); co.pass_index=person_id if a.people_config else 2; co.matrix_world=transform
+            cmat=bpy.data.materials.new(f'ClothingMaterial_{person_id}'); cmat.use_nodes=True; cb=cmat.node_tree.nodes.get('Principled BSDF'); cb.inputs['Base Color'].default_value=(.04,.35,.5,1); cb.inputs['Roughness'].default_value=.6; cm.materials.append(cmat)
     ground_mesh=bpy.data.meshes.new('Ground'); ground_mesh.from_pydata([(-12,-12,-.01),(12,-12,-.01),(12,12,-.01),(-12,12,-.01)],[],[(0,1,2),(0,2,3)]); ground=bpy.data.objects.new('Ground',ground_mesh); s.collection.objects.link(ground); ground.pass_index=0
     gm=bpy.data.materials.new('GroundMaterial'); gm.use_nodes=True; gb=gm.node_tree.nodes.get('Principled BSDF'); gb.inputs['Base Color'].default_value=(.14,.16,.13,1); gb.inputs['Roughness'].default_value=.85; ground_mesh.materials.append(gm)
     cd=bpy.data.cameras.new('OmniSourceCamera'); cd.type='PANO'; pano=cd.cycles if hasattr(cd,'cycles') else cd
@@ -64,6 +77,6 @@ def main():
         target=a.output_dir/f"{item['id']}.exr"
         if candidates[0]!=target: candidates[0].replace(target)
         records.append({'id':item['id'],'source':str(target.resolve()),'camera_to_world':item['camera_to_world']})
-    (a.output_dir/'source_manifest.json').write_text(json.dumps({'projection':'equirectangular','resolution':[a.width,a.height],'frame':f,'sources':records},indent=2)+'\n')
+    (a.output_dir/'source_manifest.json').write_text(json.dumps({'projection':'equirectangular','resolution':[a.width,a.height],'frame':f,'people':people,'sources':records},indent=2)+'\n')
 
 if __name__=='__main__': main()

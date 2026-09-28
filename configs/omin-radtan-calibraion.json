@@ -1,0 +1,29 @@
+{
+  "camera_model": "Omni-Radtan",
+  "lens_description": "200° F-Theta fisheye lens",
+  "image_width": 3000,
+  "image_height": 3000,
+  "principal_point": {
+    "cx": 1500.0,
+    "cy": 1500.0
+  },
+  "intrinsics": {
+    "xi": 3.485643,
+    "f": 4495.392,
+    "k1": 0.7048,
+    "k2": 7.548
+  },
+  "projection_model": {
+    "m": "sin(theta) / (cos(theta) + xi)",
+    "r": "f*m + f*k1*m^3 + f*k2*m^5",
+    "x": "cx + r*cos(phi)",
+    "y": "cy + r*sin(phi)"
+  },
+  "units": {
+    "f": "pixels",
+    "cx": "pixels",
+    "cy": "pixels",
+    "theta": "radians",
+    "phi": "radians"
+  }
+}

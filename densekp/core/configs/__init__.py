@@ -5,6 +5,12 @@ curr_dir = os.path.abspath(os.path.dirname(__file__))
 base_dir = os.path.join(curr_dir, '../../')
 DATASET_FOLDERS = {
 
+    'p0-dressed-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/p0_dressed_tiny/images')),
+    'omni-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_multiperson_tiny/images')),
+    'ds-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_tiny/images')),
+    'ds-multiperson-boundary-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_boundary_tiny/images')),
+    'omni-near-erp-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_near_erp_tiny/images')),
+
     '3dpw-test-cam-smpl': os.path.join(base_dir, 'data/test-images/3DPW'),
     'coco-val-smpl': os.path.join(base_dir, 'data/test-images/COCO2017/images/'),
     'emdb-smpl': os.path.join(base_dir, 'data/test-images/EMDB'),
@@ -165,6 +171,11 @@ DATASET_FOLDERS = {
 
 DATASET_FILES = [
     {
+        'p0-dressed-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/p0_dressed_tiny/val.npz')),
+        'omni-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_multiperson_tiny/val.npz')),
+        'ds-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_tiny/val.npz')),
+        'ds-multiperson-boundary-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_boundary_tiny/val.npz')),
+        'omni-near-erp-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_near_erp_tiny/val.npz')),
         '3dpw-test-cam-smpl': os.path.join(base_dir, 'data/test-labels/3dpw_test.npz'),
         'emdb-smpl': os.path.join(base_dir, 'data/test-labels/emdb_test.npz'),
         'rich-smplx': os.path.join(base_dir, 'data/test-labels/rich_test.npz'),
@@ -172,6 +183,11 @@ DATASET_FILES = [
         'coco-val-smpl': os.path.join(base_dir, 'data/test-labels/coco_val.npz'),
     },
     {
+        'p0-dressed-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/p0_dressed_tiny/train.npz')),
+        'omni-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_multiperson_tiny/train.npz')),
+        'ds-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_tiny/train.npz')),
+        'ds-multiperson-boundary-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_boundary_tiny/train.npz')),
+        'omni-near-erp-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_near_erp_tiny/train.npz')),
         'aic': os.path.join(base_dir, 'data//training-labels/aic-release.npz'),
         'insta-1': os.path.join(base_dir, 'data//training-labels/insta1-release.npz'),
         'insta-2': os.path.join(base_dir, 'data//training-labels/insta2-release.npz'),
@@ -378,5 +394,3 @@ def dataset_config() -> CN:
     cfg = CN(new_allowed=True)
     cfg.freeze()
     return cfg
-
-

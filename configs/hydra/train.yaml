@@ -38,6 +38,9 @@ test: False
 # simply provide checkpoint path to resume training
 ckpt_path: null
 
+# Model weights only, with a fresh optimizer and step counter.
+init_checkpoint: null
+
 # seed for random number generators in pytorch, numpy and python.random
 seed: null
 

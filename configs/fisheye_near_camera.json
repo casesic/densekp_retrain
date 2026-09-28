@@ -1,0 +1,25 @@
+{
+  "camera_model": "Omni-Radtan",
+  "intrinsics": {
+    "width": 3000,
+    "height": 3000,
+    "cx": 1500.0,
+    "cy": 1500.0,
+    "xi": 3.485643,
+    "f": 4495.392,
+    "k1": 0.7048,
+    "k2": 7.548
+  },
+  "coordinate_system": "CV +X right, +Y down, +Z forward; camera_to_world",
+  "cameras": [
+    {
+      "id": "fisheye_center",
+      "camera_to_world": [
+        [1.0, 0.0, 0.0, -0.14],
+        [0.0, 0.0, 1.0, -1.45],
+        [0.0, -1.0, 0.0, 1.65],
+        [0.0, 0.0, 0.0, 1.0]
+      ]
+    }
+  ]
+}

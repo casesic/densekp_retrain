@@ -1,0 +1,5 @@
+# @package _global_
+
+DATASETS:
+  DATASETS_AND_RATIOS: omni-near-erp-tiny
+  VAL_DATASETS: omni-near-erp-tiny

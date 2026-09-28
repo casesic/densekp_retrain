@@ -123,3 +123,20 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+r'''
+# 方式 A: 从 BEDLAM canonical motion 直接生成 P0 几何制品
+python tools/generate/generate_real_motion_geometry.py \
+    --motion outputs/baselines/p0_real_motion/geometry/canonical_motion.npz \
+    --model-dir /mnt/hdd/yuyue/home/yuyue/Projects/pano-stitch/tools/smpl_models/smplx \
+    --output-dir outputs/geometry/real_motion_test
+
+# 方式 B: 从 BEDLAM 原始 motion 从头跑完整两步
+python tools/generate/load_real_smplx_motion.py \
+    /home/yy/datasets/BEDLAM/motion_data/tiny/rp_aaron_posed_009/1095/motion_seq.npz \
+    --output outputs/motions/aaron_1095_canonical.npz --test-frames 16
+python tools/generate/generate_real_motion_geometry.py \
+    --motion outputs/motions/aaron_1095_canonical.npz \
+    --model-dir /mnt/hdd/yuyue/home/yuyue/Projects/pano-stitch/tools/smpl_models/smplx \
+    --output-dir outputs/geometry/aaron_1095
+'''

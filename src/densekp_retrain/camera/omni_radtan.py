@@ -49,3 +49,41 @@ def unproject_pixels_omni_radtan(pixels, intrinsics, iterations=64, return_valid
     m=(lo+hi)/2; arg=np.clip(intrinsics.xi*m/np.sqrt(1+m*m),-1,1); theta=np.arctan(m)+np.arcsin(arg); phi=np.arctan2(d[:,1],d[:,0])
     rays=np.column_stack((np.sin(theta)*np.cos(phi),np.sin(theta)*np.sin(phi),np.cos(theta))); rays[~valid]=np.nan
     return (rays,valid) if return_valid else rays
+
+
+def build_erp_to_omni_lut(intrinsics, width, height, chunk_rows=128):
+    """Map ERP output pixels to Omni-Radtan fisheye input pixels.
+
+    ERP uses longitude left-to-right and latitude top-to-bottom. Camera rays
+    follow CV (+X right, +Y down, +Z forward), matching the Omni renderer.
+    """
+    if width < 1 or height < 1 or chunk_rows < 1:
+        raise ValueError('ERP size and chunk_rows must be positive')
+    map_x=np.full((height,width),-1,dtype=np.float32)
+    map_y=np.full((height,width),-1,dtype=np.float32)
+    lon=np.arange(width,dtype=np.float64)/width*(2*np.pi)-np.pi
+    sin_lon,cos_lon=np.sin(lon),np.cos(lon)
+    for start in range(0,height,chunk_rows):
+        stop=min(start+chunk_rows,height)
+        lat=np.arange(start,stop,dtype=np.float64)/height*np.pi-np.pi/2
+        cos_lat,sin_lat=np.cos(lat)[:,None],np.sin(lat)[:,None]
+        rays=np.stack((cos_lat*sin_lon[None,:],
+                       np.broadcast_to(sin_lat,(stop-start,width)),
+                       cos_lat*cos_lon[None,:]),axis=-1).reshape(-1,3)
+        pixels,details=project_points_omni_radtan(
+            rays,np.eye(4,dtype=np.float64),intrinsics,return_details=True)
+        valid=details['inside']
+        map_x[start:stop].reshape(-1)[valid]=pixels[valid,0].astype(np.float32)
+        map_y[start:stop].reshape(-1)[valid]=pixels[valid,1].astype(np.float32)
+    return map_x,map_y
+
+
+def omni_pixels_to_erp(pixels, intrinsics, width, height):
+    """Convert point annotations from Omni fisheye pixels to ERP pixels."""
+    rays,valid=unproject_pixels_omni_radtan(
+        np.asarray(pixels,dtype=np.float64).reshape(-1,2),intrinsics,return_valid=True)
+    longitude=np.arctan2(rays[:,0],rays[:,2])
+    latitude=np.arcsin(np.clip(rays[:,1],-1,1))
+    xy=np.column_stack(((longitude/(2*np.pi)+.5)*width,
+                        (latitude/np.pi+.5)*height))
+    return xy.reshape(np.asarray(pixels).shape),valid.reshape(np.asarray(pixels).shape[:-1])

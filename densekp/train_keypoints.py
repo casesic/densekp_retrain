@@ -47,7 +47,11 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
     dataset_cfg = dataset_config()
     save_configs(cfg, dataset_cfg, cfg.paths.output_dir)
     datamodule = DataModule(cfg, dataset_cfg)
-    model = DenseKP(cfg)
+    # Initializing from a trained DenseKP model starts a fresh optimizer/run.
+    # ``ckpt_path`` below retains Lightning's full-state resume semantics.
+    init_checkpoint = cfg.get('init_checkpoint')
+    model = (DenseKP.load_from_checkpoint(init_checkpoint, cfg=cfg, map_location='cpu')
+             if init_checkpoint else DenseKP(cfg))
 
     logger = TensorBoardLogger(os.path.join(cfg.paths.output_dir, 'tensorboard'), name='', version='', default_hp_metric=False)
     loggers = [logger]

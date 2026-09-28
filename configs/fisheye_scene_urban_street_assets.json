@@ -1,0 +1,9 @@
+{
+  "blend_path": "assets/scenes/photoreal/urban_street/urban_street_assets.blend",
+  "collection": null,
+  "hide_objects": ["Soft daylight fill"],
+  "ground_mode": "scene_native",
+  "body_location": [0.0, 0.0, 0.0],
+  "body_yaw_deg": 0.0,
+  "notes": "Fisheye render on the asset-backed urban street. Road Z=0, sidewalks Z=0.15; body stands at road center origin."
+}

@@ -1,0 +1,9 @@
+{
+  "blend_path": "assets/scenes/photoreal/cycling_forest/cycling_forest.blend",
+  "collection": null,
+  "hide_objects": [],
+  "ground_mode": "scene_native",
+  "body_location": [13.676, -4.25, 0.0],
+  "body_yaw_deg": -17.2,
+  "notes": "Body placed at the forest road centerline point closest to origin (route_centerline.csv: (13.676,-4.25,0)), yaw aligned to the road heading (1.2704 rad -> -17.2 deg from +Y forward). Road surface Z=0."
+}

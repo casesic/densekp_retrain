@@ -1,0 +1,5 @@
+# @package _global_
+
+DATASETS:
+  DATASETS_AND_RATIOS: ds-multiperson-tiny
+  VAL_DATASETS: ds-multiperson-tiny

@@ -1,0 +1,6 @@
+{
+  "people": [
+    {"id": 1, "frame": 0, "location": [-0.25, -0.10, 0.0], "yaw_deg": 0.0},
+    {"id": 2, "frame": 19, "location": [0.25, 0.45, 0.0], "yaw_deg": -25.0}
+  ]
+}

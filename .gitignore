@@ -1,5 +1,14 @@
 data/
+!configs/hydra/data/
+configs/hydra/data/*
+!configs/hydra/data/ds_multiperson_tiny.yaml
+!configs/hydra/data/omni_near_erp_tiny.yaml
 outputs/
+datasets/p0_dressed_tiny/
+datasets/omni_multiperson_tiny/
+datasets/ds_multiperson_tiny/
+datasets/ds_multiperson_boundary_tiny/
+datasets/omni_near_erp_tiny/
 logs/
 checkpoints/
 *.ckpt
@@ -12,6 +21,7 @@ __pycache__/
 
 # Local datasets, downloaded dependencies, rendered artifacts and secrets.
 third_party/
+assets_external/python_deps/
 zip/
 .codex/
 .agents/

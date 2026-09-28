@@ -75,7 +75,7 @@ densekp_retrain/
 | `densekp/core/constants.py` | `NUM_DENSEKP_SMPL=138`、`FLIP_KEYPOINT_PERMUTATION`、`IMAGE_SIZE=256` 等；模型/权重路径常量 | — |
 | `densekp/core/utils/` | `train_utils.trans_points2d_parallel`（val 用）、`misc.task_wrapper`、日志工具 | — |
 
-**缺失但被 import 的模块**：`densekp/core/losses/`（`densekp_trainer.py:12` `from .losses import Keypoint2DLoss`）——本仓库没有该文件，import 即失败。见 `POTENTIAL_ISSUES.md` #1。
+`densekp/core/losses.py` 已从上游补入，满足 `densekp_trainer.py` 对 `Keypoint2DLoss` 的导入；该实例目前未被 `compute_loss` 调用。已在本机 `camerahmr` 环境中完成运行时导入验证。见 `POTENTIAL_ISSUES.md` #1。
 
 **已知上游死代码**：`datasets/utils.py::generate_image_patch_skimage`、`get_transform/transform`（PARE 风格）只有 skimage 路径在用；`DatasetKeypoints.__init__` 的 `use_augmentation` 参数实际未被使用（增强开关实际是 `is_train`）。
 
@@ -164,7 +164,7 @@ densekp_retrain/
 
 | 目的 | 命令 |
 |---|---|
-| 训练 DenseKP | `python densekp/train_keypoints.py data=densekp_train experiment=densekp exp_name=...`（当前不可运行：缺 `densekp/core/losses`、`VITPOSE_BACKBONE` 权重、`data/` 标注） |
+| 训练 DenseKP | `python densekp/train_keypoints.py data=densekp_train experiment=densekp exp_name=...`（本机 `camerahmr` 环境已验证导入、配置解析与本地 ViTPose 权重初始化；实际训练仍需完整的 `data/` 标注） |
 | 生成 toy 几何 | `python tools/generate/generate_p0_toy_motion.py --model-dir <SMPLX_NPZ dir>` |
 | 真实 motion → 几何 | `python tools/generate/load_real_smplx_motion.py <npz> --output ...` → `python tools/generate/generate_real_motion_geometry.py --motion ... --model-dir ...` |
 | Perspective 渲染 | Blender 内跑 `tools/render/render_p0_blender.py`（建议经 `tools/render/run_eye_background_fix.py` 封装） |
