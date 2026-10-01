@@ -157,6 +157,7 @@ class FixedValidation(pl.Callback):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--data-root',type=Path,required=True)
     p.add_argument('--output',type=Path);p.add_argument('--execute-training',action='store_true')
+    p.add_argument('--box-data',type=Path,help='Pre-frozen box-only 400-exposure schedule; original data stays the reference')
     p.add_argument('--gpu',type=int,default=0);a=p.parse_args();root=a.data_root.resolve()
     recommendation=json.loads((root/'training_recommendation.json').read_text())
     split=json.loads((root/'split_v2.json').read_text())
@@ -180,6 +181,29 @@ def main():
         steps=400,precision='bf16-mixed',validation_precision='float32',seed=930,augmentation=False,
         with_var=False,loss='60 * mean supervised squared XY distance; third prediction channel does not weight residuals',
         validation_every=100,sample_exposures=400,equivalent_train_passes=400/len(data['train']),source_isolation=isolation)
+    box_data=None
+    if a.box_data:
+        from tools.experiments.prepare_box_robustness import load_dataset
+        box_root=a.box_data.resolve()
+        box_indices={s:json.loads((box_root/f'{s}_index.json').read_text()) for s in ('train','val')}
+        box_acceptance=json.loads((box_root/'acceptance.json').read_text())
+        if box_acceptance['status']!='passed' or len(box_indices['train']['rows'])!=400:
+            raise ValueError('Box schedule not accepted or not 400 exposures')
+        validate_split(split,box_indices)
+        box_data=load_dataset(box_root/'loader/train.npz',train=True)
+        for i,row in enumerate(box_indices['train']['rows']):
+            item=box_data[i]
+            with np.load(row['geometry']) as frozen:
+                np.testing.assert_array_equal(item['img'][:,:,32:-32],frozen['network_input'])
+                np.testing.assert_array_equal(item['_trans'],frozen['affine'])
+                np.testing.assert_array_equal(item['proj_verts_cropped'][:,2]>0,frozen['supervised'])
+            parent=int(row['parent_row'])
+            np.testing.assert_array_equal(box_data.proj_verts[i,:,:2],data['train'].proj_verts[parent,:,:2])
+            np.testing.assert_array_equal(box_data.data['in_view'][i],data['train'].data['in_view'][parent])
+        settings['box_sampling']=dict(config=json.loads((box_root/'config.json').read_text()),
+            actual_variants=box_acceptance['actual_variants']['train'],
+            order='Already shuffled seed-930 target order replay; no second shuffle',
+            changed_factor='training boxes and sampling only',input_checks='all 400 actual crops exact to frozen geometry/network input')
     if not a.execute_training:
         print(json.dumps(dict(status='ready_data_config_checks_only',**settings),indent=2));return
     if not a.output:p.error('--output is required for a new training run')
@@ -195,6 +219,9 @@ def main():
     (out/'frozen_split_v2.json').write_bytes((root/'split_v2.json').read_bytes())
     for side in ['train','val']:
         (out/f'frozen_{side}_index.json').write_bytes((root/f'{side}_index.json').read_bytes())
+    if box_data is not None:
+        for name in ['train_index.json','val_index.json','config.json','acceptance.json']:
+            (out/f'box_{name}').write_bytes((box_root/name).read_bytes())
     pl.seed_everything(930,workers=True);torch.set_num_threads(4)
     torch.set_float32_matmul_precision('highest');torch.backends.cudnn.allow_tf32=False;torch.backends.cudnn.benchmark=False
     with initialize_config_dir(version_base='1.2',config_dir=str(ROOT/'configs/hydra')):
@@ -232,7 +259,8 @@ def main():
         num_sanity_val_steps=0,limit_val_batches=0,logger=False,enable_checkpointing=False,
         enable_progress_bar=False,enable_model_summary=False,callbacks=[checker,validation],default_root_dir=str(out))
     fit_start=time.monotonic()
-    trainer.fit(model,train_dataloaders={'img':DataLoader(IndexedRows(data['train']),batch_size=1,shuffle=True,num_workers=0)})
+    train_data=box_data if box_data is not None else data['train']
+    trainer.fit(model,train_dataloaders={'img':DataLoader(IndexedRows(train_data),batch_size=1,shuffle=box_data is None,num_workers=0)})
     fit_seconds=time.monotonic()-fit_start
     steps={float(s['step']) for s in trainer.optimizers[0].state.values() if 'step' in s}
     if len(checker.attempts)!=400 or steps!={400.}:raise ValueError('Optimizer update count mismatch')
@@ -251,6 +279,7 @@ def main():
         peak_cuda_bytes=peak,peak_reserved_cuda_bytes=reserved,fit_seconds=fit_seconds,total_seconds=time.monotonic()-started,
         finished_utc=datetime.now(timezone.utc).isoformat(),sample_exposures=len(checker.records),
         unique_exposed_rows=len({r['row_index'] for r in checker.records}),
+        unique_parent_rows=len({box_indices['train']['rows'][r['row_index']]['parent_row'] for r in checker.records}) if box_data is not None else len({r['row_index'] for r in checker.records}),
         loss_range=[min(r['loss'] for r in checker.records),max(r['loss'] for r in checker.records)],
         validation_steps=[r['step'] for r in validation.reports],
         comparison='Use frozen original baseline; primary predeclared final step 400, report all scheduled points and complete-control regressions'))

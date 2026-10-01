@@ -90,7 +90,7 @@ def main():
     out=args.output.resolve();out.mkdir(parents=True,exist_ok=False);start=time.monotonic()
     references={}
     if args.reference_report:
-        references={c['id']:c for c in json.loads(args.reference_report.read_text())['cases']}
+        references={c['id']:c for c in json.loads(args.reference_report.read_text())['cases'] if c['batch'] in args.labels}
     sources=[];partitions={};partition_indices={}
     for label,path in zip(args.labels,args.indices):
         index=json.loads(path.read_text())
@@ -137,14 +137,17 @@ def main():
                 if json.loads((directory/'validation.json').read_text())['status']!='passed':raise ValueError('Scene numeric validation failed')
                 with patch.dict(DATASET_FOLDERS,{'frozen-baseline':str(directory)}),patch.dict(DATASET_FILES[False],{'frozen-baseline':row['loader_input']}):
                     datasets[key]=DatasetKeypoints(audit_cfg('supervision_weight'),'frozen-baseline',is_train=False,use_augmentation=False)
-                scenes[key]=json.loads((directory/'report.json').read_text())
                 with np.load(row['loader_input']) as loader:
                     loader_ids[key]={name:loader[name] for name in ('camera_id','person_id')}
+            scene_key=str(directory.resolve())
+            if scene_key not in scenes:
+                if json.loads((directory/'validation.json').read_text())['status']!='passed':raise ValueError('Scene numeric validation failed')
+                scenes[scene_key]=json.loads((directory/'report.json').read_text())
             dataset=datasets[key];i=row['loader_row'];item=dataset[i]
             if dataset.data.get('supervision_policy')!=SUPERVISION_POLICY:raise ValueError('Wrong supervision policy')
             if str(loader_ids[key]['camera_id'][i])!=row['camera'] or int(loader_ids[key]['person_id'][i])!=row['person_id']:
                 raise ValueError('Frozen candidate index differs from loader row')
-            person=next(p for p in scenes[key]['people'] if p['id']==row['person_id'])
+            person=next(p for p in scenes[scene_key]['people'] if p['id']==row['person_id'])
             if person['character_id']!=row['character_id'] or person['pose_source_id']!=row['pose_source_id']:
                 raise ValueError('Frozen character/pose differs from rendered person')
             data=np.load(directory/row['camera']/'annotations.npz');j=data['person_ids'].tolist().index(row['person_id'])
@@ -201,7 +204,7 @@ def main():
                 crop_error_px=crop_error,erp_periodic_error_px=erp_error,prediction_in_lens=predicted_in_lens,
                 character_id=row['character_id'],pose_source_id=row['pose_source_id'],camera_id=row['camera'],
                 network_input=item['img'][:,:,32:-32])
-            image_key=(key,row['camera'])
+            image_key=(scene_key,row['camera'])
             if image_key not in image_cache:
                 dest=out/'images'/f'{batch}_{directory.name}_{row["camera"]}.png';dest.parent.mkdir(exist_ok=True)
                 shutil.copyfile(row['image'],dest);image_cache[image_key]=str(dest)
@@ -211,12 +214,13 @@ def main():
             panel=render_panel(item,pred,masks['supervised'],visible,f'{case_id} {action} {row["character_id"]} {row["camera"]}')
             panel.save(folder/'prediction.jpg');write(folder/'case.json',case)
             states[case_id]=dict(crop=crop_error,erp=erp_error,masks=masks,visible=visible)
-            cases.append(case);pairs.setdefault((batch,str(directory),row['person_id']),{})[row['camera']]=case_id
+            # Different input boxes for one target are separate observations, never overwrite a camera.
+            cases.append(case);pairs.setdefault((batch,str(directory),row['person_id'],row.get('box_variant','reference')), {})[row['camera']]=case_id
             fixed.setdefault((batch,action,category),case_id)
             print(case_id,metrics['supervised']['crop_256_px'],flush=True)
     pair_results=[];pair_values={}
-    for (batch,scene,pid),views in pairs.items():
-        result=dict(batch=batch,scene=scene,person_id=pid,views=views)
+    for (batch,scene,pid,variant),views in pairs.items():
+        result=dict(batch=batch,scene=scene,person_id=pid,box_variant=variant,views=views)
         if len(views)!=2:
             result.update(status='missing accepted given-box view; not detector failure');pair_results.append(result);continue
         a,b=[states[views[name]] for name in ('cam2','cam4')];shared=a['masks']['supervised']&b['masks']['supervised']
