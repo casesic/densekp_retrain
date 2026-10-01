@@ -115,11 +115,15 @@ def build(source: Path, masks_path: Path, output: Path,
                     mask[~lens_mask] = 0
             del fish_x, fish_y
             lut_x, lut_y = build_erp_to_fisheye_lut(intrinsics, camera, out_width, out_height)
+            if lens_mask is not None:
+                valid_mask &= cv2.remap(lens_mask.astype(np.uint8), lut_x, lut_y,
+                                        cv2.INTER_NEAREST, borderMode=cv2.BORDER_CONSTANT).astype(bool)
             erp_rgb = cv2.remap(fish_rgb, lut_x, lut_y, cv2.INTER_LINEAR,
                                 borderMode=cv2.BORDER_CONSTANT)
             erp_rgb[~valid_mask] = 0
             cam_dir = output / camera
             cam_dir.mkdir(exist_ok=True)
+            Image.fromarray(valid_mask.astype(np.uint8) * 255).save(cam_dir / 'erp_valid_mask.png')
             Image.fromarray(fish_rgb).save(cam_dir / "synthetic_fisheye.png")
             if lens_mask is not None:
                 Image.fromarray(lens_mask.astype(np.uint8) * 255).save(

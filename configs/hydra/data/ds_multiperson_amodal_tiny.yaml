@@ -1,0 +1,6 @@
+# @package _global_
+# Four synthetic samples for pipeline checks, not an independent validation set.
+DATASETS:
+  DATASETS_AND_RATIOS: ds-multiperson-amodal-tiny
+  VAL_DATASETS: ds-multiperson-amodal-tiny
+  TARGET_VALUE_SEMANTICS: supervision_weight

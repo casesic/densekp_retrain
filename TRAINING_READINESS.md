@@ -9,6 +9,22 @@
 > baseline bug descriptions and unchecked checklists are not the current fix status.
 
 
+## Current supervision implementation (2026-09-29)
+
+The image-derived cycling route now has two independently fitted SMPL-X assets,
+14 masked scene views, rendered-mesh/138-label checks, and eight real BF16 full-model
+updates with exact weight-reload prediction parity. **The smoke checkpoint regressed**:
+supervised point-mean crop error rose from 8.26 to 18.08 px (forest) and 7.52 to
+16.96 px (street). Shared identities/poses make this a pipeline check, not an independent
+split. Keep the original baseline. See [evidence and reproduction](docs/motion/cycling/CYCLING_SMPLX_PILOT_20260929.md).
+
+The new synthetic adapter explicitly supervises reliable in-view GT inside the actual
+full 256-square crop, including occluded points. The loader recomputes crop eligibility
+after augmentation; validation reports visible/occluded groups separately. Legacy NPZ
+weights remain unchanged. This completes the policy implementation, not a full-training
+readiness gate: independent splits, real supplied-box evaluation and augmentation/label
+quality checks remain required. See [implementation and measured results](docs/training/OCCLUDED_SUPERVISION_20260929.md).
+
 ## Current target clarification: edge-truncated people (2026-09-28)
 
 The user's principal DenseKP target is the **same person observed incompletely at
@@ -30,8 +46,9 @@ observations, but do not establish that input DenseKP correspondences are accura
   detection ROI boundary, or the DenseKP crop. ERP longitude wrap is a separate
   coordinate issue, not proof that body content was physically unobserved.
 - Build paired views of the same person at the same time, with verified 138-row
-  correspondence. The current synthetic independent camera/person placements do
-  not by themselves establish synchronized cross-camera pair supervision.
+  correspondence. Legacy synthetic independent camera/person placements do
+  not establish synchronized cross-camera pair supervision; the paired pilot
+  below now uses shared world geometry and distinct camera centers.
 - Group by distance to the physical/FOV edge, truncation/body coverage, distortion,
   occlusion and neighboring people. Track bbox clipping and retain crop-to-full
   image transforms for both views.
@@ -43,6 +60,60 @@ observations, but do not establish that input DenseKP correspondences are accura
 - Annotate out-of-FOV, physical occlusion and crop exclusion separately. Choose the
   supervision policy explicitly; the user's clarification does not establish that
   all hidden points should be masked or that predicted keypoint_value is confidence.
+
+### Existing 3D backgrounds for synthetic data
+
+The user selected **`cycling_forest` and `urban_street_assets`** as the practical
+scenes for the initial synthetic-data batch, including their lighting and shadows.
+
+| Selected scene | Local asset | Existing scene-integration config |
+| --- | --- | --- |
+| `cycling_forest` | `assets/scenes/photoreal/cycling_forest/cycling_forest.blend` | `configs/fisheye_scene_cycling_forest.json` |
+| `urban_street_assets` | `assets/scenes/photoreal/urban_street/urban_street_assets.blend` | `configs/fisheye_scene_urban_street_assets.json` |
+
+Other local scenes remain optional assets. The first small paired-view pilot now
+covers both selected scenes with edge-truncated people, shared-visible landmarks,
+multi-person interference and lighting/shadow checks. These few samples do not
+establish adequate coverage for training.
+Render people and environment together so lighting, cast shadows and geometric
+occlusion can be consistent. Keep scene/lighting variation secondary to coverage
+of edge truncation, cross-view overlap, distortion and occlusion.
+
+The legacy person-render path
+`tools/fisheye/render_equirectangular_scene_source.py` imports scene objects through
+`tools/scene/blender_scene_bridge.py`, and creates a new World and an additional
+Sun. It does not automatically preserve the source scene's World lighting, and
+imported light objects may also contribute. Audit the combined lighting and
+texture resolution on a small rendered sample before generating a corpus.
+Background reuse does not select camera calibration: paired renders must still
+use the intended 20260320 camera model/poses and verified annotation transforms.
+The new pilot instead uses `render_equirectangular_source.py --scene-blend`, which
+opens each native scene and preserves its World, lights and materials. Both scenes
+have now been rendered and checked through the real DenseKP loader. Cameras are
+at the same height with opposite optical axes; **0.18 m is a synthetic trial
+baseline, not measured hardware calibration**. This is a low-sample diagnostic
+batch with repeated identity, oracle boxes and approximate visibility, not a
+formal training or validation split. See [the pilot report](docs/rendering/DS_SCENE_PAIR_PILOT_20260928.md).
+
+The original DenseKP checkpoint has subsequently been evaluated on all 12
+oracle-box views. [Prediction diagnostics](docs/rendering/DS_SCENE_PAIR_PREDICTION_20260928.md)
+show the occluded rear target at 106.79/111.29 crop-pixel visible-point mean error
+(forest/street), versus 4.19/4.14 for the complete-person control. These are
+approximate synthetic labels and repeated poses, not real-scene accuracy or a
+retraining gain. Prioritize controlled foreground-occlusion cases with fixed
+target boxes before selecting data ratios or scaling generation.
+
+That bounded control is now complete: [occlusion and box study](docs/rendering/DS_OCCLUSION_CONTROL_20260928.md).
+With one fixed crop and the same 22 visible semantic points, the street rear target's
+error is 4.44/5.13/7.70 crop px across clear/mild/heavy conditions. On the same heavy
+image, shifting the crop center by 22.5 original pixels (same crop size) changes
+error from 7.70 to 112.74 px. This supports prioritizing DenseKP robustness to
+given-box centering under neighbor occlusion, alongside edge truncation. It does
+not identify a detector bug or establish the cause of all real-scene errors.
+
+For subsequent work, follow the user's provenance preference: do not compute or
+store SHA256. Record source paths, git revisions, configuration and direct
+numerical/structural checks. Historical audit records below describe prior work.
 
 The pending data milestone is a fixed-box, paired, edge-truncation evaluation set,
 followed by a training corpus with matching coverage. The [true-model smoke](docs/refactor/DENSEKP_REAL_MODEL_ACCEPTANCE_20260928.md)
@@ -84,7 +155,7 @@ This is a recommended data/evaluation specification for the separate training co
 
 **Mask provenance remains separate from intrinsics:** Local `assets_external/real_erp_valid_masks.npz` exactly matches the older `densekp_phaseA_erp_input` mask file, but differs from this target window's masks by 7,834 cam2 and 13,074 cam4 pixels. Lens masks are image-derived, so this difference alone does not demonstrate a calibration bug. Use the selected window's matching masks and record their hashes. DATA_FLOW section 11 records paths, identities and limitations. Reserve validation/test windows before using dataset3 for tuning; adjacent frames are not independent held-out scenes.
 
-**Occlusion decision:** Favor explicit supervision for synthetic hidden points whose target geometry is reliable and whose projection belongs to the intended camera/input domain. Record self-occlusion, mutual occlusion, lens exclusion and crop truncation separately. Freeze how off-crop labels are treated, including the internal 192-wide visible region; do not silently reuse `visible` as the only mask or label all projections valid. The present loader/loss consumes one channel as the supervision weight, so this policy must be deliberately encoded by a future reviewed adapter. Never derive it from DenseKP `keypoint_value` magnitude. No policy change is implemented during this audit.
+**Occlusion decision (updated 2026-09-29):** The adapter now encodes supervision as `in_view & inside_full_crop`, and the loader recomputes it after augmentation. Full-crop lateral strips outside the 192-wide backbone input remain intentional inference targets; crop-excluded and retained-input subsets are reported separately. Visibility is independent metadata. Current labels do not distinguish self-occlusion from mutual/scene occlusion; do not claim that split is implemented. Never derive supervision from DenseKP `keypoint_value` magnitude. Benefits still require held-out training comparisons.
 
 ### Next concrete milestone before a full NPZ or long run
 
@@ -110,7 +181,7 @@ Completed structural checks on 251 frames / 775 retained pair observations and v
 Priorities supported by the inspected images:
 
 1. **Crowded target-conditioned crops:** same-image overlapping people, background targets partially covered by foreground people, crossed arms and similar clothing. Preserve the intended target's full 138 semantic identities in synthetic labels. Do not define identity from historic cross-camera pair/track IDs, which visibly change or mismatch in some cases.
-2. **Realistic occluders and partial observations:** umbrellas, other people, bicycles/motorbikes, helmet/visor and self-occluding seated/riding poses. Separate hidden-but-projectable landmarks from lens-invalid targets. The visible-only tiny mask policy still needs the explicit amodal-versus-visible-only experiment described above.
+2. **Realistic occluders and partial observations:** umbrellas, other people, bicycles/motorbikes, helmet/visor and self-occluding seated/riding poses. Separate hidden-but-projectable landmarks from lens-invalid targets. The new occluded-point policy is implemented; an amodal-versus-visible-only training experiment is still needed to measure its benefit.
 3. **Source resolution and boundary coverage:** include small upper-body regions, severe partial bodies, 0320 lens-edge deformation/black masks and real square-crop padding. Train/evaluate at the actual 256-square/192-retained-width contract, with recorded original bbox size. Treat bbox perturbation only as a controlled input condition for DenseKP; detection remains out of scope.
 4. **Controls and trustworthy labels:** retain grossly coherent existing cases alongside difficult cases, and obtain independently checked visible-point labels or reliable synthetic geometry before computing errors. Image motion, changed guided boxes, lower pair-valid counts and fitted-point jumps are not model-error ground truth.
 
@@ -177,7 +248,7 @@ The shell-default Python was a different environment without NumPy/Torch/OpenCV.
 ### 4. Validate the exact preprocessing and supervision policy (C01, C02, C08, C10, R03, H01)
 
 - [ ] Keep horizontal flips disabled until both geometric reflection and the verified 138-point left/right permutation are implemented and checked. The 44-joint permutation cannot substitute for this.
-- [ ] Specify whether hidden/off-crop landmarks should be regressed. For visible-input supervision, reconcile generated masks with random crop changes and the 192-wide region visible to ViT. P0 all-one targets are a different policy from the multiperson binary masks.
+- [x] Specify the new synthetic policy: supervise in-view hidden points within the actual full crop; recompute eligibility after augmentation. Track the 192-wide input subset separately. Existing P0 and legacy NPZ retain their own declared policies; this does not validate the formal dataset's complete augmentation distribution.
 - [ ] Compare image/label overlays after random scale, translation, rotation and extreme cropping for the actual data. Check H/W ordering, border fill and non-square original images. Verify auxiliary-joint semantics if extreme cropping is enabled.
 - [ ] Establish portrait/closeup label raster orientation before enabling those datasets; the loader rotates images only.
 - [ ] Ensure intended augmentation disable controls actually disable it. `use_augmentation=False` and `TRANS_AUG_RATE=0` alone do not do so at this baseline. Keep the optional inverted antialias path disabled until reviewed if it is not required.

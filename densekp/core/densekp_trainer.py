@@ -108,30 +108,39 @@ class DenseKP(pl.LightningModule):
     def _evaluation_step(self, batch, dataloader_idx, stage):
         output = self.forward_step(batch, train=False)
         # The dataset supplies the same transformed label contract for train/val.
-        totals = keypoint_error_totals(output['pred_keypoints'], batch['proj_verts_cropped'])
-        key = (stage, dataloader_idx)
-        self._evaluation_totals[key] = self._evaluation_totals.get(key, 0) + totals
+        target = batch['proj_verts_cropped']
+        groups = {'all': target}
+        if 'visible' in batch:
+            for name, mask in (('visible', batch['visible']), ('occluded', ~batch['visible'])):
+                selected = target.clone()
+                selected[..., 2] *= mask & batch['visibility_known']
+                groups[name] = selected
+        for name, selected in groups.items():
+            totals = keypoint_error_totals(output['pred_keypoints'], selected)
+            key = (stage, dataloader_idx, name)
+            self._evaluation_totals[key] = self._evaluation_totals.get(key, 0) + totals
 
     def validation_step(self, batch: Dict, batch_idx: int, dataloader_idx=0):
         self._evaluation_step(batch, dataloader_idx, 'val')
 
     def _evaluation_epoch_end(self, stage):
-        for (split, index), local_totals in sorted(self._evaluation_totals.items()):
+        for (split, index, group), local_totals in sorted(self._evaluation_totals.items()):
             if split != stage:
                 continue
             totals = local_totals.clone()
             if torch.distributed.is_available() and torch.distributed.is_initialized():
                 torch.distributed.all_reduce(totals)
             error, count, empty = totals
-            self.log(f'{stage}/scored_people_{index}', count, sync_dist=False)
-            self.log(f'{stage}/empty_people_{index}', empty, sync_dist=False)
+            suffix = str(index) if group == 'all' else f'{group}_{index}'
+            self.log(f'{stage}/scored_people_{suffix}', count, sync_dist=False)
+            self.log(f'{stage}/empty_people_{suffix}', empty, sync_dist=False)
             if count > 0:
                 mean = error / count
-                self.log(f'{stage}/crop_l2_{index}', mean, sync_dist=False)
+                self.log(f'{stage}/crop_l2_{suffix}', mean, sync_dist=False)
                 # Preserve loader-0 checkpoint selection; all other loaders reported.
-                if index == 0:
+                if index == 0 and group == 'all':
                     self.log(f'{stage}_loss', mean, prog_bar=True, sync_dist=False)
-            elif index == 0:
+            elif index == 0 and group == 'all':
                 raise ValueError(f'{stage} loader 0 has no supervised people; cannot rank checkpoints')
         self._evaluation_totals = {key: value for key, value in self._evaluation_totals.items()
                                    if key[0] != stage}

@@ -9,6 +9,7 @@ DATASET_FOLDERS = {
     'omni-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_multiperson_tiny/images')),
     'ds-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_tiny/images')),
     'ds-multiperson-boundary-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_boundary_tiny/images')),
+    'ds-multiperson-amodal-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_amodal_tiny_20260929/images')),
     'omni-near-erp-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_near_erp_tiny/images')),
 
     '3dpw-test-cam-smpl': os.path.join(base_dir, 'data/test-images/3DPW'),
@@ -175,6 +176,7 @@ DATASET_FILES = [
         'omni-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_multiperson_tiny/val.npz')),
         'ds-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_tiny/val.npz')),
         'ds-multiperson-boundary-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_boundary_tiny/val.npz')),
+        'ds-multiperson-amodal-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_amodal_tiny_20260929/val.npz')),
         'omni-near-erp-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_near_erp_tiny/val.npz')),
         '3dpw-test-cam-smpl': os.path.join(base_dir, 'data/test-labels/3dpw_test.npz'),
         'emdb-smpl': os.path.join(base_dir, 'data/test-labels/emdb_test.npz'),
@@ -187,6 +189,7 @@ DATASET_FILES = [
         'omni-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_multiperson_tiny/train.npz')),
         'ds-multiperson-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_tiny/train.npz')),
         'ds-multiperson-boundary-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_boundary_tiny/train.npz')),
+        'ds-multiperson-amodal-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/ds_multiperson_amodal_tiny_20260929/train.npz')),
         'omni-near-erp-tiny': os.path.abspath(os.path.join(base_dir, '../datasets/omni_near_erp_tiny/train.npz')),
         'aic': os.path.join(base_dir, 'data//training-labels/aic-release.npz'),
         'insta-1': os.path.join(base_dir, 'data//training-labels/insta1-release.npz'),

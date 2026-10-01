@@ -2,7 +2,10 @@
 
 ## Start Here
 
-- [Current code map](CURRENT_CODE_MAP.md) — current entry points, ownership, and code roles.
+- [当前数据集要求汇总](data/DATASET_REQUIREMENTS_20260929.md) — 目标覆盖、骑行来源、穿衣场景、相机遮罩、138 点监督、划分和验收要求。
+- [代码阅读指南](READING_GUIDE.md) — 当前目录职责、阅读顺序和后续可读性整理候选。
+- [跟着一个样本读完整条链](SAMPLE_WALKTHROUGH.md) — 从 3D 标注到实际裁剪、模型、loss 和坐标还原。
+- [Historical code map](CURRENT_CODE_MAP.md) — September 20 snapshot; follow its current-guide links for updated behavior.
 - [Architecture](ARCHITECTURE.md) — end-to-end geometry, rendering, annotation, and training flows.
 - [Potential issues](POTENTIAL_ISSUES.md) — known blockers and unresolved risks.
 - [TODO](TODO.md) — current work queue.
@@ -10,10 +13,11 @@
 ## Core Architecture
 
 - [Architecture](ARCHITECTURE.md) — implementation-level data flow.
-- [Current code map](CURRENT_CODE_MAP.md) — current repository map.
+- [Current reading map](READING_GUIDE.md) — current responsibilities and main call chains.
 
 ## Training
 
+- [遮挡点监督与评价（2026-09-29）](training/OCCLUDED_SUPERVISION_20260929.md) — 有效视野与可见性分离、增强后的监督 mask、旧预测重新评分和可选 tiny 数据配置。
 - [Tiny reproduction](training/TINY_REPRODUCTION.md) — existing rendered samples through the DenseKP loader and CPU optimization check.
 - [Omni multi-person pilot](training/OMNI_MULTIPERSON_PILOT.md) — paired ERP/fisheye per-person labels, visibility-aware loss, and checkpoint fine-tuning smoke test.
 - [Training audit](training/TRAINING_AUDIT.md) — training implementation and dependency audit.
@@ -35,6 +39,12 @@
 
 ## Rendering
 
+- [四角色 × 两骑行姿态验收](rendering/CYCLING_FOUR_CHARACTERS_20260929.md) — 2 女 + 2 男、八份衍生资产、48 张预览、双场景 13 行 loader；仅 integration_only。
+- [3D 场景＋鱼眼遮罩的新推理基线](rendering/DS_MASKED_BASELINE_20260929.md) — 12 个真实推理视图、可见/遮挡/双视角误差与有效区检查。
+- [DS 镜头遮罩更新](rendering/DS_LENS_MASK_20260928.md) — 真实参考图轮廓、带遮罩鱼眼及与原 ERP/标注的对比。
+- [DS paired edge-person pilot](rendering/DS_SCENE_PAIR_PILOT_20260928.md) — same-world opposite-facing cameras in the two selected scenes, annotations and actual loader checks.
+- [Existing DenseKP predictions on paired scenes](rendering/DS_SCENE_PAIR_PREDICTION_20260928.md) — 12 oracle-box predictions, per-view and shared-visible errors, and occluded-target failure cases.
+- [Fixed-target occlusion and box controls](rendering/DS_OCCLUSION_CONTROL_20260928.md) — three occlusion levels with frozen crops, plus same-image box-center sensitivity.
 - [Synthetic render baseline](rendering/SYNTHETIC_RENDER_BASELINE.md) — current frozen renderer reference.
 - [Synthetic render P0 plan](rendering/SYNTHETIC_RENDER_P0_PLAN.md) — original closed-loop plan.
 - [Perspective closed loop](rendering/P0_PERSPECTIVE_CLOSED_LOOP.md) — perspective validation results.
@@ -44,6 +54,8 @@
 
 ## Appearance
 
+- [十名成人＋可选儿童角色规划](appearance/CHARACTER_LIBRARY_10PLUS1_PLAN_20260930.md) — 四人升级、六人新增，三维发型/通勤衣型缺项、儿童模板及分阶段验收；仅规划。
+- [骑行多角色资产可行性](appearance/CYCLING_MULTI_CHARACTER_FEASIBILITY_20260929.md) — 本地 BEDLAM 归档与官方资源核查、2 女 + 2 男候选、发型/衣物缺口、姿态接入和分组方案。
 - [Appearance plan](appearance/APPEARANCE_V1_PLAN.md) — appearance phases and acceptance state.
 - [Appearance baseline](appearance/APPEARANCE_BASELINE.md) — initial appearance reference.
 - [Body texture](appearance/BODY_TEXTURE_INTEGRATION.md) — body texture and UV evidence.
@@ -52,6 +64,8 @@
 
 ## Motion
 
+- [骑行图片重建试验](motion/cycling/CYCLING_IMAGE_RECONSTRUCTION_20260929.md) — 当前主线：12 张公开骑行图片的 SMPL 重建、姿态筛选与 SMPL-X 接入边界。
+- [骑行素材与拟合交接](motion/cycling/CYCLING_FIT_HANDOFF_20260929.md) — BVH 备用路线，当前暂停；保留两个片段和 SMPL-X 输出接口。
 - [Temporal validation](motion/TEMPORAL_MULTI_SCENARIO_VALIDATION.md) — multi-motion temporal checks.
 - [Cycling motion audit](motion/cycling/CYCLING_MOTION_AUDIT.md) — local cycling inventory conclusions.
 - [BABEL cycling search](motion/cycling/BABEL_CYCLING_CANDIDATE_SEARCH.md) — BABEL candidate search.

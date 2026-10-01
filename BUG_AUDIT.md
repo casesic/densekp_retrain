@@ -217,6 +217,8 @@ Follow-up evidence: [DATA_FLOW section 9](DATA_FLOW.md#9-follow-up-candidate-con
 
 ### R10 — Visible-only multiperson targets leave deployed hidden landmarks unsupervised
 
+**2026-09-29 status:** The newly generated adapter/loader policy now includes in-view occluded GT inside the actual full crop, with separate visibility metadata and metrics. Legacy NPZ is unchanged. [Implementation and rescored baseline](docs/training/OCCLUDED_SUPERVISION_20260929.md) close the implementation gap; improvement from retraining remains unmeasured. The original audit evidence below describes the previous policy.
+
 **Chain/location:** `build_omni_multiperson_tiny.py::build`, used for both Omni and DS fixtures, sets `valid = visible & in_crop & finite` → NPZ `proj_verts[...,2]` → `DenseKP.compute_loss` zeroes hidden-point contributions. External `pano-stitch/src/densekp_delivery/person_match.py::_compute_valid` / `match_all_persons` instead select finite, in-bounds, lens-valid predictions → `densekp_runtime_export.py::materialize_runtime_fixture` sends them to C++ fitting. Neither path has a predicted surface-occlusion mask.
 
 **Input/output:** Synthetic geometry supplies full fixed-row xy plus surface visibility; the training mask retains visible points only. Deployment retains geometrically eligible predictions even when the physical landmark is hidden. DenseKP `raw_scores`/`keypoint_value` do not gate these observations.

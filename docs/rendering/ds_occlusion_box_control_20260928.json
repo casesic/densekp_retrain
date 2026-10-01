@@ -1,0 +1,124 @@
+{
+  "checkpoint": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/assets_external/densekp.ckpt",
+  "precision": "float32, no autocast, TF32 disabled",
+  "cases": [
+    {
+      "image": "old_8_samples",
+      "image_path": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/ds_scene_pair_20260928_final/urban_street_assets/cam2/normal_erp.png",
+      "box": "clear_fixed",
+      "bounds": [
+        1081,
+        325,
+        1183,
+        503
+      ],
+      "center": [
+        1132.0,
+        414.0
+      ],
+      "crop_side_original_px": 213.60000000000002,
+      "visible_crop_error_px": {
+        "count": 22,
+        "mean": 8.487579198046165,
+        "median": 8.504252910614014,
+        "p90": 14.104185676574712
+      },
+      "visible_erp_error_px": {
+        "count": 22,
+        "mean": 7.081825446208771,
+        "median": 7.0957337280930055,
+        "p90": 11.768182441032568
+      }
+    },
+    {
+      "image": "old_8_samples",
+      "image_path": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/ds_scene_pair_20260928_final/urban_street_assets/cam2/normal_erp.png",
+      "box": "heavy_visible",
+      "bounds": [
+        1085,
+        325,
+        1134,
+        503
+      ],
+      "center": [
+        1109.5,
+        414.0
+      ],
+      "crop_side_original_px": 213.60000000000002,
+      "visible_crop_error_px": {
+        "count": 22,
+        "mean": 111.29327418587424,
+        "median": 82.75171279907227,
+        "p90": 210.79189453125
+      },
+      "visible_erp_error_px": {
+        "count": 22,
+        "mean": 92.86032411386947,
+        "median": 69.04596376338907,
+        "p90": 175.87946772693604
+      }
+    },
+    {
+      "image": "new_64_samples",
+      "image_path": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/ds_occlusion_control_20260928/heavy/cam2/normal_erp.png",
+      "box": "clear_fixed",
+      "bounds": [
+        1081,
+        325,
+        1183,
+        503
+      ],
+      "center": [
+        1132.0,
+        414.0
+      ],
+      "crop_side_original_px": 213.60000000000002,
+      "visible_crop_error_px": {
+        "count": 22,
+        "mean": 7.704309430989352,
+        "median": 6.504799127578735,
+        "p90": 11.631538391113283
+      },
+      "visible_erp_error_px": {
+        "count": 22,
+        "mean": 6.428284694016089,
+        "median": 5.42744322877969,
+        "p90": 9.705067793734527
+      }
+    },
+    {
+      "image": "new_64_samples",
+      "image_path": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/ds_occlusion_control_20260928/heavy/cam2/normal_erp.png",
+      "box": "heavy_visible",
+      "bounds": [
+        1085,
+        325,
+        1134,
+        503
+      ],
+      "center": [
+        1109.5,
+        414.0
+      ],
+      "crop_side_original_px": 213.60000000000002,
+      "visible_crop_error_px": {
+        "count": 22,
+        "mean": 112.74341314489192,
+        "median": 84.86072540283203,
+        "p90": 208.2919723510742
+      },
+      "visible_erp_error_px": {
+        "count": 22,
+        "mean": 94.07028825884508,
+        "median": 70.80567242352086,
+        "p90": 173.7935964232923
+      }
+    }
+  ],
+  "person_id": 3,
+  "camera": "cam2",
+  "invariants": "same heavy layout, camera, 22 visible semantic rows; box affines equal across image versions",
+  "limitation": "old image seed not recorded; between-image effects are rendering-version effects, not proven sampling-only effects",
+  "value_semantics": "third output preserved, never weighted",
+  "scope": "given-box sensitivity; no detector changes"
+}

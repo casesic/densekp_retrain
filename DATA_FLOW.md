@@ -1,5 +1,10 @@
 # DenseKP data and coordinate flow
 
+> **Current supervision update (2026-09-29):** Newly generated multiperson NPZ now stores
+> `supervision_policy`, `in_view` and `visible`; targets select in-view GT within the actual
+> full crop, including occluded GT. Legacy artifacts below retain their original policy.
+> See [the implementation and current flow](docs/training/OCCLUDED_SUPERVISION_20260929.md).
+
 > **Post-audit implementation update (2026-09-28):** The archaeology below is a frozen
 > report of baseline `8553ccd`. A subsequently authorized correctness/refactor batch
 > is now present in the working tree. Current contracts, fixed/guarded issue IDs,

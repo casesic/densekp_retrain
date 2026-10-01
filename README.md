@@ -2,6 +2,12 @@
 
 本仓库是从 CameraHMR 中单独整理出来的一份小型、隔离的 DenseKP **训练代码**副本，主要用于代码审计、数据准备和后续重训练迁移。
 
+## 当前代码从哪里读
+
+先看 [代码阅读指南](docs/READING_GUIDE.md)，再看 [一个实际样本的完整调用链](docs/SAMPLE_WALKTHROUGH.md)。
+两篇依据 2026-09-28 工作树，讲解数据生成、裁剪、模型、训练与诊断之间的关系。
+下方保留的 Phase 记录描述各阶段当时的资产和实现状态，不代表全部当前行为。
+
 ## 最小外观基线
 
 真实动作 P0 已在不改变人体几何、相机、DenseKP 投影、深度与 mask 的前提下加入程序化肤色材质、地面、世界背景和三点光。结果与前后对照图位于 `outputs/baselines/p0_appearance_baseline/`；详见 [外观资产审计](docs/appearance/APPEARANCE_ASSET_AUDIT.md) 与 [最小外观基线](docs/appearance/APPEARANCE_BASELINE.md)。当前没有本地动作兼容服装缓存，因此人物仍是无服装 SMPL-X body。

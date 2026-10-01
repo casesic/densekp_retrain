@@ -8,6 +8,7 @@ from torch.utils.data import Dataset
 from .utils import expand_to_aspect_ratio, get_example_projverts
 from ..configs import DATASET_FOLDERS, DATASET_FILES
 from ..keypoint_contract import validate_annotations
+from ..keypoint_supervision import SUPERVISION_POLICY, inside_full_crop
 from ..constants import FLIP_KEYPOINT_PERMUTATION, NUM_JOINTS
 from ..utils.pylogger import get_pylogger
 
@@ -35,7 +36,9 @@ class DatasetKeypoints(Dataset):
 
         self.img_dir = DATASET_FOLDERS[dataset] 
         with np.load(DATASET_FILES[is_train][dataset], allow_pickle=True) as archive:
-            self.data = {key: archive[key] for key in ('imgname', 'scale', 'center', 'proj_verts', 'part', 'gtkps') if key in archive}
+            fields = ('imgname', 'scale', 'center', 'proj_verts', 'part', 'gtkps',
+                      'supervision_policy', 'in_view', 'visible')
+            self.data = {key: archive[key] for key in fields if key in archive}
         validate_annotations(self.data, cfg.DATASETS.get('TARGET_VALUE_SEMANTICS'))
         self.imgname = self.data['imgname']
         # Bounding boxes are assumed to be in the center and scale format
@@ -90,6 +93,15 @@ class DatasetKeypoints(Dataset):
         new_center = np.array([cx, cy])
         img_patch = img_patch_rgba[:3,:,:]
         item['proj_verts'] = self.proj_verts[index].copy()
+        # Always return the same fields so old and new datasets can share a batch.
+        item['visible'] = np.zeros(len(proj_verts_cropped), dtype=bool)
+        item['visibility_known'] = np.zeros(len(proj_verts_cropped), dtype=bool)
+        if self.data.get('supervision_policy') == SUPERVISION_POLICY:
+            # The actual affine may move points into or out of the crop.
+            in_crop = inside_full_crop(proj_verts_cropped[:, :2])
+            proj_verts_cropped[:, 2] = self.data['in_view'][index] & in_crop
+            item['visible'] = self.data['visible'][index].copy()
+            item['visibility_known'][:] = True
         item['proj_verts_cropped'] = proj_verts_cropped
         item['img'] = img_patch
         item['img_disp'] = img_patch_cv      

@@ -1,8 +1,23 @@
 # Datasets
 
-No images or labels are staged. DenseKP consumes one NPZ per dataset plus an
-image root. See `docs/DATA_FORMAT.md` and `configs/datasets.example.json`.
+Current scope and acceptance rules: [数据集要求汇总](../docs/data/DATASET_REQUIREMENTS_20260929.md).
 
-The copied upstream registry remains in `densekp/core/configs/__init__.py` for
-semantic fidelity. Before running on a new machine, replace its dataset paths
-with local paths or add a small manifest-backed registry adapter.
+This directory holds named, versioned training/validation datasets and existing
+tiny regression fixtures. DenseKP consumes an annotation NPZ plus an image root;
+neither must physically live here for the loader to work.
+
+Keep candidate renders, reconstruction assets, visual reviews and experiment
+results in `outputs/experiments/` while their quality and selection are unsettled.
+The cycling pilot remains there, including its diagnostic loader NPZ. Moving it
+here does not make it an accepted corpus or an independent train/validation split.
+
+After acceptance, package the selected samples under `datasets/<name_version>/`,
+freeze the source-person/image split and supervision policy, and record provenance.
+Resolve all image, geometry and mask dependencies; rewrite active paths and check
+the actual loader after packaging. Do not blindly move a directory with absolute
+paths or symlinks. Preserve experiment evidence in its original location.
+
+Dataset registration is in `densekp/core/configs/__init__.py`; use the corresponding
+Hydra data configuration for a named training run. Local assets are not implied to
+be available in a clean checkout. See `docs/SAMPLE_WALKTHROUGH.md` for the current
+138-point and supervision contracts.

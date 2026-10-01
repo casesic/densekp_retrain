@@ -1,0 +1,939 @@
+{
+  "status": "completed",
+  "checkpoint": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/assets_external/densekp.ckpt",
+  "checkpoint_bytes": 8049335298,
+  "git_revision": "1475efeaf3a5151a05ef8d9e013bd1836605fa82",
+  "tracked_worktree_changes": [
+    "TRAINING_READINESS.md",
+    "docs/README.md",
+    "tools/fisheye/render_equirectangular_source.py"
+  ],
+  "evaluator_source": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/tools/validate/evaluate_ds_scene_pair.py",
+  "torch": "2.0.0+cu118",
+  "device": "cuda:0",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "precision": "float32, no autocast, TF32 disabled",
+  "scenes": [
+    {
+      "scene": "cycling_forest",
+      "input_root": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/ds_scene_pair_20260928_final/cycling_forest",
+      "cases": [
+        {
+          "camera": "cam2",
+          "person_id": 1,
+          "bbox_xyxy_exclusive": [
+            1036,
+            265,
+            1207,
+            567
+          ],
+          "category": "edge_partial",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 34,
+                "mean": 7.484542580211864,
+                "median": 6.604475021362305,
+                "p90": 12.273373889923095
+              },
+              "erp_periodic_px": {
+                "count": 34,
+                "mean": 10.59530509994166,
+                "median": 9.349460783082227,
+                "p90": 17.37448943927923
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 34,
+                "mean": 7.484542580211864,
+                "median": 6.604475021362305,
+                "p90": 12.273373889923095
+              },
+              "erp_periodic_px": {
+                "count": 34,
+                "mean": 10.59530509994166,
+                "median": 9.349460783082227,
+                "p90": 17.37448943927923
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 6,
+                "mean": 8.645415703455607,
+                "median": 9.967780590057373,
+                "p90": 11.742450714111328
+              },
+              "erp_periodic_px": {
+                "count": 6,
+                "mean": 12.23866534523234,
+                "median": 14.11063575056658,
+                "p90": 16.622905562189437
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 0
+        },
+        {
+          "camera": "cam2",
+          "person_id": 2,
+          "bbox_xyxy_exclusive": [
+            331,
+            298,
+            449,
+            641
+          ],
+          "category": "edge_partial",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 52,
+                "mean": 3.2207883997605395,
+                "median": 2.773370623588562,
+                "p90": 6.427827405929564
+              },
+              "erp_periodic_px": {
+                "count": 52,
+                "mean": 5.178422877565392,
+                "median": 4.459055933140671,
+                "p90": 10.334744744315769
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 52,
+                "mean": 3.2207883997605395,
+                "median": 2.773370623588562,
+                "p90": 6.427827405929564
+              },
+              "erp_periodic_px": {
+                "count": 52,
+                "mean": 5.178422877565392,
+                "median": 4.459055933140671,
+                "p90": 10.334744744315769
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 25,
+                "mean": 2.5070811700820923,
+                "median": 1.9858802556991577,
+                "p90": 4.875364494323732
+              },
+              "erp_periodic_px": {
+                "count": 25,
+                "mean": 4.030916647202879,
+                "median": 3.1929270656057005,
+                "p90": 7.8386725626119755
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 0
+        },
+        {
+          "camera": "cam2",
+          "person_id": 3,
+          "bbox_xyxy_exclusive": [
+            1085,
+            325,
+            1134,
+            503
+          ],
+          "category": "overlap_behind_edge_person",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 22,
+                "mean": 106.78874518654563,
+                "median": 74.3807487487793,
+                "p90": 208.00912322998047
+              },
+              "erp_periodic_px": {
+                "count": 22,
+                "mean": 89.10185973387891,
+                "median": 62.0614416569245,
+                "p90": 173.5576029414066
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 22,
+                "mean": 106.78874518654563,
+                "median": 74.3807487487793,
+                "p90": 208.00912322998047
+              },
+              "erp_periodic_px": {
+                "count": 22,
+                "mean": 89.10185973387891,
+                "median": 62.0614416569245,
+                "p90": 173.5576029414066
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 0,
+                "mean": null,
+                "median": null,
+                "p90": null
+              },
+              "erp_periodic_px": {
+                "count": 0,
+                "mean": null,
+                "median": null,
+                "p90": null
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 10
+        },
+        {
+          "camera": "cam2",
+          "person_id": 4,
+          "bbox_xyxy_exclusive": [
+            712,
+            355,
+            791,
+            466
+          ],
+          "category": "complete_single_view_control",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 98,
+                "mean": 4.192571233121717,
+                "median": 3.4638084173202515,
+                "p90": 6.369363164901733
+              },
+              "erp_periodic_px": {
+                "count": 98,
+                "mean": 2.1814469925593167,
+                "median": 1.8022663581278686,
+                "p90": 3.314055394088902
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 98,
+                "mean": 4.192571233121717,
+                "median": 3.4638084173202515,
+                "p90": 6.369363164901733
+              },
+              "erp_periodic_px": {
+                "count": 98,
+                "mean": 2.1814469925593167,
+                "median": 1.8022663581278686,
+                "p90": 3.314055394088902
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 0,
+                "mean": null,
+                "median": null,
+                "p90": null
+              },
+              "erp_periodic_px": {
+                "count": 0,
+                "mean": null,
+                "median": null,
+                "p90": null
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 0
+        },
+        {
+          "camera": "cam4",
+          "person_id": 1,
+          "bbox_xyxy_exclusive": [
+            1096,
+            265,
+            1329,
+            565
+          ],
+          "category": "edge_partial",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 30,
+                "mean": 12.991819413503011,
+                "median": 6.377934217453003,
+                "p90": 36.389512634277345
+              },
+              "erp_periodic_px": {
+                "count": 30,
+                "mean": 18.26974689524347,
+                "median": 8.968972595754709,
+                "p90": 51.172755189787445
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 30,
+                "mean": 12.991819413503011,
+                "median": 6.377934217453003,
+                "p90": 36.389512634277345
+              },
+              "erp_periodic_px": {
+                "count": 30,
+                "mean": 18.26974689524347,
+                "median": 8.968972595754709,
+                "p90": 51.172755189787445
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 6,
+                "mean": 17.555752674738567,
+                "median": 7.675931453704834,
+                "p90": 40.66387367248535
+              },
+              "erp_periodic_px": {
+                "count": 6,
+                "mean": 24.68777943588277,
+                "median": 10.794283693560022,
+                "p90": 57.18357145321423
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 0
+        },
+        {
+          "camera": "cam4",
+          "person_id": 2,
+          "bbox_xyxy_exclusive": [
+            231,
+            298,
+            437,
+            641
+          ],
+          "category": "edge_partial",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 56,
+                "mean": 5.919485839349883,
+                "median": 4.051601409912109,
+                "p90": 9.808694839477539
+              },
+              "erp_periodic_px": {
+                "count": 56,
+                "mean": 9.517422692911136,
+                "median": 6.514210689560301,
+                "p90": 15.77054484376568
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 56,
+                "mean": 5.919485839349883,
+                "median": 4.051601409912109,
+                "p90": 9.808694839477539
+              },
+              "erp_periodic_px": {
+                "count": 56,
+                "mean": 9.517422692911136,
+                "median": 6.514210689560301,
+                "p90": 15.77054484376568
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 25,
+                "mean": 5.909497961997986,
+                "median": 2.993215799331665,
+                "p90": 4.669935035705568
+              },
+              "erp_periodic_px": {
+                "count": 25,
+                "mean": 9.50136567195317,
+                "median": 4.812527567079268,
+                "p90": 7.508385936591991
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 0
+        }
+      ],
+      "pairs": [
+        {
+          "person_id": 1,
+          "status": "scored",
+          "shared_points": 6,
+          "mean_of_two_view_crop_errors_px": {
+            "count": 6,
+            "mean": 13.100584109624227,
+            "median": 9.225425720214844,
+            "p90": 25.579575538635254
+          },
+          "worse_view_crop_error_px": {
+            "count": 6,
+            "mean": 19.197217384974163,
+            "median": 11.214953422546387,
+            "p90": 40.66387367248535
+          }
+        },
+        {
+          "person_id": 2,
+          "status": "scored",
+          "shared_points": 25,
+          "mean_of_two_view_crop_errors_px": {
+            "count": 25,
+            "mean": 4.208289573192596,
+            "median": 2.460158586502075,
+            "p90": 4.405676651000977
+          },
+          "worse_view_crop_error_px": {
+            "count": 25,
+            "mean": 6.259268922805786,
+            "median": 3.1497721672058105,
+            "p90": 5.547032356262207
+          }
+        },
+        {
+          "person_id": 3,
+          "status": "missing oracle box in one view",
+          "shared_points": 0
+        },
+        {
+          "person_id": 4,
+          "status": "missing oracle box in one view",
+          "shared_points": 0
+        }
+      ],
+      "missing_boxes": [
+        {
+          "camera": "cam4",
+          "person_id": 3,
+          "bbox_xyxy_exclusive": null
+        },
+        {
+          "camera": "cam4",
+          "person_id": 4,
+          "bbox_xyxy_exclusive": null
+        }
+      ],
+      "evaluated_views": 6,
+      "finite_output_values": 2484,
+      "metrics": {
+        "visible": {
+          "crop_px": {
+            "count": 292,
+            "mean": 13.367895920799203,
+            "median": 4.3699212074279785,
+            "p90": 20.604179573059085
+          },
+          "erp_periodic_px": {
+            "count": 292,
+            "mean": 13.303456027766758,
+            "median": 4.586047083155867,
+            "p90": 21.04703958529767
+          }
+        },
+        "visible_retained_input": {
+          "crop_px": {
+            "count": 292,
+            "mean": 13.367895920799203,
+            "median": 4.3699212074279785,
+            "p90": 20.604179573059085
+          },
+          "erp_periodic_px": {
+            "count": 292,
+            "mean": 13.303456027766758,
+            "median": 4.586047083155867,
+            "p90": 21.04703958529767
+          }
+        },
+        "shared_visible": {
+          "crop_px": {
+            "count": 62,
+            "mean": 5.929378847922048,
+            "median": 3.0016870498657227,
+            "p90": 9.727148818969725
+          },
+          "erp_periodic_px": {
+            "count": 62,
+            "mean": 9.030092365574065,
+            "median": 4.826150961238939,
+            "p90": 13.761069672973228
+          }
+        }
+      }
+    },
+    {
+      "scene": "urban_street_assets",
+      "input_root": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/ds_scene_pair_20260928_final/urban_street_assets",
+      "cases": [
+        {
+          "camera": "cam2",
+          "person_id": 1,
+          "bbox_xyxy_exclusive": [
+            1036,
+            265,
+            1207,
+            567
+          ],
+          "category": "edge_partial",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 34,
+                "mean": 8.000006598584791,
+                "median": 7.324506759643555,
+                "p90": 12.22133626937866
+              },
+              "erp_periodic_px": {
+                "count": 34,
+                "mean": 11.325010345558512,
+                "median": 10.368744523916202,
+                "p90": 17.30083375187674
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 34,
+                "mean": 8.000006598584791,
+                "median": 7.324506759643555,
+                "p90": 12.22133626937866
+              },
+              "erp_periodic_px": {
+                "count": 34,
+                "mean": 11.325010345558512,
+                "median": 10.368744523916202,
+                "p90": 17.30083375187674
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 6,
+                "mean": 7.290348927179973,
+                "median": 6.8609631061553955,
+                "p90": 10.653319358825684
+              },
+              "erp_periodic_px": {
+                "count": 6,
+                "mean": 10.320399637934123,
+                "median": 9.712550167371521,
+                "p90": 15.081105921068875
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 0
+        },
+        {
+          "camera": "cam2",
+          "person_id": 2,
+          "bbox_xyxy_exclusive": [
+            331,
+            298,
+            449,
+            641
+          ],
+          "category": "edge_partial",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 52,
+                "mean": 4.105334488245157,
+                "median": 3.8687578439712524,
+                "p90": 7.610039377212524
+              },
+              "erp_periodic_px": {
+                "count": 52,
+                "mean": 6.600607376873556,
+                "median": 6.220232919719384,
+                "p90": 12.235512982015827
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 52,
+                "mean": 4.105334488245157,
+                "median": 3.8687578439712524,
+                "p90": 7.610039377212524
+              },
+              "erp_periodic_px": {
+                "count": 52,
+                "mean": 6.600607376873556,
+                "median": 6.220232919719384,
+                "p90": 12.235512982015827
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 25,
+                "mean": 4.06418675661087,
+                "median": 3.4501962661743164,
+                "p90": 7.6974687576293945
+              },
+              "erp_periodic_px": {
+                "count": 25,
+                "mean": 6.534450581403812,
+                "median": 5.547266626687947,
+                "p90": 12.37608651066254
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 0
+        },
+        {
+          "camera": "cam2",
+          "person_id": 3,
+          "bbox_xyxy_exclusive": [
+            1085,
+            325,
+            1134,
+            503
+          ],
+          "category": "overlap_behind_edge_person",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 22,
+                "mean": 111.29327418587424,
+                "median": 82.75171279907227,
+                "p90": 210.79189453125
+              },
+              "erp_periodic_px": {
+                "count": 22,
+                "mean": 92.86032411386947,
+                "median": 69.04596376338907,
+                "p90": 175.87946772693604
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 22,
+                "mean": 111.29327418587424,
+                "median": 82.75171279907227,
+                "p90": 210.79189453125
+              },
+              "erp_periodic_px": {
+                "count": 22,
+                "mean": 92.86032411386947,
+                "median": 69.04596376338907,
+                "p90": 175.87946772693604
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 0,
+                "mean": null,
+                "median": null,
+                "p90": null
+              },
+              "erp_periodic_px": {
+                "count": 0,
+                "mean": null,
+                "median": null,
+                "p90": null
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 13
+        },
+        {
+          "camera": "cam2",
+          "person_id": 4,
+          "bbox_xyxy_exclusive": [
+            712,
+            355,
+            791,
+            466
+          ],
+          "category": "complete_single_view_control",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 98,
+                "mean": 4.142781302636983,
+                "median": 3.593719959259033,
+                "p90": 6.617032527923584
+              },
+              "erp_periodic_px": {
+                "count": 98,
+                "mean": 2.155540261436213,
+                "median": 1.8698542149650152,
+                "p90": 3.442923379848526
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 98,
+                "mean": 4.142781302636983,
+                "median": 3.593719959259033,
+                "p90": 6.617032527923584
+              },
+              "erp_periodic_px": {
+                "count": 98,
+                "mean": 2.155540261436213,
+                "median": 1.8698542149650152,
+                "p90": 3.442923379848526
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 0,
+                "mean": null,
+                "median": null,
+                "p90": null
+              },
+              "erp_periodic_px": {
+                "count": 0,
+                "mean": null,
+                "median": null,
+                "p90": null
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 0
+        },
+        {
+          "camera": "cam4",
+          "person_id": 1,
+          "bbox_xyxy_exclusive": [
+            1096,
+            265,
+            1329,
+            565
+          ],
+          "category": "edge_partial",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 30,
+                "mean": 10.60670531441768,
+                "median": 8.724021434783936,
+                "p90": 22.44777412414551
+              },
+              "erp_periodic_px": {
+                "count": 30,
+                "mean": 14.915679759100962,
+                "median": 12.268153272897472,
+                "p90": 31.56718697058328
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 30,
+                "mean": 10.60670531441768,
+                "median": 8.724021434783936,
+                "p90": 22.44777412414551
+              },
+              "erp_periodic_px": {
+                "count": 30,
+                "mean": 14.915679759100962,
+                "median": 12.268153272897472,
+                "p90": 31.56718697058328
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 6,
+                "mean": 13.501231670379639,
+                "median": 9.473765850067139,
+                "p90": 25.537704467773438
+              },
+              "erp_periodic_px": {
+                "count": 6,
+                "mean": 18.986113110447693,
+                "median": 13.322489736212425,
+                "p90": 35.91240697294936
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 0
+        },
+        {
+          "camera": "cam4",
+          "person_id": 2,
+          "bbox_xyxy_exclusive": [
+            231,
+            298,
+            437,
+            641
+          ],
+          "category": "edge_partial",
+          "metrics": {
+            "visible": {
+              "crop_px": {
+                "count": 56,
+                "mean": 5.948496879477586,
+                "median": 3.8832331895828247,
+                "p90": 9.890239715576172
+              },
+              "erp_periodic_px": {
+                "count": 56,
+                "mean": 9.564065704251119,
+                "median": 6.24349822432859,
+                "p90": 15.901650616245629
+              }
+            },
+            "visible_retained_input": {
+              "crop_px": {
+                "count": 56,
+                "mean": 5.948496879477586,
+                "median": 3.8832331895828247,
+                "p90": 9.890239715576172
+              },
+              "erp_periodic_px": {
+                "count": 56,
+                "mean": 9.564065704251119,
+                "median": 6.24349822432859,
+                "p90": 15.901650616245629
+              }
+            },
+            "shared_visible": {
+              "crop_px": {
+                "count": 25,
+                "mean": 5.685717104077339,
+                "median": 1.868542194366455,
+                "p90": 5.421210575103761
+              },
+              "erp_periodic_px": {
+                "count": 25,
+                "mean": 9.141567477868456,
+                "median": 3.004246213286843,
+                "p90": 8.716286576539867
+              }
+            }
+          },
+          "finite_output_values": 414,
+          "visible_outside_retained_input": 0,
+          "nearer_visible_neighbor_same_row_by_5_crop_px": 0
+        }
+      ],
+      "pairs": [
+        {
+          "person_id": 1,
+          "status": "scored",
+          "shared_points": 6,
+          "mean_of_two_view_crop_errors_px": {
+            "count": 6,
+            "mean": 10.395790100097656,
+            "median": 7.407747745513916,
+            "p90": 18.095511436462402
+          },
+          "worse_view_crop_error_px": {
+            "count": 6,
+            "mean": 13.80950697263082,
+            "median": 9.473765850067139,
+            "p90": 25.537704467773438
+          }
+        },
+        {
+          "person_id": 2,
+          "status": "scored",
+          "shared_points": 25,
+          "mean_of_two_view_crop_errors_px": {
+            "count": 25,
+            "mean": 4.8749519324302675,
+            "median": 3.26608943939209,
+            "p90": 4.7424774169921875
+          },
+          "worse_view_crop_error_px": {
+            "count": 25,
+            "mean": 7.899346280097961,
+            "median": 4.886908531188965,
+            "p90": 7.864556598663331
+          }
+        },
+        {
+          "person_id": 3,
+          "status": "missing oracle box in one view",
+          "shared_points": 0
+        },
+        {
+          "person_id": 4,
+          "status": "missing oracle box in one view",
+          "shared_points": 0
+        }
+      ],
+      "missing_boxes": [
+        {
+          "camera": "cam4",
+          "person_id": 3,
+          "bbox_xyxy_exclusive": null
+        },
+        {
+          "camera": "cam4",
+          "person_id": 4,
+          "bbox_xyxy_exclusive": null
+        }
+      ],
+      "evaluated_views": 6,
+      "finite_output_values": 2484,
+      "metrics": {
+        "visible": {
+          "crop_px": {
+            "count": 292,
+            "mean": 13.668627404697137,
+            "median": 4.789926767349243,
+            "p90": 19.967555618286198
+          },
+          "erp_periodic_px": {
+            "count": 292,
+            "mean": 13.580513985217063,
+            "median": 4.88837361178917,
+            "p90": 24.739406636968006
+          }
+        },
+        "visible_retained_input": {
+          "crop_px": {
+            "count": 292,
+            "mean": 13.668627404697137,
+            "median": 4.789926767349243,
+            "p90": 19.967555618286198
+          },
+          "erp_periodic_px": {
+            "count": 292,
+            "mean": 13.580513985217063,
+            "median": 4.88837361178917,
+            "p90": 24.739406636968006
+          }
+        },
+        "shared_visible": {
+          "crop_px": {
+            "count": 62,
+            "mean": 5.943501291976821,
+            "median": 3.304178476333618,
+            "p90": 9.30045928955078
+          },
+          "erp_periodic_px": {
+            "count": 62,
+            "mean": 9.157089160840282,
+            "median": 5.203143640664253,
+            "p90": 13.241637608693884
+          }
+        }
+      }
+    }
+  ],
+  "value_semantics": "raw third output preserved; not confidence and never used for scoring",
+  "metric_definition": "unweighted point mean; periodic ERP x; crop errors in full 256-square pixels",
+  "pair_metric": "per shared semantic row, mean/max of its two per-view GT errors; not camera-to-camera xy distance",
+  "neighbor_hint": "same-row visible neighbor is nearer by >5 crop px; diagnostic proximity, not proof of identity swap",
+  "scope": "12 oracle-box views; approximate synthetic visibility; repeated identity/poses; no training, detector or reconstruction"
+}

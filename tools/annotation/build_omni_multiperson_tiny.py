@@ -4,11 +4,15 @@
 import argparse
 import json
 from pathlib import Path
+import sys
 
 import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from densekp.core.keypoint_supervision import SUPERVISION_POLICY, make_targets, points_in_mask
 
 
 def roll_person(rgb: np.ndarray, mask: np.ndarray, xy: np.ndarray):
@@ -32,7 +36,8 @@ def build(source: Path, output: Path, val_camera: str = "cam_right",
     report = json.loads((source / "report.json").read_text())
     ids = [int(p["id"]) for p in report["people"]]
     image_dir = output / "images"
-    image_dir.mkdir(parents=True, exist_ok=True)
+    output.mkdir(parents=True, exist_ok=False)
+    image_dir.mkdir()
     samples = []
     for camera in report["results"]:
         camera_id = camera["camera"]
@@ -43,6 +48,24 @@ def build(source: Path, output: Path, val_camera: str = "cam_right",
             if data["xy"].shape != (len(ids), 138, 2) or list(data["person_ids"]) != ids:
                 raise ValueError(f"annotation layout mismatch for {camera_id}")
             points, visible = data["xy"].copy(), data["visible"].copy()
+            in_view = data['valid'].astype(bool)
+        # DS legacy 'valid' only checks image bounds. Its measured lens mask is essential.
+        mask_path = camera_dir / 'erp_valid_mask.png'
+        valid_mask = None
+        if mask_path.exists():
+            valid_mask = np.asarray(Image.open(mask_path).convert('L')) > 0
+        elif report.get('valid_masks'):
+            if report.get('fisheye_reference_root') and camera.get('reference_lens_coverage') != 1.0:
+                raise ValueError('Regenerate DS source with erp_valid_mask.png to include its lens footprint')
+            with np.load(report['valid_masks']) as archive:
+                valid_mask = archive[f'valid_masks_{camera_id}'].astype(bool)
+        elif 'Double Sphere' in report.get('camera_model', ''):
+            raise ValueError('DS supervision requires an explicit lens-valid ERP mask')
+        if valid_mask is not None:
+            if valid_mask.shape != rgb.shape[:2]:
+                raise ValueError(f'Lens mask and RGB dimensions differ for {camera_id}')
+            in_view &= points_in_mask(points, valid_mask)
+        visible &= in_view
         for person_index, person_id in enumerate(ids):
             with Image.open(camera_dir / f"erp_person_{person_id}_mask.png") as image:
                 mask = np.asarray(image.convert("L")) >= 128
@@ -52,17 +75,19 @@ def build(source: Path, output: Path, val_camera: str = "cam_right",
             ys, xs = np.where(rolled_mask)
             cx, cy = (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2
             box_size = max(xs.max() - xs.min() + 1, ys.max() - ys.min() + 1) * 1.2
-            within_crop = ((np.abs(xy[:, 0] - cx) < box_size / 2)
-                           & (np.abs(xy[:, 1] - cy) < box_size / 2))
-            valid = visible[person_index] & within_crop & np.isfinite(xy).all(axis=1)
+            target = make_targets(xy, in_view[person_index], [cx, cy], box_size / 200)
+            valid = target[:, 2] > 0
             if valid.sum() < 10:
                 raise ValueError(f"fewer than 10 supervised points: {camera_id}/{person_id}")
             filename = f"{camera_id}_person_{person_id}.png"
             Image.fromarray(rolled_rgb).save(image_dir / filename)
             samples.append({"imgname": filename, "center": [cx, cy], "scale": box_size / 200,
-                            "proj_verts": np.column_stack((xy, valid.astype(np.float32))),
+                            "proj_verts": target,
+                            "in_view": in_view[person_index], "visible": visible[person_index],
                             "person_id": person_id, "camera_id": camera_id,
-                            "visible_count": int(valid.sum()), "erp_roll_pixels": shift})
+                            "visible_count": int((valid & visible[person_index]).sum()),
+                            "occluded_count": int((valid & ~visible[person_index]).sum()),
+                            "supervised_count": int(valid.sum()), "erp_roll_pixels": shift})
     if val_person_id is None:
         splits = {"train": [i for i, row in enumerate(samples) if row["camera_id"] != val_camera],
                   "val": [i for i, row in enumerate(samples) if row["camera_id"] == val_camera]}
@@ -78,6 +103,9 @@ def build(source: Path, output: Path, val_camera: str = "cam_right",
                  center=np.asarray([s["center"] for s in selected], dtype=np.float32),
                  scale=np.asarray([s["scale"] for s in selected], dtype=np.float32),
                  proj_verts=np.stack([s["proj_verts"] for s in selected]).astype(np.float32),
+                 supervision_policy=np.array(SUPERVISION_POLICY),
+                 in_view=np.stack([s['in_view'] for s in selected]),
+                 visible=np.stack([s['visible'] for s in selected]),
                  person_id=np.asarray([s["person_id"] for s in selected], dtype=np.int32),
                  camera_id=np.asarray([s["camera_id"] for s in selected]))
     manifest = {"source": str(source.resolve()), "people": len(ids), "samples": samples,
@@ -86,7 +114,9 @@ def build(source: Path, output: Path, val_camera: str = "cam_right",
                 "train_indices": splits["train"], "val_indices": splits["val"],
                 "note": "smoke-only split: one synthetic motion/scene shared across splits"}
     # The sample records contain NumPy arrays; keep the manifest compact.
-    manifest["samples"] = [{k: v for k, v in sample.items() if k != "proj_verts"} for sample in samples]
+    manifest['supervision_policy'] = SUPERVISION_POLICY
+    manifest["samples"] = [{k: v for k, v in sample.items()
+                            if k not in ('proj_verts', 'in_view', 'visible')} for sample in samples]
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     return manifest
 

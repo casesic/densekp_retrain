@@ -4,6 +4,7 @@ An explicit producer/config declaration is required: numeric values alone do
 not establish confidence, visibility, correspondence or supervision semantics.
 """
 import numpy as np
+from .keypoint_supervision import SUPERVISION_POLICY
 
 NUM_DENSE_KEYPOINTS = 138
 
@@ -34,3 +35,15 @@ def validate_annotations(data, value_semantics):
         raise ValueError('Declared supervision weights must be finite in [0,1]')
     if not np.isfinite(points[..., :2][weights > 0]).all():
         raise ValueError('Supervised xy must be finite; only zero-weight xy may be undefined')
+    if 'supervision_policy' in data:
+        policy = np.asarray(data['supervision_policy'])
+        if policy.shape != () or policy.item() != SUPERVISION_POLICY:
+            raise ValueError('Unknown supervision_policy')
+        for key in ('in_view', 'visible'):
+            mask = np.asarray(data.get(key))
+            if mask.shape != (n, NUM_DENSE_KEYPOINTS) or mask.dtype != np.bool_:
+                raise ValueError(f'{key} must be boolean [N,138] for {SUPERVISION_POLICY}')
+        if np.any(data['visible'] & ~data['in_view']):
+            raise ValueError('Visible points must be in_view')
+        if not np.isfinite(points[..., :2][data['in_view']]).all():
+            raise ValueError('In-view synthetic coordinates must be finite')
