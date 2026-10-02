@@ -26,7 +26,7 @@
 
 1. `configs/fisheye_scene_cycling_forest.json` 和 `configs/fisheye_scene_urban_street_assets.json` 引用相应 `.blend`。
 2. `tools/experiments/render_cycling_ds.py`、`render_cycling_characters_ds.py`、`render_adult_candidates_ds.py` 组合人体/衣物、布局、场景配置和双相机；各自输出目录承载 scene JSON、源 ERP 与后处理制品。
-3. `tools/fisheye/render_equirectangular_scene_source.py` 打开原生多人场景；`render_equirectangular_source.py` 是历史单人链接路径。它们直接使用 `densekp_retrain.rendering.blender`，保留不同灯光、实例 ID 和默认值。
+3. `tools/fisheye/render_equirectangular_source.py` 打开原生多人场景；`render_equirectangular_scene_source.py` 是历史单人链接路径。它们直接使用 `densekp_retrain.rendering.blender`，保留不同灯光、实例 ID 和默认值。
 4. `densekp_retrain.imaging.ds` / `omni` 读取源制品，生成有效 mask、人物框、138 点和可见性；标注入口消费 manifest，随后打包为 Dataset。
 
 `render_source_ground_repairs.py` 是选定候选的修复重放配方，消费已有探针/布局与场景，输出修复目录及执行状态；其固定分辨率、采样和 GPU 配方保持，不是通用渲染 API，本批未运行。

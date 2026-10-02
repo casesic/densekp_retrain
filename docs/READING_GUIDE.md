@@ -10,7 +10,7 @@
 
 当前重构进度见 [执行任务与验收门槛](refactor/IMPLEMENTATION_TASKS_20261001.md)。
 P1 的指标、配置、推理、评价展示和训练回调归位已完成；
-P2、P3.1–P3.4 已通过评审；P3.5 场景配方与执行入口完成，P3 整体待评审。
+P1–P3 已整体通过评审并提交于 aaf08bd；P4 安装、入口和历史清理已整体通过评审。P4/P5 随本次提交交付；[P5 最终阅读与交付核查](refactor/P5_READING_DELIVERY_20261002.md) 已完成，待评审决定整体收尾。推荐命令及计算边界见 [命令表](COMMANDS.md)。
 场景和透视路径从 [配方 → 资产 → 消费入口索引](rendering/SCENE_RECIPE_INDEX.md) 进入；框实验配额与随机配方继续由实验入口负责。
 
 ## 1. 先把项目看成三部分
@@ -54,9 +54,9 @@ flowchart LR
 | `docs/` | 架构、历史实验、当前导读 | 注意文档日期及基线 |
 | `third_party/`、`scripts/` | 外部工具和下载/环境辅助 | 当前主线外按需追踪 |
 
-`densekp` 与 `densekp_retrain` 是两个用途不同的 Python 包名。当前 `pyproject.toml`
-只打包 `src/densekp_retrain*`；许多工具另外把仓库根目录加到 `sys.path`，才能 import
-`densekp.core` 和 `tools.*`。这说明运行路径也是现有组织方式的一部分。
+`densekp` 与 `densekp_retrain` 是两个用途不同的 Python 包，由同一个 distribution 提供 editable 安装。
+`setup.py` 只发现两个源码根；tools 保留仓库脚本方式，跨 cwd 用绝对脚本路径。
+依赖分组、实测版本、路径基准及安装验收见 [开发安装与入口](environment/INSTALLATION.md)。
 
 ## 3. 第一轮只沿这条顺序读
 
@@ -78,7 +78,7 @@ flowchart LR
 名称仍保留日志、返回字段及 portrait/closeup 分支含义。
 [augmentation.py](../densekp/core/datasets/augmentation.py) 返回具名随机参数；
 `CropPlan` 表示最终中心与裁剪参数，`CropResult` 表示图像、标签和 affine。
-旧 [utils.py](../densekp/core/datasets/utils.py) 保留十项 tuple 和历史辅助函数兼容，已不在 Dataset 主路径上。
+旧 [utils.py](../densekp/core/datasets/utils.py) 保留十项 tuple 与导入兼容，已不在 Dataset 主路径上；旧 SMPL/HMR 裁剪在 [legacy/crop.py](../densekp/legacy/crop.py)。
 实测输入、增强和 RNG 对照见 [P2.1/P2.2 验收](refactor/P2_DATASET_CROP_20261002.md)。
 
 读第 8 步时，从公共定义追踪三件事：
@@ -211,16 +211,18 @@ BEDLAM 原始 RGB 标注适配是另一条需要独立核验的路径。不能�
 - 当前代码提供训练与 Python 诊断，实际检测、跨相机重建、合图及部署逻辑在外部项目。
   本轮不会把它们混入 DenseKP 重构。
 
-## 6. 哪些地方值得后续整理
+## 6. 区分核心、配方、兼容与历史
 
-当前仍需推进的是场景配方边界、包安装与历史清理；Blender 共用装配已完成本批有限实测。已迁移的 Dataset、指标、
-推理、训练回调、几何和成像后处理应直接从公共模块阅读，旧脚本导出只用于历史兼容。
+| 类型 | 怎样辨认 | 阅读方式 |
+| --- | --- | --- |
+| 核心实现 | densekp/core 的 Dataset/objective/inference；densekp_retrain 的几何/相机/成像/评价 | 新调用直引定义模块；前五节就是阅读主线 |
+| 实验配方 | tools/experiments、tools/scene 和具体渲染/标注入口 | 保留布局、配额、灯光、随机参数；按你的任务选择一个入口，不通读全部脚本 |
+| 兼容代码 | datasets/utils.py、utils/train_utils.py 的导出，densekp/legacy，旧 loss 类与 Blender 支持导出 | 仅追历史调用时进入；旧 loss 保留类路径，当前训练读 keypoint_objective |
+| 历史记录 | docs/refactor、旧代码地图、早期阶段报告与历史 outputs | 查来源和验证边界时读，不能以当时状态覆盖当前实现 |
 
-| 后续项 | 执行要求 |
-| --- | --- |
-| Blender 验证范围 | 保留已验版本与代表输入；其它版本/API、collection、GPU 等路径未实测时不能扩大通过声明 |
-| 配置与入口 | 明确本地资产和实验输入，保留默认行为与旧 CLI；不统一不同历史策略 |
-| 包和交付 | P4 检查整个新公共包的忽略/跟踪状态；`data/` 当前忽略了 P2 实现，普通提交不保证完整 |
-| 历史清理 | 逐项确认调用及唯一复现用途；证据不足时保留 |
+[兼容与历史保留表](refactor/LEGACY_RETENTION_20261002.md) 说明每项保留或删除依据；[配置索引](../configs/README.md) 区分当前与继承配置。
+日常运行 `bash scripts/audit_workspace.sh`，需要 Dataset/历史合约时加 `--model-contracts`。
+默认检查不读真实权重、不遍历 outputs；完整旧实验回放仍需其明确的资产与版本条件。
 
-每次行为改变单列说明和验证；不借可读性重构更改 loss、点索引或相机数学。
+P1–P3 完成；公共数据包忽略问题已在 aaf08bd 修复。安装、清理与 P5 文档随本次提交交付。
+P5 已完成实际样本走读与交付核查，当前停止于最终评审；P4/P5 随本次提交交付，未提前标记整个重构通过。

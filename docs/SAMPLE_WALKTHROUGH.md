@@ -1,27 +1,36 @@
 # 跟着一个样本读完整条链
 
-配合 [阅读地图](READING_GUIDE.md) 使用。这里讲的是已运行的街景遮挡样本，数值来自现存
-NPZ 和真实 Dataset 读取结果；本轮没有重新训练或生成图片。
+配合 [阅读地图](READING_GUIDE.md) 使用。主例是已保存的街景 **heavy / cam2 / 人物 3**，
+采用 09-29 的遮挡监督标签，复用 09-28 的图像与模型预测；不是当前新训练样本。
+P5 只回读选定 NPZ、数组头和 manifest，没有重跑模型、Dataset 或渲染。
 
-**2026-09-29 更新：遮挡点也参与监督和验证。** 下文的原始样本路径及坐标数值保留，
-它们来自 09-28 的可见点版本。新版标签和重新评分在
-`outputs/experiments/ds_occlusion_amodal_20260929/`，模型预测没有改变。
-完整规则和结果见 [遮挡点监督说明](training/OCCLUDED_SUPERVISION_20260929.md)。
+先沿第 0–7 节读主线；第 1.1 节的骑行人物、第 3.1/4.1 节的来源隔离与框增强是另两条路径，
+用于解释当前公共计算，不能当成主例的来源。训练入口见第 8 节，主例未参加训练。
 
-**2026-10-01 代码位置更新：** `audit_cfg` 已归入
-[datasets/configuration.py](../densekp/core/datasets/configuration.py)；评分集合、周期误差和严格统计在
-[evaluation.py](../densekp/core/evaluation.py)。候选实验的失败状态统计与按点/按人汇总在
-[evaluation/candidates.py](../src/densekp_retrain/evaluation/candidates.py)。
-下面的样本、坐标和监督语义保持原样。首批指标迁移未重新推理；第二批另用七个固定输入和三权重
-验证 [公共推理](../densekp/core/inference.py)，没有改写本文样本的历史预测或重新渲染。
-第三批将候选入口拆为输入核查、预测、配对汇总和报告，阅读起点为
-[candidate_runner.evaluate_rows](../src/densekp_retrain/evaluation/candidate_runner.py)。
-展示在 [visualization/keypoints.py](../src/densekp_retrain/visualization/keypoints.py)，
-有界实验验证在 [training/trial_callbacks.py](../src/densekp_retrain/training/trial_callbacks.py)。
-本批用保存预测验收报告/图片、真实 GPU 小网络验收回调；没有更新本文样本或真实 DenseKP 参数。
+### 主例的产物与代码索引
 
-**2026-10-02 代码位置更新：** Dataset 已支持显式数据路径，裁剪主流程见下文第 4 节。
-第 4.1 节补充本批七样本基线中的实际框和增强对照，原 09-28 样本及其数值继续保留。
+以下路径前缀：`G=outputs/baselines/temporal_case_aaron_1095`；
+`S=outputs/experiments/ds_occlusion_control_20260928`；
+`A=outputs/experiments/ds_occlusion_amodal_20260929`。路径均相对仓库根。
+
+| 环节 | 当前实现（打开后查此符号） | 实际产物/已核对信息 |
+| --- | --- | --- |
+| 人物与姿态 | [load_real_smplx_motion.main](../tools/generate/load_real_smplx_motion.py) | `G/geometry/canonical_motion.json`：BEDLAM `rp_aaron_posed_009/1095`，male，动作切片内帧 80 → 几何帧 16 |
+| 人体/语义点 | [generate_real_motion_geometry.main](../tools/generate/generate_real_motion_geometry.py)、[compute_densekp_3d](../src/densekp_retrain/body/geometry.py) | `G/geometry/geometry_manifest.json`、`vertices.npy`、`faces.npy`、`densekp_3d.npy`；保留 source translation |
+| 衣物 | [prepare_p0_dressed_geometry.main](../tools/generate/prepare_p0_dressed_geometry.py)、[原生多人入口](../tools/fisheye/render_equirectangular_source.py) | `G/clothing_geometry/clothing_manifest.json` 及 clothing 数组；本例是 BEDLAM 既有衣物模拟，不是第 1.1 节外壳配方 |
+| 世界/场景/相机 | [world_points](../src/densekp_retrain/body/transforms.py)、[rig_poses](../src/densekp_retrain/camera/rig.py)、[assembly](../src/densekp_retrain/rendering/blender/assembly.py) | `S/heavy/people.json`、`rig.json`、`source/source_manifest.json`；urban_street_assets，1536×768 ERP |
+| 成像、有效域和标签 | [process_scene](../src/densekp_retrain/imaging/ds.py) | `S/heavy/source/cam2.exr`、`cam2/normal_erp.png`、`pair_annotations.npz`、`cam2/boxes.json`；历史版本边界见第 2 节 |
+| 固定框/监督标签 | [evaluate_ds_occlusion_control.main](../tools/validate/evaluate_ds_occlusion_control.py)、[make_targets](../densekp/core/keypoint_supervision.py) | `S/clear/cam2/boxes.json` → `A/fixed_boxes.json` → `A/heavy/fixed_box_loader.npz` 第 1 行 |
+| 裁剪与监督 | [DatasetKeypoints.__getitem__](../densekp/core/datasets/dataset_keypoints.py)、[determine_crop / transform_crop](../densekp/core/datasets/crop_pipeline.py) | `A/heavy/cam2_person_3.npz` 保存 target/affine；完整输入与增强基线另见第 4.1 节，不声称本 NPZ 含完整输入 |
+| 模型与 loss | [DenseKP.forward_step / compute_loss](../densekp/core/densekp_trainer.py)、[keypoint_loss](../densekp/core/keypoint_objective.py) | `A/model_config.yaml`、`loader_config.yaml`、`report.json` 指向原 checkpoint；主例只有预测，没有训练 loss 制品 |
+| 还原与评价 | [restore_crop_xy](../densekp/core/crop_geometry.py)、[point_errors / evaluation_masks](../densekp/core/evaluation.py) | `A/heavy/cam2_person_3.npz` 原始/ERP 预测与误差，`A/report.json` 对应 case；新候选入口从 [evaluate_rows](../src/densekp_retrain/evaluation/candidate_runner.py) 读 |
+
+**追溯边界：** 原动作文件、衣物来源、模型目录、regressor 和场景路径在本机存在。
+`geometry_manifest.json` 的旧 `outputs/temporal_case_aaron_1095/geometry/canonical_motion.npz` 引用已不存在；
+当前 `G/geometry/canonical_motion.npz` 存在，但没有旧副本可证明搬迁前字节一致，不能悄悄改写历史 manifest。
+源渲染 manifest 没有冻结全部贴图/HDRI 版本或权重内容指纹，不能仅凭路径证明它们自渲染日起从未变化。
+这些限制不阻断阅读保存产物，也不构成从任意干净机器重建同一历史图像的承诺。
+详细只读证据见 [P5 报告](refactor/P5_READING_DELIVERY_20261002.md)。
 
 ## 0. 先确定我们要跟踪谁
 
@@ -29,8 +38,8 @@ NPZ 和真实 Dataset 读取结果；本轮没有重新训练或生成图片。
 
 ```text
 原图：outputs/experiments/ds_occlusion_control_20260928/heavy/cam2/normal_erp.png
-标签：outputs/experiments/ds_occlusion_control_prediction_20260928/heavy/fixed_box_loader.npz
-预测：同一 prediction 目录下 heavy/cam2_person_3.npz
+标签：outputs/experiments/ds_occlusion_amodal_20260929/heavy/fixed_box_loader.npz
+预测：同一 amodal 目录下 heavy/cam2_person_3.npz（复用旧预测）
 ```
 
 此 loader NPZ 有 5 行，当前人物是第 2 条样本（索引 1）：cam2 的人物 2/3/4，以及 cam4
@@ -56,7 +65,9 @@ densekp_3d = np.einsum('kv,tvc->tkc', regressor, vertices)
 | `faces.npy` | `[20908,3]` | 每个三角形的三个顶点索引 |
 | `densekp_3d.npy` | `[39,138,3]` | 每帧 138 个语义点 xyz |
 
-人物 3 使用几何帧 16，`motion_params.npz` 中对应原始动作帧 80。此资产的 manifest 记录
+人物 3 使用几何帧 16，`motion_params.npz` 中对应动作切片内帧 80。
+衣物 manifest 的 local_motion_indices[16]=80、source_frame_30fps[16]=181，后者含 start_frame=101；
+不要把切片索引 80 和原始时间轴索引 181 混用。此资产的 manifest 记录
 `source_translation_used=true`。当前 adapter 支持 poses `[T,165]` 的完整 SMPL-X
 axis-angle；是否使用 source translation 由生成时的参数决定，不可概括为总是置零。
 
@@ -236,13 +247,16 @@ center/scale 计算；当前 change_box 仅按合成 **1536×768** 栅格截断�
 它取出一行、恢复像素边长，然后依次读取、确定裁剪、变换和计算监督；
 活动路径不再调用旧十项 tuple 包装 `get_example_projverts`。
 
-数据源在 [loading.py](../densekp/core/datasets/loading.py) 中解析。例如，对本文原始样本：
+数据源在 [loading.py](../densekp/core/datasets/loading.py) 中解析。例如，对本文遮挡监督版本（仓库根目录执行，需要 model 依赖；只读取数据，不运行模型）：
 
 ```python
+from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
+from densekp.core.datasets.configuration import audit_cfg
+
 dataset = DatasetKeypoints(
     audit_cfg("supervision_weight"),
     "occlusion-control",  # 保留名称；不必注册这个 ID。
-    annotation_path="outputs/experiments/ds_occlusion_control_prediction_20260928/heavy/fixed_box_loader.npz",
+    annotation_path="outputs/experiments/ds_occlusion_amodal_20260929/heavy/fixed_box_loader.npz",
     image_root="outputs/experiments/ds_occlusion_control_20260928/heavy",
     is_train=False,
     use_augmentation=False,
@@ -307,9 +321,21 @@ affine 只变换 xy。旧 NPZ 的第三字段保持原样；声明了新版策�
 通过同一 affine 影响图像和点，颜色/降质增强作用于图像。水平翻转目前有保护性报错，
 因为尚无验证过的 138 行左右置换；44 关节的置换不能代替它。
 
+### 两个理解检查
+
+**框中心右移会发生什么？** 保持方形边长 s、无旋转时，原图点的归一化坐标是
+`(x-cx)/s, (y-cy)/s`。中心右移 Δx 后，同一点的标签 x 减少 `Δx/s`；图像也通过同一 affine 向左移动，
+并引入新的右侧上下文。尺度改变会同时改变放大倍率和包含范围。模型接收的是变后的图像，不是框的数字或人物 ID。
+这个公式用于解释，实际舍入与增强顺序仍以当前函数为准。
+
+**为什么遮挡仍监督？** 本例保存的有效域内 123 点中，22 点可见、101 点遮挡；可靠 GT 均在完整裁剪内，
+所以监督 123 点，域外 15 点不监督。旧 visible-only 标签仅 22 点，仍按旧契约读取。
+新策略用 `in_view & inside_full_crop`，不再与 visible 相交；裁剪外点被排除，遮挡仅用于评价分组。
+本例无裁剪外点，第 4.1 节的固定增强样本展示监督从 112 减到 102，补足裁剪截断情况。
+
 ### 4.1 当前框增强样本：框如何改变输入
 
-以下来自本批独立 before 的 `challenge_001`，并非重新推理的模型结果。
+以下来自 P2 独立 before 的 `challenge_001`，并非重新推理的模型结果。
 数据为 `box_robustness_400_20261001/data_v2/loader/val.npz` 第 1 行，图像属于合成
 1536×768 ERP。其保存的 center 为 `[1110.760009765625, 405]`，scale 为
 `1.6080000400543213`，恢复方形边长为 `scale*200 = 321.60000801086426` 像素。
@@ -440,7 +466,7 @@ GT xy 可以通过相同逆变换回到原图，是几何检查。预测与 GT �
 
 2026-10-01 的有界训练审计已归入
 [training_audit.py](../densekp/core/training_audit.py)，负责更新前梯度检查和参数快照。
-本次仅用 CPU 小网络验证审计的保存/恢复行为，没有对本文样本恢复 DenseKP 效果训练。
+P1 的训练审计用 CPU 小网络验证保存/恢复；FixedValidation 另有真实 GPU 小网络验收。本文样本没有恢复 DenseKP 效果训练。
 
 ```text
 train_keypoints.train(cfg)

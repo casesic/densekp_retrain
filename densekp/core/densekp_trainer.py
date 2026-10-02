@@ -7,7 +7,7 @@ from yacs.config import CfgNode
 
 from .backbones import create_backbone
 from .heads.smpl_head_keypoints import build_keypoints_head
-from .utils.train_utils import denormalize_images
+from .image_normalization import denormalize_images
 from .keypoint_objective import keypoint_loss, keypoint_error_totals
 from .utils.pylogger import get_pylogger
 from .constants import  VITPOSE_BACKBONE

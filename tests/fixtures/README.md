@@ -32,3 +32,8 @@ NumPy 状态向量和 Python RNG；另有 6 个拒绝梯度用例。
 独立探针测试补充完整 NumPy RNG 状态、4096 上限、混合 dtype、detach/clone 和模式约定。
 参考环境为 Python 3.10.20、Torch 2.0.0+cu118、Lightning 2.0.2、NumPy 1.26.4；
 同环境要求精确一致。本 fixture 不证明真实 DenseKP 预测或 GPU 训练生命周期已通过。
+
+## 历史兼容清理基线
+
+legacy_cleanup_v1.json 在本轮修改前从原 utils/train_utils/losses 捕获，含数值、RNG 和拒绝行为；legacy_import_bodies_v1.json 是 12 个历史脚本的冻结原执行体 AST。
+tests.test_legacy_cleanup 不从新实现重建期望值，允许的唯一删除是 generate_image_patch_skimage 内的字面量 if False 块。完整 before/after 和 pickle 恢复证据保留在 outputs/acceptance/refactor_cleanup_20261002。

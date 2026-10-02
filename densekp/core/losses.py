@@ -1,3 +1,9 @@
+"""Historical CameraHMR loss classes, kept at this path for pickle compatibility.
+
+Active DenseKP loss and metric behavior is in keypoint_objective.py. These
+classes have different reductions/weight semantics and are not substitutes.
+"""
+
 import torch
 import torch.nn as nn
 

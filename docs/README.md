@@ -1,6 +1,11 @@
+> 当前先读 [样本旅程](SAMPLE_WALKTHROUGH.md) 和 [代码阅读指南](READING_GUIDE.md)。本页用于按主题查找；历史阶段报告不是当前流程的前置阅读。
+
 # Documentation
 
 ## Start Here
+
+- [推荐命令与计算边界](COMMANDS.md) — 配置打印、数据检查、推理、训练、渲染分别说明。
+- [最终阅读与交付核查](refactor/P5_READING_DELIVERY_20261002.md) — P4 已通过；P5 待评审，包含提交状态、外部资产与限制。
 
 - [当前数据集要求汇总](data/DATASET_REQUIREMENTS_20260929.md) — 目标覆盖、骑行来源、穿衣场景、相机遮罩、138 点监督、划分和验收要求。
 - [代码阅读指南](READING_GUIDE.md) — 当前目录职责、阅读顺序和后续可读性整理候选。
@@ -78,11 +83,15 @@
 
 ## Environment
 
+- [开发安装、依赖与运行入口](environment/INSTALLATION.md) — 双包 editable、离线独立环境验收、路径和外部资产边界。
+
 - [Headless environment](environment/HEADLESS_ENVIRONMENT.md) — Blender/EGL environment evidence.
 - [Renderer selection](environment/HEADLESS_RENDERER_SELECTION.md) — renderer capability comparison.
 - [Migration](environment/MIGRATION.md) — environment and data migration notes.
 
 ## Refactor History
+
+- [当前兼容与历史保留表](refactor/LEGACY_RETENTION_20261002.md) — 核心、配方、旧接口与保留依据。
 
 - [Phase 3 dependency map](refactor/PHASE3_DEPENDENCY_MAP.md) — historical dependency audit.
 - [Phase 3 delete candidates](refactor/PHASE3_DELETE_CANDIDATES.md) — historical deletion decisions.

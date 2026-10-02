@@ -1,6 +1,7 @@
 # P3 几何与生成链完成检查表
 
-更新：2026-10-02。**P3.1–P3.4 已通过用户评审；P3.5 实现与验收完成，P3 整体提交评审。**
+更新：2026-10-02。**P3.1–P3.5 已通过用户评审，P3 整体完成，累计代码已提交于 aaf08bd。**
+公共数据包与 docs/data 忽略问题已在该提交修复。当前安装与入口进展见 [P4 报告](P4_INSTALLATION_20261002.md)。
 本表不是 P4/P5 完成声明，也不将代表路径实测扩大为全部资产、设备和 Blender 版本覆盖。
 
 | 阶段 | 已迁移内容 | 已有独立验收 | 状态 |
@@ -9,7 +10,7 @@
 | P3.2 坐标与相机 | camera/erp、rig、domain、visibility | 两相机/周期/有效域，原始 EXR 另 20 数组和既有标签；区分 DS、Omni、历史可见性 | 已评审 |
 | P3.3 成像与标注 | imaging/source、ds、omni、remap；visualization/imaging | 完整 189 数组/44 图片/29 JSON；边界另 55/35/7 精确；保留源 ERP 射线距离与重映射鱼眼距离差异 | 已评审 |
 | P3.4 Blender | rendering/blender 的 assembly、materials、groom、scene_bridge；clothing/contracts | 原生多人/链接单人，世界空间装配 78 数组；9 EXR/3 预览；后处理 39 数组/23 图片/6 JSON 精确 | 已评审，限 Blender 5.1.1 CPU 代表输入 |
-| P3.5 场景配方 | jobs 具名构造/共用执行；4 配方显式 main；32 文件归属索引 | 独立 30 命令/路径用例（20 argv），4 有序 AST、真实 Blender 4 导入/3 CLI，100 CPU 测试 | 待本次评审 |
+| P3.5 场景配方 | jobs 具名构造/共用执行；4 配方显式 main；32 文件归属索引 | 独立 30 命令/路径用例（20 argv），4 有序 AST、真实 Blender 4 导入/3 CLI，100 CPU 测试 | 已评审 |
 
 ## 交付检查
 
@@ -20,9 +21,11 @@
 - [x] 旧 Blender `--` CLI、两个 jobs `run_*` API、旧材质/groom/contract/scene bridge 导入兼容保留。
 - [x] 未改动路径复用原证据，本批没有为了覆盖更多分支重新渲染或制作资产。
 - [x] 配方 → 资产 → 配置 → 渲染 → 后处理 → 标注路线已在非忽略 docs 中记录。
-- [ ] P3 整体用户评审（本次停止点）。
-- [ ] P4 全公共包忽略/跟踪修复及双包 editable、入口安装验收（不得跳过）。
-- [ ] P4 历史清理、P5 完整阅读路线验收；整个重构仍未完成。
+- [x] P3 整体用户评审。
+- [x] 公共数据包及 docs/data 忽略/跟踪问题已修复并提交。
+- [x] P4 安装与入口批次通过评审（实现与验收见 P4 报告）。
+- [x] P4 历史清理通过评审，P4 整体完成（随本次提交交付）。
+- [ ] P5 完整阅读与交付核查已完成，待评审决定整个重构收尾；见 [P5 报告](P5_READING_DELIVERY_20261002.md)。
 
 ## 专用配方与兼容接口
 
@@ -40,7 +43,8 @@ P3.1/P3.3 旧几何/成像符号继续兼容导出；P3.4 三个 render 支持�
 - 源资产只做选定引用存在性核查；不递归加载贴图、压缩包或 outputs。P3.5 无 GPU 计算，不对 GPU 0 健康作判断。
 - portrait/closeup 旋转、mask 取整、历史报告/来源字段与 NaN 拒绝写入等既有事项继续单列，不随重构修复。
 
-P4 必须检查整个 `src/densekp_retrain/` 和 `densekp/` 的安装与交付状态，特别是被 `data/` 规则忽略的公共数据包；不能只 force-add 一个 source_split.py，也不能假定本地通过等于新 checkout 可用。
-本批保留 `.gitignore` 既有改动，未提交 commit。证据大清单留在 outputs，小型任务、fixture 和验证门槛保存在非忽略路径。
+P1–P3 累计成果已提交于 `aaf08bd`，公共数据包已完整跟踪，`.gitignore` 的目录例外已修复。
+P4 已验证双包 editable 与无资产交付目录；P5 继续检查必要文件与导航。完整依赖空环境重建仍不在已验证范围。
+证据大清单留在 outputs，小型任务、fixture 和验证门槛保存在非忽略路径。
 
 详细证据：[几何/相机](P3_GEOMETRY_CAMERA_20261002.md)、[成像](P3_IMAGING_20261002.md)、[Blender](P3_BLENDER_20261002.md)、[场景配方](P3_SCENE_RECIPES_20261002.md)。

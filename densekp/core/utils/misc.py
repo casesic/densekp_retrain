@@ -1,3 +1,10 @@
+"""Active task/logging utilities plus retained Hydra compatibility factories.
+
+instantiate_callbacks, instantiate_loggers and get_metric_value are inherited
+interfaces; current train_keypoints builds its own callback/logger lists. Keep
+the factories for historical dynamic Hydra callers.
+"""
+
 import time
 import warnings
 from importlib.util import find_spec

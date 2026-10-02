@@ -8,6 +8,7 @@ configs/hydra/data/*
 !configs/hydra/data/ds_multiperson_tiny.yaml
 !configs/hydra/data/ds_multiperson_amodal_tiny.yaml
 !configs/hydra/data/omni_near_erp_tiny.yaml
+!configs/hydra/data/*.yaml
 outputs/
 datasets/p0_dressed_tiny/
 datasets/omni_multiperson_tiny/
@@ -24,6 +25,7 @@ checkpoints/
 *.plan
 __pycache__/
 *.pyc
+*.egg-info/
 
 # Local datasets, downloaded dependencies, rendered artifacts and secrets.
 third_party/

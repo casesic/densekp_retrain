@@ -1,0 +1,5 @@
+# @package _global_
+
+DATASETS:
+  DATASETS_AND_RATIOS: omni-multiperson-tiny
+  VAL_DATASETS: omni-multiperson-tiny
