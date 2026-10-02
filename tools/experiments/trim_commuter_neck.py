@@ -6,7 +6,7 @@ import sys
 import numpy as np
 
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from tools.experiments.build_commuter_clothing import clip_surface
+from densekp_retrain.clothing.binding import clip_surface
 
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);p.add_argument('output',type=Path)
 p.add_argument('--height',type=float,required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=False)

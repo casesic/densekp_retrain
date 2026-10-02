@@ -1,12 +1,17 @@
 # 从哪里开始读这个项目
 
-更新：2026-09-29，包含当前未提交的场景诊断与遮挡点监督改动。
+更新：2026-10-02，已接入 Blender 共用装配和 DS/Omni 成像后处理和人体/衣物/坐标相机公共计算，以及来源/打包/框、Dataset、评价与训练回调。
 这是当前实现的阅读入口。旧 `CURRENT_CODE_MAP.md` 和根目录考古报告有各自的历史基线，
 其中的旧问题描述不能直接当作现在的行为。
 
 遮挡点为何参与 loss、镜头外点为何排除，见
 [遮挡点监督与评价](training/OCCLUDED_SUPERVISION_20260929.md)。读 Dataset 时可同时打开
 [keypoint_supervision.py](../densekp/core/keypoint_supervision.py)，这里集中定义了监督条件。
+
+当前重构进度见 [执行任务与验收门槛](refactor/IMPLEMENTATION_TASKS_20261001.md)。
+P1 的指标、配置、推理、评价展示和训练回调归位已完成；
+P2、P3.1–P3.4 已通过评审；P3.5 场景配方与执行入口完成，P3 整体待评审。
+场景和透视路径从 [配方 → 资产 → 消费入口索引](rendering/SCENE_RECIPE_INDEX.md) 进入；框实验配额与随机配方继续由实验入口负责。
 
 ## 1. 先把项目看成三部分
 
@@ -34,7 +39,7 @@ flowchart LR
 | 目录 | 你可以怎样理解 | 第一轮读到什么程度 |
 | --- | --- | --- |
 | `densekp/` | 实际神经网络、Dataset、loss、训练入口 | 需要读主线 |
-| `src/densekp_retrain/` | 数据生成共用库：人体几何、相机、EXR、资产路径 | 先读调用到的函数 |
+| `src/densekp_retrain/` | 数据生成公共库及应用评价：人体几何、相机、EXR、资产路径、候选汇总 | 先读调用到的函数 |
 | `tools/generate/` | 从动作准备几何文件的命令入口 | 知道输入/输出 |
 | `tools/fisheye/` | ERP、鱼眼和双路场景生成；部分共用逻辑仍在脚本里 | 跟当前场景链读 |
 | `tools/validate/` | 加载检查、推理、训练冒烟、各种诊断实验 | 先选一个实际实验 |
@@ -61,7 +66,7 @@ flowchart LR
 | 顺序 | 文件及定位 | 读完应能解释 |
 | --- | --- | --- |
 | 1 | [dataset_keypoints.py](../densekp/core/datasets/dataset_keypoints.py)，`__init__`、`__getitem__` | 一行 NPZ 怎样变成一张目标裁剪和 138 个标签 |
-| 2 | [datasets/utils.py](../densekp/core/datasets/utils.py)，`get_example_projverts`、`generate_image_patch_cv2` | 图像和标签怎样共用 affine；颜色与坐标各自如何归一化 |
+| 2 | [crop_pipeline.py](../densekp/core/datasets/crop_pipeline.py)，`determine_crop`、`transform_crop`，再读 [image_processing.py](../densekp/core/datasets/image_processing.py) | 增强怎样改变框，图像和标签怎样共用 affine；颜色与坐标怎样归一化 |
 | 3 | [crop_geometry.py](../densekp/core/crop_geometry.py)，`normalize_crop_xy`、`restore_crop_xy` | 怎样从裁剪坐标回到原图；为什么不加 32 像素 |
 | 4 | [densekp_trainer.py](../densekp/core/densekp_trainer.py)，`forward_step` | 模型真正读了哪些字段，192 宽在哪里产生 |
 | 5 | [smpl_head_keypoints.py](../densekp/core/heads/smpl_head_keypoints.py)，`KeypointsHead.forward` | 图像特征怎样变成 `[B,138,3]`，无需先精读 attention 数学 |
@@ -69,11 +74,81 @@ flowchart LR
 | 7 | [train_keypoints.py](../densekp/train_keypoints.py) 和 [datamodule_keypoints.py](../densekp/core/datasets/datamodule_keypoints.py) | 数据、模型、优化器、验证、checkpoint 怎样被组织起来 |
 | 8 | [evaluate_ds_occlusion_control.py](../tools/validate/evaluate_ds_occlusion_control.py)，`main` | 不训练时如何复用同一 Dataset 和模型，固定框与评分集合在哪里定义 |
 
+读 Dataset 时，[loading.py](../densekp/core/datasets/loading.py) 负责显式 `annotation_path`、`image_root` 与旧 ID 回退；
+名称仍保留日志、返回字段及 portrait/closeup 分支含义。
+[augmentation.py](../densekp/core/datasets/augmentation.py) 返回具名随机参数；
+`CropPlan` 表示最终中心与裁剪参数，`CropResult` 表示图像、标签和 affine。
+旧 [utils.py](../densekp/core/datasets/utils.py) 保留十项 tuple 和历史辅助函数兼容，已不在 Dataset 主路径上。
+实测输入、增强和 RNG 对照见 [P2.1/P2.2 验收](refactor/P2_DATASET_CROP_20261002.md)。
+
+读第 8 步时，从公共定义追踪三件事：
+
+- [datasets/configuration.py](../densekp/core/datasets/configuration.py) 的 `audit_cfg` 生成关闭增强的独立 YACS 配置。
+- [evaluation.py](../densekp/core/evaluation.py) 定义 GT 分组、周期误差、预测拒绝计数和严格 `summarize`。
+- [evaluation/candidates.py](../src/densekp_retrain/evaluation/candidates.py) 定义候选 `summary` 和 `aggregate`，
+  输出按点/按人两套统计。非有限值仍计入分母，返回失败状态及 null；严格 `summarize` 则报错。
+
+旧 validate 模块保留这些函数的导入兼容，新调用应直接使用上述公共模块。
+
+读有界训练实验时，更新前梯度检查与参数探针已在
+[training_audit.py](../densekp/core/training_audit.py)：`CheckUpdates` 记录更新尝试，
+`probes` 保存 backbone/head 各自首个参数的最多 4096 个 float32 标量。
+它们不代表全部参数已更新；实际完成步数仍由调用方核查。
+`train_source_isolated_trial.RunAudit` 直接继承公共类；`FixedValidation` 位于
+[training/trial_callbacks.py](../src/densekp_retrain/training/trial_callbacks.py)。
+从 `on_train_batch_end` 读触发步数、eval/FP32、参数/步数/RNG 检查、保存和 train 的顺序，
+再读 `_evaluate_rows` 的固定样本评分。异常停止及默认空 callback state 保持原行为。
+
+候选评价从 [evaluate_candidate_baseline.py](../tools/validate/evaluate_candidate_baseline.py) 的 main 进入：
+先看 [candidate_inputs.py](../src/densekp_retrain/evaluation/candidate_inputs.py) 的输入冻结，
+再看 [candidate_runner.py](../src/densekp_retrain/evaluation/candidate_runner.py) 的
+`read_candidate → compare_reference → predict_candidate → score_candidate → save_candidate`，
+最后看 [candidate_reporting.py](../src/densekp_retrain/evaluation/candidate_reporting.py) 和
+[pairs.py](../src/densekp_retrain/evaluation/pairs.py) 的分组与分母。
+点图与拼图在 [visualization/keypoints.py](../src/densekp_retrain/visualization/keypoints.py)，
+JSON 策略在 [io/json.py](../src/densekp_retrain/io/json.py)。旧 evaluator 导出只用于历史兼容。
+
+推理共用操作在 [inference.py](../densekp/core/inference.py)：两种严格加载路径保留各自初始化顺序；
+`predict_batch` 保持模型当前模式并返回原始 tensor，shape/非有限处理仍由评价入口决定。
+`predict_item` 保留旧 smoke 的 eval 副作用和有限输出检查；source trial 直接调用，smoke 旧名兼容导出。
+
 第一次先理解 1–4，确认能讲清“框→图像输入→输出坐标”，再进入 loss 和训练。
 之后才精读 [ViT](../densekp/core/backbones/vit.py) 和
 [TransformerDecoder](../densekp/core/components/pose_transformer.py) 内部层结构。
 
 ## 4. 第二轮：往上追数据从哪来
+
+先沿“来源 → 样本 → 衍生框 → 监督标签”读四步：
+
+1. [source_split.py](../src/densekp_retrain/data/source_split.py)：声明来源隔离，再检查每个 scene 中所有人物，
+   包括没有目标框的遮挡者，最后汇总集合与 paired-box 签名。
+2. [packing.py](../src/densekp_retrain/data/packing.py)：按冻结 index 的 loader_input/loader_row 取样，
+   保留字段/行序；原始 198/79 行不因框派生而改变。
+3. [prepare_box_robustness.py](../tools/experiments/prepare_box_robustness.py)：从旧日志取 400 次 parent_row，
+   按原 seed/配额生成提议，调用 [boxes.py](../src/densekp_retrain/data/boxes.py) 做坐标计算及拒绝检查，
+   经真实 Dataset 裁剪后检查支持量，再回退或接纳。公共计算不决定实验配额。
+4. [keypoint_supervision.py](../densekp/core/keypoint_supervision.py)：新标签在实际完整裁剪后重算监督；
+   旧权重仅原样装配。适配层与 Dataset 消费的 [keypoint_contract.py](../densekp/core/keypoint_contract.py)
+   一起读，不能仅凭第三列的数值猜测其语义。
+
+具体数据关系和保持的历史策略见 [样本导读第 3.1 节](SAMPLE_WALKTHROUGH.md#31-来源样本衍生框与监督标签)，
+本批证据见 [P2.3–P2.5 验收](refactor/P2_SOURCES_BOXES_20261002.md)。
+
+
+随后沿“姿态参数 → 人体与衣物 → 世界坐标 → 相机标签”读：
+
+- [body/parameters.py](../src/densekp_retrain/body/parameters.py) 的 `PARAMETERS/evaluate/zero_pose/rest_body`，
+  配合 [body/geometry.py](../src/densekp_retrain/body/geometry.py) 的 138 行 regressor。
+- [clothing/shells.py](../src/densekp_retrain/clothing/shells.py) 的两种衣片方案，以及
+  [clothing/binding.py](../src/densekp_retrain/clothing/binding.py) 的三角形/重心绑定；款式和材质留实验层。
+- [body/transforms.py](../src/densekp_retrain/body/transforms.py) 的 `world_points`：衣物、人体、点共用身体 lift。
+- [camera/rig.py](../src/densekp_retrain/camera/rig.py)、[erp.py](../src/densekp_retrain/camera/erp.py)、
+  [domain.py](../src/densekp_retrain/camera/domain.py)、[visibility.py](../src/densekp_retrain/camera/visibility.py)：
+  camera-to-world、射线距离、周期坐标、显式有效域和可见性分开读。
+
+几何见 [P3.1/P3.2 验收](refactor/P3_GEOMETRY_CAMERA_20261002.md)。成像后处理已归入公共模块，
+已有 EXR 的 CPU 回放见 [P3.3 验收](refactor/P3_IMAGING_20261002.md)；
+两条代表路径的真实装配/渲染对照另见 [P3.4 验收](refactor/P3_BLENDER_20261002.md)。
 
 当前诊断的生成调用链是：
 
@@ -83,15 +158,37 @@ run_ds_occlusion_control.main
   ├─ 修改前景人物布局，固定目标和相机
   ├─ subprocess → Blender → render_equirectangular_source.main
   │    └─ RGB、Depth、IndexOB、source_manifest.json
-  └─ run_ds_scene_pair_pilot.process_scene
+  └─ densekp_retrain.imaging.ds.process_scene
        ├─ world_points / point_in_view / erp_visibility
        ├─ double_sphere 的投影和反投影采样表
        └─ normal ERP、138 点、可见性、实例框、配对统计
 ```
 
+成像部分按以下模块读：
+
+1. [source.py](../src/densekp_retrain/imaging/source.py)：读原始 EXR 距离/实例；DS RGB 用保存的源预览，Omni 用线性 EXR RGB。
+2. [ds.py](../src/densekp_retrain/imaging/ds.py) 的 `process_scene`，或 [omni.py](../src/densekp_retrain/imaging/omni.py) 的 `warp_case`：显式组合重映射、有效域、点标签、框与保存步骤。
+3. [remap.py](../src/densekp_retrain/imaging/remap.py)：DS 周期采样；Omni 保留自己的 constant-border 历史规则。
+4. [visualization/imaging.py](../src/densekp_retrain/visualization/imaging.py)：点预览不参与有效域和监督判定。
+
+DS 源可见性预检查仍在重映射前，避免改变异常时的部分输出；Omni 仍先保存基础图像，再检查人物 ID。
+这些执行顺序有独立基线，不能为了统一流程悄悄调整。
+
 从 [run_ds_occlusion_control.py](../tools/fisheye/run_ds_occlusion_control.py) 进入即可。
 这里一部分代码在普通 Python 中运行，一部分在 Blender 的 Python 中运行；看到
 `subprocess` 时要跟进传给 Blender 的脚本，而不只是继续往下读父进程。
+
+Blender 部分保留两个明确入口：
+
+- [render_equirectangular_source.py](../tools/fisheye/render_equirectangular_source.py)：打开原生场景、读取多人、地面/绑定检查，保留 native 灯光和人物 ID。
+- [render_equirectangular_scene_source.py](../tools/fisheye/render_equirectangular_scene_source.py)：空场景读取对象、添加 SUN/HDRI，保留单人身体 1/衣物 2 的历史策略。
+
+两者直接调用 [assembly.py](../src/densekp_retrain/rendering/blender/assembly.py) 的网格、相机、compositor 和渲染循环。
+皮肤/衣物材质在 [materials.py](../src/densekp_retrain/rendering/blender/materials.py)，
+发型曲线在 [groom.py](../src/densekp_retrain/rendering/blender/groom.py)，
+场景读取在 [scene_bridge.py](../src/densekp_retrain/rendering/blender/scene_bridge.py)。
+这些子模块需要 Blender 的 bpy；纯衣物校验 [contracts.py](../src/densekp_retrain/clothing/contracts.py) 只依赖 NumPy。
+导入 rendering 包本身不拉入 bpy/Torch，也没有让两个 renderer 互相调用。
 
 再向上是 `load_real_smplx_motion.py` → `generate_real_motion_geometry.py` →
 `src/densekp_retrain/body/geometry.py`。这条链生成网格顶点和 DenseKP 3D 点。
@@ -103,7 +200,7 @@ BEDLAM 原始 RGB 标注适配是另一条需要独立核验的路径。不能�
 ## 5. 第三轮：配置、其他路径和部署边界
 
 - `configs/hydra/train.yaml` 组合 data、trainer、experiment、paths；当前默认 data 是
-  `unselected`，正式训练要显式选择数据。诊断脚本的 `audit_cfg` 是另一套明确关闭增强的配置。
+  `unselected`，正式训练要显式选择数据。公共配置工厂 `audit_cfg` 是另一套明确关闭增强的配置，不能与模型配置混为一份。
 - `densekp/core/configs/__init__.py` 的注册表把数据集名字映射为图片根目录和 NPZ。
   `DATASET_FILES[False]` 是验证/诊断标签，`[True]` 是训练标签；两者由 bool 索引列表取得。
 - `DATASETS_AND_RATIOS` 这个历史名字容易误导：当前 DataModule 是选择数据集并拼接，
@@ -116,16 +213,14 @@ BEDLAM 原始 RGB 标注适配是另一条需要独立核验的路径。不能�
 
 ## 6. 哪些地方值得后续整理
 
-下面是从实际代码看到的候选，不是本轮已经实施的修改：
+当前仍需推进的是场景配方边界、包安装与历史清理；Blender 共用装配已完成本批有限实测。已迁移的 Dataset、指标、
+推理、训练回调、几何和成像后处理应直接从公共模块阅读，旧脚本导出只用于历史兼容。
 
-| 可读性问题 | 具体证据 | 适合的整理方向 | 保留的验证 |
-| --- | --- | --- | --- |
-| 诊断脚本重复加载模型和构造 Dataset | `evaluate_ds_scene_pair.py`、`evaluate_ds_occlusion_control.py`、`evaluate_ds_box_control.py` | 抽出小的推理/样本加载共用模块，实验脚本保留各自干预和评分规则 | 相同输入原始预测、框和 affine |
-| 脚本兼作库，依赖方向不好找 | control renderer import pilot 的 `process_scene`；box evaluator import control evaluator 的工具和依赖 | 把稳定的共用行为放入库，从定义模块直接导入依赖 | 世界点、图像映射、可见 mask 与标注一致 |
-| 单个函数同时负责很多阶段 | pilot 的 `process_scene` 包含投影、重映射、框、存储、画图 | 按输入输出清楚的阶段拆开，明确数组含义 | 图像/标签数值对照 |
-| 配置与硬编码交叉 | 本地 geometry 路径、相机参数、YAML 与结构常量 | 集中实验输入参数，明确实际生效的配置 | 默认试验可复现，结构和权重兼容 |
-| 辅助函数大文件及长行难读 | `datasets/utils.py`、Blender renderer | 先分段/命名/注释，再按调用关系迁移 | 裁剪与标签变换不变 |
-| 当前说明混在历史文档里 | 旧地图、README 的阶段记录 | 设当前入口，并标清历史记录 | 链接和陈述与当前代码一致 |
+| 后续项 | 执行要求 |
+| --- | --- |
+| Blender 验证范围 | 保留已验版本与代表输入；其它版本/API、collection、GPU 等路径未实测时不能扩大通过声明 |
+| 配置与入口 | 明确本地资产和实验输入，保留默认行为与旧 CLI；不统一不同历史策略 |
+| 包和交付 | P4 检查整个新公共包的忽略/跟踪状态；`data/` 当前忽略了 P2 实现，普通提交不保证完整 |
+| 历史清理 | 逐项确认调用及唯一复现用途；证据不足时保留 |
 
-推荐先整理诊断工具的重复部分，再考虑生成链；不借可读性重构更改 loss、点索引或相机
-数学。每次行为改变应独立说明和验证。**本轮只增加导读和文档入口。**
+每次行为改变单列说明和验证；不借可读性重构更改 loss、点索引或相机数学。

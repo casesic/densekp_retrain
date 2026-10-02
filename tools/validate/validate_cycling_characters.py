@@ -11,7 +11,9 @@ import torch
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'src')]
 from densekp_retrain.body.geometry import load_smplx_model
-from tools.experiments.prepare_cycling_characters import PARAMETERS, POSES, write_json
+from densekp_retrain.body.parameters import PARAMETERS
+from tools.experiments.prepare_cycling_characters import POSES
+from densekp_retrain.io.json import write_json
 
 
 def check_face_uv(config):

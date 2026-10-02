@@ -13,10 +13,13 @@ sys.path[:0]=[str(ROOT),str(ROOT/'src')]
 import cv2
 import numpy as np
 from tools.experiments.render_cycling_ds import layout
-from tools.experiments.prepare_cycling_characters import POSES, write_json
-from tools.fisheye.run_ds_scene_pair_pilot import (
-    SCENES, DS_20260320, rig_poses, load_lens_masks, process_scene, add_lens_mask_arguments)
-from tools.fisheye.run_fisheye_multiperson_pilot import world_points
+from tools.experiments.prepare_cycling_characters import POSES
+from densekp_retrain.io.json import write_json
+from tools.fisheye.run_ds_scene_pair_pilot import SCENES, load_lens_masks, add_lens_mask_arguments
+from densekp_retrain.imaging.ds import process_scene
+from densekp_retrain.camera.double_sphere import DS_20260320
+from densekp_retrain.camera.rig import rig_poses
+from densekp_retrain.body.transforms import world_points
 from tools.validate.validate_ds_scene_pair_pilot import validate
 from densekp_retrain.camera.double_sphere import build_erp_to_fisheye_lut
 

@@ -1,4 +1,6 @@
 data/
+!src/densekp_retrain/data/
+!docs/data/
 !configs/hydra/data/
 configs/hydra/data/*
 !configs/hydra/data/unselected.yaml
@@ -25,7 +27,7 @@ __pycache__/
 
 # Local datasets, downloaded dependencies, rendered artifacts and secrets.
 third_party/
-assets_external/python_deps/
+/assets_external/
 zip/
 .codex/
 .agents/

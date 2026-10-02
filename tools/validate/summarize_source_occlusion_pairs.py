@@ -5,8 +5,8 @@ import sys
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
-from tools.validate.evaluate_candidate_baseline import summary
+sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
+from densekp_retrain.evaluation.candidates import summary
 
 
 def main():

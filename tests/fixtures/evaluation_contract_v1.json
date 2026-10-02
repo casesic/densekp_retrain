@@ -1,0 +1,3206 @@
+[
+  {
+    "id": "summarize_empty",
+    "function": "summarize",
+    "arguments": [
+      {
+        "array": [],
+        "dtype": "float32",
+        "shape": [
+          0
+        ]
+      }
+    ],
+    "outcome": {
+      "value": {
+        "count": 0,
+        "mean": null,
+        "median": null,
+        "p90": null
+      }
+    }
+  },
+  {
+    "id": "summarize_finite",
+    "function": "summarize",
+    "arguments": [
+      {
+        "array": [
+          1.0,
+          2.0,
+          10.0
+        ],
+        "dtype": "float32",
+        "shape": [
+          3
+        ]
+      }
+    ],
+    "outcome": {
+      "value": {
+        "count": 3,
+        "mean": 4.333333333333333,
+        "median": 2.0,
+        "p90": 8.4
+      }
+    }
+  },
+  {
+    "id": "summarize_nan",
+    "function": "summarize",
+    "arguments": [
+      {
+        "array": [
+          2.0,
+          "nan",
+          4.0
+        ],
+        "dtype": "float32",
+        "shape": [
+          3
+        ]
+      }
+    ],
+    "outcome": {
+      "error_type": "ValueError",
+      "message": "Nonfinite errors must not disappear from the denominator"
+    }
+  },
+  {
+    "id": "summarize_inf",
+    "function": "summarize",
+    "arguments": [
+      {
+        "array": [
+          2.0,
+          "inf",
+          4.0
+        ],
+        "dtype": "float32",
+        "shape": [
+          3
+        ]
+      }
+    ],
+    "outcome": {
+      "error_type": "ValueError",
+      "message": "Nonfinite errors must not disappear from the denominator"
+    }
+  },
+  {
+    "id": "summarize_negative_inf",
+    "function": "summarize",
+    "arguments": [
+      {
+        "array": [
+          "-inf"
+        ],
+        "dtype": "float32",
+        "shape": [
+          1
+        ]
+      }
+    ],
+    "outcome": {
+      "error_type": "ValueError",
+      "message": "Nonfinite errors must not disappear from the denominator"
+    }
+  },
+  {
+    "id": "summary_empty",
+    "function": "summary",
+    "arguments": [
+      {
+        "array": [],
+        "dtype": "float32",
+        "shape": [
+          0
+        ]
+      }
+    ],
+    "outcome": {
+      "value": {
+        "count": 0,
+        "nonfinite_count": 0,
+        "status": "empty",
+        "mean": null,
+        "median": null,
+        "p90": null
+      }
+    }
+  },
+  {
+    "id": "summary_finite",
+    "function": "summary",
+    "arguments": [
+      {
+        "array": [
+          1.0,
+          2.0,
+          10.0
+        ],
+        "dtype": "float32",
+        "shape": [
+          3
+        ]
+      }
+    ],
+    "outcome": {
+      "value": {
+        "count": 3,
+        "nonfinite_count": 0,
+        "status": "scored",
+        "mean": 4.333333333333333,
+        "median": 2.0,
+        "p90": 8.4
+      }
+    }
+  },
+  {
+    "id": "summary_nan",
+    "function": "summary",
+    "arguments": [
+      {
+        "array": [
+          2.0,
+          "nan",
+          4.0
+        ],
+        "dtype": "float32",
+        "shape": [
+          3
+        ]
+      }
+    ],
+    "outcome": {
+      "value": {
+        "count": 3,
+        "nonfinite_count": 1,
+        "status": "nonfinite_failure",
+        "mean": null,
+        "median": null,
+        "p90": null
+      }
+    }
+  },
+  {
+    "id": "summary_inf",
+    "function": "summary",
+    "arguments": [
+      {
+        "array": [
+          2.0,
+          "inf",
+          4.0
+        ],
+        "dtype": "float32",
+        "shape": [
+          3
+        ]
+      }
+    ],
+    "outcome": {
+      "value": {
+        "count": 3,
+        "nonfinite_count": 1,
+        "status": "nonfinite_failure",
+        "mean": null,
+        "median": null,
+        "p90": null
+      }
+    }
+  },
+  {
+    "id": "summary_negative_inf",
+    "function": "summary",
+    "arguments": [
+      {
+        "array": [
+          "-inf"
+        ],
+        "dtype": "float32",
+        "shape": [
+          1
+        ]
+      }
+    ],
+    "outcome": {
+      "value": {
+        "count": 1,
+        "nonfinite_count": 1,
+        "status": "nonfinite_failure",
+        "mean": null,
+        "median": null,
+        "p90": null
+      }
+    }
+  },
+  {
+    "id": "aggregate_unequal_and_empty",
+    "function": "aggregate",
+    "arguments": [
+      [
+        {
+          "id": "a",
+          "action": "walking",
+          "category": "control",
+          "scale_group": "small",
+          "lens_truncated_gt": false,
+          "neighbor_crop_pixels": 0,
+          "in_view_outside_full_crop": 0
+        },
+        {
+          "id": "b",
+          "action": "cycling",
+          "category": "edge",
+          "scale_group": "large",
+          "lens_truncated_gt": true,
+          "neighbor_crop_pixels": 3,
+          "in_view_outside_full_crop": 1
+        },
+        {
+          "id": "c",
+          "action": "walking",
+          "category": "control",
+          "scale_group": "small"
+        }
+      ],
+      {
+        "a": {
+          "crop": {
+            "array": [
+              1.0,
+              1.0,
+              99.0
+            ],
+            "dtype": "float32",
+            "shape": [
+              3
+            ]
+          },
+          "erp": {
+            "array": [
+              2.0,
+              2.0,
+              99.0
+            ],
+            "dtype": "float64",
+            "shape": [
+              3
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                true,
+                true,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                3
+              ]
+            },
+            "empty": {
+              "array": [
+                false,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                3
+              ]
+            }
+          }
+        },
+        "b": {
+          "crop": {
+            "array": [
+              10.0,
+              100.0,
+              "inf"
+            ],
+            "dtype": "float32",
+            "shape": [
+              3
+            ]
+          },
+          "erp": {
+            "array": [
+              20.0,
+              200.0,
+              "inf"
+            ],
+            "dtype": "float64",
+            "shape": [
+              3
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                true,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                3
+              ]
+            },
+            "empty": {
+              "array": [
+                false,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                3
+              ]
+            }
+          }
+        },
+        "c": {
+          "crop": {
+            "array": [
+              "nan"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          },
+          "erp": {
+            "array": [
+              "inf"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                1
+              ]
+            },
+            "empty": {
+              "array": [
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                1
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "outcome": {
+      "value": {
+        "all/supervised": {
+          "rows": 3,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 3,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 4.0,
+              "median": 1.0,
+              "p90": 8.200000000000001
+            },
+            "erp_periodic_px": {
+              "count": 3,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 8.0,
+              "median": 2.0,
+              "p90": 16.400000000000002
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 5.5,
+              "median": 5.5,
+              "p90": 9.1
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 11.0,
+              "median": 11.0,
+              "p90": 18.2
+            }
+          }
+        },
+        "action/walking/supervised": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "layout/control/supervised": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "scale/small/supervised": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "actual_lens_gt/complete/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "actual_crop_neighbor/absent/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "actual_crop_gt/complete/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "all/empty": {
+          "rows": 3,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "action/walking/empty": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "layout/control/empty": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "scale/small/empty": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_lens_gt/complete/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_crop_neighbor/absent/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_crop_gt/complete/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "action/cycling/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "layout/edge/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "scale/large/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "actual_lens_gt/truncated/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "actual_crop_neighbor/present/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "actual_crop_gt/truncated/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 10.0,
+              "median": 10.0,
+              "p90": 10.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "action/cycling/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "layout/edge/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "scale/large/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_lens_gt/truncated/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_crop_neighbor/present/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_crop_gt/truncated/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "aggregate_no_cases",
+    "function": "aggregate",
+    "arguments": [
+      [],
+      {}
+    ],
+    "outcome": {
+      "value": {}
+    }
+  },
+  {
+    "id": "crop_bounds",
+    "function": "evaluation_masks",
+    "arguments": [
+      {
+        "array": [
+          true,
+          true,
+          true,
+          true,
+          false,
+          true,
+          true
+        ],
+        "dtype": "bool",
+        "shape": [
+          7
+        ]
+      },
+      {
+        "array": [
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true
+        ],
+        "dtype": "bool",
+        "shape": [
+          7
+        ]
+      },
+      {
+        "array": [
+          [
+            -0.5,
+            0.0
+          ],
+          [
+            0.5,
+            0.0
+          ],
+          [
+            -0.375,
+            0.0
+          ],
+          [
+            0.375,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            "nan",
+            0.0
+          ],
+          [
+            0.0,
+            -0.5
+          ]
+        ],
+        "dtype": "float64",
+        "shape": [
+          7,
+          2
+        ]
+      }
+    ],
+    "outcome": {
+      "value": {
+        "all_in_view": {
+          "array": [
+            true,
+            true,
+            true,
+            true,
+            false,
+            true,
+            true
+          ],
+          "dtype": "bool",
+          "shape": [
+            7
+          ]
+        },
+        "visible": {
+          "array": [
+            true,
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "dtype": "bool",
+          "shape": [
+            7
+          ]
+        },
+        "occluded": {
+          "array": [
+            false,
+            true,
+            false,
+            true,
+            false,
+            true,
+            false
+          ],
+          "dtype": "bool",
+          "shape": [
+            7
+          ]
+        },
+        "supervised": {
+          "array": [
+            true,
+            false,
+            true,
+            true,
+            false,
+            false,
+            true
+          ],
+          "dtype": "bool",
+          "shape": [
+            7
+          ]
+        },
+        "occluded_in_crop": {
+          "array": [
+            false,
+            false,
+            false,
+            true,
+            false,
+            false,
+            false
+          ],
+          "dtype": "bool",
+          "shape": [
+            7
+          ]
+        },
+        "outside_crop": {
+          "array": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "dtype": "bool",
+          "shape": [
+            7
+          ]
+        },
+        "visible_retained_input": {
+          "array": [
+            false,
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "dtype": "bool",
+          "shape": [
+            7
+          ]
+        },
+        "occluded_retained_input": {
+          "array": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "dtype": "bool",
+          "shape": [
+            7
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "pair_groups",
+    "function": "pair_masks",
+    "arguments": [
+      {
+        "array": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "dtype": "bool",
+        "shape": [
+          5
+        ]
+      },
+      {
+        "array": [
+          true,
+          true,
+          false,
+          false,
+          true
+        ],
+        "dtype": "bool",
+        "shape": [
+          5
+        ]
+      },
+      {
+        "array": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "dtype": "bool",
+        "shape": [
+          5
+        ]
+      },
+      {
+        "array": [
+          true,
+          false,
+          true,
+          false,
+          true
+        ],
+        "dtype": "bool",
+        "shape": [
+          5
+        ]
+      }
+    ],
+    "outcome": {
+      "value": {
+        "both_in_view": {
+          "array": [
+            true,
+            true,
+            true,
+            true,
+            false
+          ],
+          "dtype": "bool",
+          "shape": [
+            5
+          ]
+        },
+        "both_visible": {
+          "array": [
+            true,
+            false,
+            false,
+            false,
+            false
+          ],
+          "dtype": "bool",
+          "shape": [
+            5
+          ]
+        },
+        "one_visible": {
+          "array": [
+            false,
+            true,
+            true,
+            false,
+            false
+          ],
+          "dtype": "bool",
+          "shape": [
+            5
+          ]
+        },
+        "both_occluded": {
+          "array": [
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "dtype": "bool",
+          "shape": [
+            5
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "rejected_still_counted",
+    "function": "prediction_retention",
+    "arguments": [
+      {
+        "array": [
+          true,
+          true,
+          false
+        ],
+        "dtype": "bool",
+        "shape": [
+          3
+        ]
+      },
+      {
+        "array": [
+          true,
+          false,
+          true
+        ],
+        "dtype": "bool",
+        "shape": [
+          3
+        ]
+      }
+    ],
+    "outcome": {
+      "value": {
+        "eligible": 2,
+        "retained": 1,
+        "rejected": 1,
+        "rejection_rate": 0.5
+      }
+    }
+  },
+  {
+    "id": "retention_empty",
+    "function": "prediction_retention",
+    "arguments": [
+      {
+        "array": [
+          false,
+          false,
+          false
+        ],
+        "dtype": "bool",
+        "shape": [
+          3
+        ]
+      },
+      {
+        "array": [
+          true,
+          true,
+          true
+        ],
+        "dtype": "bool",
+        "shape": [
+          3
+        ]
+      }
+    ],
+    "outcome": {
+      "value": {
+        "eligible": 0,
+        "retained": 0,
+        "rejected": 0,
+        "rejection_rate": null
+      }
+    }
+  },
+  {
+    "id": "periodic_1536",
+    "function": "point_errors",
+    "arguments": [
+      {
+        "array": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.125,
+            0.0
+          ]
+        ],
+        "dtype": "float32",
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "array": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "dtype": "float32",
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "array": [
+          [
+            1535.0,
+            10.0
+          ],
+          [
+            1.0,
+            10.0
+          ]
+        ],
+        "dtype": "float64",
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "array": [
+          [
+            1.0,
+            10.0
+          ],
+          [
+            1535.0,
+            10.0
+          ]
+        ],
+        "dtype": "float64",
+        "shape": [
+          2,
+          2
+        ]
+      },
+      1536
+    ],
+    "outcome": {
+      "value": [
+        {
+          "array": [
+            0.0,
+            32.0
+          ],
+          "dtype": "float32",
+          "shape": [
+            2
+          ]
+        },
+        {
+          "array": [
+            2.0,
+            2.0
+          ],
+          "dtype": "float64",
+          "shape": [
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "periodic_5760",
+    "function": "point_errors",
+    "arguments": [
+      {
+        "array": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.125,
+            0.0
+          ]
+        ],
+        "dtype": "float32",
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "array": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "dtype": "float32",
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "array": [
+          [
+            5759.0,
+            10.0
+          ],
+          [
+            1.0,
+            10.0
+          ]
+        ],
+        "dtype": "float64",
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "array": [
+          [
+            1.0,
+            10.0
+          ],
+          [
+            5759.0,
+            10.0
+          ]
+        ],
+        "dtype": "float64",
+        "shape": [
+          2,
+          2
+        ]
+      },
+      5760
+    ],
+    "outcome": {
+      "value": [
+        {
+          "array": [
+            0.0,
+            32.0
+          ],
+          "dtype": "float32",
+          "shape": [
+            2
+          ]
+        },
+        {
+          "array": [
+            2.0,
+            2.0
+          ],
+          "dtype": "float64",
+          "shape": [
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "aggregate_failure_denominator",
+    "function": "aggregate",
+    "arguments": [
+      [
+        {
+          "id": "a",
+          "action": "walking",
+          "category": "control",
+          "scale_group": "small",
+          "lens_truncated_gt": false,
+          "neighbor_crop_pixels": 0,
+          "in_view_outside_full_crop": 0
+        },
+        {
+          "id": "b",
+          "action": "cycling",
+          "category": "edge",
+          "scale_group": "large",
+          "lens_truncated_gt": true,
+          "neighbor_crop_pixels": 3,
+          "in_view_outside_full_crop": 1
+        },
+        {
+          "id": "c",
+          "action": "walking",
+          "category": "control",
+          "scale_group": "small"
+        }
+      ],
+      {
+        "a": {
+          "crop": {
+            "array": [
+              1.0,
+              1.0,
+              99.0
+            ],
+            "dtype": "float32",
+            "shape": [
+              3
+            ]
+          },
+          "erp": {
+            "array": [
+              2.0,
+              2.0,
+              99.0
+            ],
+            "dtype": "float64",
+            "shape": [
+              3
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                true,
+                true,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                3
+              ]
+            },
+            "empty": {
+              "array": [
+                false,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                3
+              ]
+            }
+          }
+        },
+        "b": {
+          "crop": {
+            "array": [
+              "inf",
+              100.0,
+              0.0
+            ],
+            "dtype": "float32",
+            "shape": [
+              3
+            ]
+          },
+          "erp": {
+            "array": [
+              20.0,
+              200.0,
+              "inf"
+            ],
+            "dtype": "float64",
+            "shape": [
+              3
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                true,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                3
+              ]
+            },
+            "empty": {
+              "array": [
+                false,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                3
+              ]
+            }
+          }
+        },
+        "c": {
+          "crop": {
+            "array": [
+              "nan"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          },
+          "erp": {
+            "array": [
+              "inf"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                1
+              ]
+            },
+            "empty": {
+              "array": [
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                1
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "outcome": {
+      "value": {
+        "all/supervised": {
+          "rows": 3,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 3,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 3,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 8.0,
+              "median": 2.0,
+              "p90": 16.400000000000002
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 11.0,
+              "median": 11.0,
+              "p90": 18.2
+            }
+          }
+        },
+        "action/walking/supervised": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "layout/control/supervised": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "scale/small/supervised": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "actual_lens_gt/complete/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "actual_crop_neighbor/absent/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "actual_crop_gt/complete/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 2,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 1.0,
+              "median": 1.0,
+              "p90": 1.0
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 2.0,
+              "median": 2.0,
+              "p90": 2.0
+            }
+          }
+        },
+        "all/empty": {
+          "rows": 3,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "action/walking/empty": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "layout/control/empty": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "scale/small/empty": {
+          "rows": 2,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_lens_gt/complete/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_crop_neighbor/absent/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_crop_gt/complete/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "action/cycling/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "layout/edge/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "scale/large/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "actual_lens_gt/truncated/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "actual_crop_neighbor/present/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "actual_crop_gt/truncated/supervised": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 1,
+              "nonfinite_count": 1,
+              "status": "nonfinite_failure",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 1,
+              "nonfinite_count": 0,
+              "status": "scored",
+              "mean": 20.0,
+              "median": 20.0,
+              "p90": 20.0
+            }
+          }
+        },
+        "action/cycling/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "layout/edge/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "scale/large/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_lens_gt/truncated/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_crop_neighbor/present/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        },
+        "actual_crop_gt/truncated/empty": {
+          "rows": 1,
+          "point_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          },
+          "person_weighted": {
+            "crop_256_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            },
+            "erp_periodic_px": {
+              "count": 0,
+              "nonfinite_count": 0,
+              "status": "empty",
+              "mean": null,
+              "median": null,
+              "p90": null
+            }
+          }
+        }
+      }
+    }
+  }
+]

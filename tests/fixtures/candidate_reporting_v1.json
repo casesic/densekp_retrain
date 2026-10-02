@@ -1,0 +1,2658 @@
+{
+  "origin": "independent pre-P1.5 source snapshot; pure pairing AST and original render_panel definition",
+  "pairs": [
+    {
+      "scenario": "finite",
+      "states": {
+        "left": {
+          "crop": {
+            "array": [
+              "0.0",
+              "2.0",
+              "4.0",
+              "8.0",
+              "16.0",
+              "32.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          },
+          "erp": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          },
+          "visible": {
+            "array": [
+              true,
+              true,
+              false,
+              false,
+              true,
+              false
+            ],
+            "dtype": "bool",
+            "shape": [
+              6
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                true,
+                true,
+                true,
+                true,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            },
+            "all_in_view": {
+              "array": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            }
+          }
+        },
+        "right": {
+          "crop": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          },
+          "erp": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          },
+          "visible": {
+            "array": [
+              true,
+              false,
+              true,
+              false,
+              false,
+              true
+            ],
+            "dtype": "bool",
+            "shape": [
+              6
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                true,
+                true,
+                true,
+                true,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            },
+            "all_in_view": {
+              "array": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            }
+          }
+        }
+      },
+      "pairs": [
+        {
+          "key": [
+            "batch",
+            "scene",
+            7,
+            "reference"
+          ],
+          "views": {
+            "cam2": "left",
+            "cam4": "right"
+          }
+        },
+        {
+          "key": [
+            "batch",
+            "scene",
+            7,
+            "shift"
+          ],
+          "views": {
+            "cam2": "left"
+          }
+        }
+      ],
+      "results": [
+        {
+          "batch": "batch",
+          "scene": "scene",
+          "person_id": 7,
+          "box_variant": "reference",
+          "views": {
+            "cam2": "left",
+            "cam4": "right"
+          },
+          "status": "scored",
+          "metrics": {
+            "both_supervised": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 4,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 4.0,
+                  "median": 3.5,
+                  "p90": 7.300000000000001
+                },
+                "worse_endpoint": {
+                  "count": 4,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 4.5,
+                  "median": 4.0,
+                  "p90": 7.800000000000001
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 4,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 4.5,
+                  "median": 4.0,
+                  "p90": 7.800000000000001
+                },
+                "worse_endpoint": {
+                  "count": 4,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 4.5,
+                  "median": 4.0,
+                  "p90": 7.800000000000001
+                }
+              }
+            },
+            "both_visible": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 0.5,
+                  "median": 0.5,
+                  "p90": 0.5
+                },
+                "worse_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 1.0,
+                  "median": 1.0,
+                  "p90": 1.0
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 1.0,
+                  "median": 1.0,
+                  "p90": 1.0
+                },
+                "worse_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 1.0,
+                  "median": 1.0,
+                  "p90": 1.0
+                }
+              }
+            },
+            "one_visible": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 2,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 3.5,
+                  "median": 3.5,
+                  "p90": 4.3
+                },
+                "worse_endpoint": {
+                  "count": 2,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 4.0,
+                  "median": 4.0,
+                  "p90": 4.8
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 2,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 4.0,
+                  "median": 4.0,
+                  "p90": 4.8
+                },
+                "worse_endpoint": {
+                  "count": 2,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 4.0,
+                  "median": 4.0,
+                  "p90": 4.8
+                }
+              }
+            },
+            "both_occluded": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 8.5,
+                  "median": 8.5,
+                  "p90": 8.5
+                },
+                "worse_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 9.0,
+                  "median": 9.0,
+                  "p90": 9.0
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 9.0,
+                  "median": 9.0,
+                  "p90": 9.0
+                },
+                "worse_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 9.0,
+                  "median": 9.0,
+                  "p90": 9.0
+                }
+              }
+            },
+            "both_in_view_diagnostic": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 6,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 10.833333333333334,
+                  "median": 6.5,
+                  "p90": 24.5
+                },
+                "worse_endpoint": {
+                  "count": 6,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 11.333333333333334,
+                  "median": 7.0,
+                  "p90": 25.0
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 6,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 11.333333333333334,
+                  "median": 7.0,
+                  "p90": 25.0
+                },
+                "worse_endpoint": {
+                  "count": 6,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 11.333333333333334,
+                  "median": 7.0,
+                  "p90": 25.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "batch": "batch",
+          "scene": "scene",
+          "person_id": 7,
+          "box_variant": "shift",
+          "views": {
+            "cam2": "left"
+          },
+          "status": "missing accepted given-box view; not detector failure"
+        }
+      ],
+      "buckets": {
+        "batch/both_supervised/crop": {
+          "mean": {
+            "array": [
+              "0.5",
+              "2.5",
+              "4.5",
+              "8.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              4
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              4
+            ]
+          }
+        },
+        "combined/both_supervised/crop": {
+          "mean": {
+            "array": [
+              "0.5",
+              "2.5",
+              "4.5",
+              "8.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              4
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              4
+            ]
+          }
+        },
+        "batch/both_supervised/erp": {
+          "mean": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              4
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              4
+            ]
+          }
+        },
+        "combined/both_supervised/erp": {
+          "mean": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              4
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              4
+            ]
+          }
+        },
+        "batch/both_visible/crop": {
+          "mean": {
+            "array": [
+              "0.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "combined/both_visible/crop": {
+          "mean": {
+            "array": [
+              "0.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "batch/both_visible/erp": {
+          "mean": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "combined/both_visible/erp": {
+          "mean": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "batch/one_visible/crop": {
+          "mean": {
+            "array": [
+              "2.5",
+              "4.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              2
+            ]
+          },
+          "worst": {
+            "array": [
+              "3.0",
+              "5.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              2
+            ]
+          }
+        },
+        "combined/one_visible/crop": {
+          "mean": {
+            "array": [
+              "2.5",
+              "4.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              2
+            ]
+          },
+          "worst": {
+            "array": [
+              "3.0",
+              "5.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              2
+            ]
+          }
+        },
+        "batch/one_visible/erp": {
+          "mean": {
+            "array": [
+              "3.0",
+              "5.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              2
+            ]
+          },
+          "worst": {
+            "array": [
+              "3.0",
+              "5.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              2
+            ]
+          }
+        },
+        "combined/one_visible/erp": {
+          "mean": {
+            "array": [
+              "3.0",
+              "5.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              2
+            ]
+          },
+          "worst": {
+            "array": [
+              "3.0",
+              "5.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              2
+            ]
+          }
+        },
+        "batch/both_occluded/crop": {
+          "mean": {
+            "array": [
+              "8.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "combined/both_occluded/crop": {
+          "mean": {
+            "array": [
+              "8.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "batch/both_occluded/erp": {
+          "mean": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "combined/both_occluded/erp": {
+          "mean": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "batch/both_in_view_diagnostic/crop": {
+          "mean": {
+            "array": [
+              "0.5",
+              "2.5",
+              "4.5",
+              "8.5",
+              "16.5",
+              "32.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          }
+        },
+        "combined/both_in_view_diagnostic/crop": {
+          "mean": {
+            "array": [
+              "0.5",
+              "2.5",
+              "4.5",
+              "8.5",
+              "16.5",
+              "32.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          }
+        },
+        "batch/both_in_view_diagnostic/erp": {
+          "mean": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          }
+        },
+        "combined/both_in_view_diagnostic/erp": {
+          "mean": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          }
+        }
+      }
+    },
+    {
+      "scenario": "nonfinite",
+      "states": {
+        "left": {
+          "crop": {
+            "array": [
+              "0.0",
+              "Infinity",
+              "4.0",
+              "8.0",
+              "16.0",
+              "32.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          },
+          "erp": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          },
+          "visible": {
+            "array": [
+              true,
+              true,
+              false,
+              false,
+              true,
+              false
+            ],
+            "dtype": "bool",
+            "shape": [
+              6
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                true,
+                true,
+                true,
+                true,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            },
+            "all_in_view": {
+              "array": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            }
+          }
+        },
+        "right": {
+          "crop": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          },
+          "erp": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          },
+          "visible": {
+            "array": [
+              true,
+              false,
+              true,
+              false,
+              false,
+              true
+            ],
+            "dtype": "bool",
+            "shape": [
+              6
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                true,
+                true,
+                true,
+                true,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            },
+            "all_in_view": {
+              "array": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            }
+          }
+        }
+      },
+      "pairs": [
+        {
+          "key": [
+            "batch",
+            "scene",
+            7,
+            "reference"
+          ],
+          "views": {
+            "cam2": "left",
+            "cam4": "right"
+          }
+        },
+        {
+          "key": [
+            "batch",
+            "scene",
+            7,
+            "shift"
+          ],
+          "views": {
+            "cam2": "left"
+          }
+        }
+      ],
+      "results": [
+        {
+          "batch": "batch",
+          "scene": "scene",
+          "person_id": 7,
+          "box_variant": "reference",
+          "views": {
+            "cam2": "left",
+            "cam4": "right"
+          },
+          "status": "scored",
+          "metrics": {
+            "both_supervised": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 4,
+                  "nonfinite_count": 1,
+                  "status": "nonfinite_failure",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 4,
+                  "nonfinite_count": 1,
+                  "status": "nonfinite_failure",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 4,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 4.5,
+                  "median": 4.0,
+                  "p90": 7.800000000000001
+                },
+                "worse_endpoint": {
+                  "count": 4,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 4.5,
+                  "median": 4.0,
+                  "p90": 7.800000000000001
+                }
+              }
+            },
+            "both_visible": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 0.5,
+                  "median": 0.5,
+                  "p90": 0.5
+                },
+                "worse_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 1.0,
+                  "median": 1.0,
+                  "p90": 1.0
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 1.0,
+                  "median": 1.0,
+                  "p90": 1.0
+                },
+                "worse_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 1.0,
+                  "median": 1.0,
+                  "p90": 1.0
+                }
+              }
+            },
+            "one_visible": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 2,
+                  "nonfinite_count": 1,
+                  "status": "nonfinite_failure",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 2,
+                  "nonfinite_count": 1,
+                  "status": "nonfinite_failure",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 2,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 4.0,
+                  "median": 4.0,
+                  "p90": 4.8
+                },
+                "worse_endpoint": {
+                  "count": 2,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 4.0,
+                  "median": 4.0,
+                  "p90": 4.8
+                }
+              }
+            },
+            "both_occluded": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 8.5,
+                  "median": 8.5,
+                  "p90": 8.5
+                },
+                "worse_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 9.0,
+                  "median": 9.0,
+                  "p90": 9.0
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 9.0,
+                  "median": 9.0,
+                  "p90": 9.0
+                },
+                "worse_endpoint": {
+                  "count": 1,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 9.0,
+                  "median": 9.0,
+                  "p90": 9.0
+                }
+              }
+            },
+            "both_in_view_diagnostic": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 6,
+                  "nonfinite_count": 1,
+                  "status": "nonfinite_failure",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 6,
+                  "nonfinite_count": 1,
+                  "status": "nonfinite_failure",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 6,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 11.333333333333334,
+                  "median": 7.0,
+                  "p90": 25.0
+                },
+                "worse_endpoint": {
+                  "count": 6,
+                  "nonfinite_count": 0,
+                  "status": "scored",
+                  "mean": 11.333333333333334,
+                  "median": 7.0,
+                  "p90": 25.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "batch": "batch",
+          "scene": "scene",
+          "person_id": 7,
+          "box_variant": "shift",
+          "views": {
+            "cam2": "left"
+          },
+          "status": "missing accepted given-box view; not detector failure"
+        }
+      ],
+      "buckets": {
+        "batch/both_supervised/crop": {
+          "mean": {
+            "array": [
+              "0.5",
+              "Infinity",
+              "4.5",
+              "8.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              4
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "Infinity",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              4
+            ]
+          }
+        },
+        "combined/both_supervised/crop": {
+          "mean": {
+            "array": [
+              "0.5",
+              "Infinity",
+              "4.5",
+              "8.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              4
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "Infinity",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              4
+            ]
+          }
+        },
+        "batch/both_supervised/erp": {
+          "mean": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              4
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              4
+            ]
+          }
+        },
+        "combined/both_supervised/erp": {
+          "mean": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              4
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              4
+            ]
+          }
+        },
+        "batch/both_visible/crop": {
+          "mean": {
+            "array": [
+              "0.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "combined/both_visible/crop": {
+          "mean": {
+            "array": [
+              "0.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "batch/both_visible/erp": {
+          "mean": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "combined/both_visible/erp": {
+          "mean": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "batch/one_visible/crop": {
+          "mean": {
+            "array": [
+              "Infinity",
+              "4.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              2
+            ]
+          },
+          "worst": {
+            "array": [
+              "Infinity",
+              "5.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              2
+            ]
+          }
+        },
+        "combined/one_visible/crop": {
+          "mean": {
+            "array": [
+              "Infinity",
+              "4.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              2
+            ]
+          },
+          "worst": {
+            "array": [
+              "Infinity",
+              "5.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              2
+            ]
+          }
+        },
+        "batch/one_visible/erp": {
+          "mean": {
+            "array": [
+              "3.0",
+              "5.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              2
+            ]
+          },
+          "worst": {
+            "array": [
+              "3.0",
+              "5.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              2
+            ]
+          }
+        },
+        "combined/one_visible/erp": {
+          "mean": {
+            "array": [
+              "3.0",
+              "5.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              2
+            ]
+          },
+          "worst": {
+            "array": [
+              "3.0",
+              "5.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              2
+            ]
+          }
+        },
+        "batch/both_occluded/crop": {
+          "mean": {
+            "array": [
+              "8.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "combined/both_occluded/crop": {
+          "mean": {
+            "array": [
+              "8.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "batch/both_occluded/erp": {
+          "mean": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "combined/both_occluded/erp": {
+          "mean": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          },
+          "worst": {
+            "array": [
+              "9.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              1
+            ]
+          }
+        },
+        "batch/both_in_view_diagnostic/crop": {
+          "mean": {
+            "array": [
+              "0.5",
+              "Infinity",
+              "4.5",
+              "8.5",
+              "16.5",
+              "32.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "Infinity",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          }
+        },
+        "combined/both_in_view_diagnostic/crop": {
+          "mean": {
+            "array": [
+              "0.5",
+              "Infinity",
+              "4.5",
+              "8.5",
+              "16.5",
+              "32.5"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "Infinity",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          }
+        },
+        "batch/both_in_view_diagnostic/erp": {
+          "mean": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          }
+        },
+        "combined/both_in_view_diagnostic/erp": {
+          "mean": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          },
+          "worst": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          }
+        }
+      }
+    },
+    {
+      "scenario": "empty",
+      "states": {
+        "left": {
+          "crop": {
+            "array": [
+              "0.0",
+              "Infinity",
+              "4.0",
+              "8.0",
+              "16.0",
+              "32.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          },
+          "erp": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          },
+          "visible": {
+            "array": [
+              true,
+              true,
+              false,
+              false,
+              true,
+              false
+            ],
+            "dtype": "bool",
+            "shape": [
+              6
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            },
+            "all_in_view": {
+              "array": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            }
+          }
+        },
+        "right": {
+          "crop": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float32",
+            "shape": [
+              6
+            ]
+          },
+          "erp": {
+            "array": [
+              "1.0",
+              "3.0",
+              "5.0",
+              "9.0",
+              "17.0",
+              "33.0"
+            ],
+            "dtype": "float64",
+            "shape": [
+              6
+            ]
+          },
+          "visible": {
+            "array": [
+              true,
+              false,
+              true,
+              false,
+              false,
+              true
+            ],
+            "dtype": "bool",
+            "shape": [
+              6
+            ]
+          },
+          "masks": {
+            "supervised": {
+              "array": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            },
+            "all_in_view": {
+              "array": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "dtype": "bool",
+              "shape": [
+                6
+              ]
+            }
+          }
+        }
+      },
+      "pairs": [
+        {
+          "key": [
+            "batch",
+            "scene",
+            7,
+            "reference"
+          ],
+          "views": {
+            "cam2": "left",
+            "cam4": "right"
+          }
+        },
+        {
+          "key": [
+            "batch",
+            "scene",
+            7,
+            "shift"
+          ],
+          "views": {
+            "cam2": "left"
+          }
+        }
+      ],
+      "results": [
+        {
+          "batch": "batch",
+          "scene": "scene",
+          "person_id": 7,
+          "box_variant": "reference",
+          "views": {
+            "cam2": "left",
+            "cam4": "right"
+          },
+          "status": "scored",
+          "metrics": {
+            "both_supervised": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              }
+            },
+            "both_visible": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              }
+            },
+            "one_visible": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              }
+            },
+            "both_occluded": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              }
+            },
+            "both_in_view_diagnostic": {
+              "crop": {
+                "mean_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              },
+              "erp": {
+                "mean_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                },
+                "worse_endpoint": {
+                  "count": 0,
+                  "nonfinite_count": 0,
+                  "status": "empty",
+                  "mean": null,
+                  "median": null,
+                  "p90": null
+                }
+              }
+            }
+          }
+        },
+        {
+          "batch": "batch",
+          "scene": "scene",
+          "person_id": 7,
+          "box_variant": "shift",
+          "views": {
+            "cam2": "left"
+          },
+          "status": "missing accepted given-box view; not detector failure"
+        }
+      ],
+      "buckets": {
+        "batch/both_supervised/crop": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "combined/both_supervised/crop": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "batch/both_supervised/erp": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "combined/both_supervised/erp": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "batch/both_visible/crop": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "combined/both_visible/crop": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "batch/both_visible/erp": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "combined/both_visible/erp": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "batch/one_visible/crop": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "combined/one_visible/crop": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "batch/one_visible/erp": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "combined/one_visible/erp": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "batch/both_occluded/crop": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "combined/both_occluded/crop": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "batch/both_occluded/erp": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "combined/both_occluded/erp": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "batch/both_in_view_diagnostic/crop": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "combined/both_in_view_diagnostic/crop": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "batch/both_in_view_diagnostic/erp": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        },
+        "combined/both_in_view_diagnostic/erp": {
+          "mean": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          },
+          "worst": {
+            "array": [],
+            "dtype": "float64",
+            "shape": [
+              0
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "panel": {
+    "item": {
+      "img_disp": {
+        "array": [
+          [
+            [
+              0,
+              1,
+              2
+            ],
+            [
+              3,
+              4,
+              5
+            ],
+            [
+              6,
+              7,
+              8
+            ],
+            [
+              9,
+              10,
+              11
+            ]
+          ],
+          [
+            [
+              12,
+              13,
+              14
+            ],
+            [
+              15,
+              16,
+              17
+            ],
+            [
+              18,
+              19,
+              20
+            ],
+            [
+              21,
+              22,
+              23
+            ]
+          ],
+          [
+            [
+              24,
+              25,
+              26
+            ],
+            [
+              27,
+              28,
+              29
+            ],
+            [
+              30,
+              31,
+              32
+            ],
+            [
+              33,
+              34,
+              35
+            ]
+          ],
+          [
+            [
+              36,
+              37,
+              38
+            ],
+            [
+              39,
+              40,
+              41
+            ],
+            [
+              42,
+              43,
+              44
+            ],
+            [
+              45,
+              46,
+              47
+            ]
+          ]
+        ],
+        "dtype": "uint8",
+        "shape": [
+          4,
+          4,
+          3
+        ]
+      },
+      "proj_verts_cropped": {
+        "array": [
+          [
+            "-0.4",
+            "-0.4"
+          ],
+          [
+            "0.0",
+            "0.0"
+          ],
+          [
+            "0.4",
+            "0.4"
+          ],
+          [
+            "0.1",
+            "0.2"
+          ],
+          [
+            "0.2",
+            "-0.3"
+          ],
+          [
+            "-0.1",
+            "0.2"
+          ]
+        ],
+        "dtype": "float32",
+        "shape": [
+          6,
+          2
+        ]
+      }
+    },
+    "prediction": {
+      "array": [
+        [
+          "-0.35",
+          "-0.3",
+          "0.0"
+        ],
+        [
+          "0.05",
+          "0.1",
+          "0.0"
+        ],
+        [
+          "NaN",
+          "0.4",
+          "0.0"
+        ],
+        [
+          "1000000.0",
+          "1000000.0",
+          "0.0"
+        ],
+        [
+          "0.0",
+          "0.0",
+          "0.0"
+        ],
+        [
+          "0.0",
+          "0.0",
+          "0.0"
+        ]
+      ],
+      "dtype": "float32",
+      "shape": [
+        6,
+        3
+      ]
+    },
+    "supervised": {
+      "array": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "dtype": "bool",
+      "shape": [
+        6
+      ]
+    },
+    "visible": {
+      "array": [
+        true,
+        false,
+        true,
+        false,
+        false,
+        true
+      ],
+      "dtype": "bool",
+      "shape": [
+        6
+      ]
+    },
+    "label": "frozen panel",
+    "png_base64": "iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAIAAAB7GkOtAAAP4ElEQVR4nO3dT4hdVYLH8ZtYpiIY/ANCIknEwPRIZ7SF9k+70I1GUXoWQhxhJpleBdqNIHQjAWlQcCHOWmchKHbiwh4IOE0qtAmplAnY2gNm/APdrmI6iW60lCJlG7Fn8aary6rKn6r73jv3nd/ns3qUVfecKs6935yqd69NAwAAAAAAAAAAVOemm2568sknr7rqqtITAWCAVi/+0L59+2ZnZ7/99tvhz2a5pqenS08BoCJffPFF6SlcKgEAWLGFO4DHHnts3bp1k5OTV1555fT09Msvv/z444+vX79+//79U1NT+/fvX79+fdM0L7zwwuTk5NGjR8+dO9c0zTXXXLNnz56DBw9OTU3dcccdvUNNT08/++yzR44cOX78+MMPPzx/lOnp6eeff/6tt96ampq68cYbt27devTo0Q8++OCJJ54439cuOQQA/TT3z+rZ2dkHHnigaZq9e/fu3LmzaZqdO3fu2bNn7jOfeuqpp59+ummal1566c4772yaZvPmze+9917vv549e7Z3Qd+yZcsnn3wyf4jZ2dlHH320aZodO3bs27fvxRdfvPvuu6+99trTp0+f72uXHMIOAKCf5q6qMzMzq1evbprm1KlT4+PjTdOMj4+fOnWq919vvvnmd9555/LLL2+a5uTJk5N/8/HHH1922WVN03z99ddXX31175O//PLL+UOcPXt2zZo1vQN++umn69at27Vr13PPPTczM9P7hMVfu+QQAgDQT3NX1bkXp0+fXhCAsbGxt99++9Zbb+19wpkzZ9auXds0zerVq++5557eB7/66qvFx+yZmZnpXcHHx8dPnDhx4MCBXbt2bdy4ce5LFn/tkkMIAMCKLfEuoMUOHz68ffv2pmm2b98+OTnZNM3u3bsPHDgw96uYY8eO9X5T/+CDD+7evbv3we++++58BxwbG3vooYeapnnkkUcOHz582223vf7662vXru1lZsmvXXIIAPpp8Q7g+uuvn5iYmJqampiY2LBhQ9M033zzzbFjx3q/kLniiis2bdo0MTFx5MiRQ4cObdmyZcGXN4v+qT49Pf3KK69MTU298cYb11133TPPPPPhhx++9tprn332Wa8Bi792ySHeffddMQAYJX51A1DcJf0KCAAAAAAAAAAAAAAAAIBy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"
+  }
+}

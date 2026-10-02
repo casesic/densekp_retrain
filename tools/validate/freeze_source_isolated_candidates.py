@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 import sys
-from unittest.mock import patch
 import cv2
 import numpy as np
 from PIL import Image
@@ -12,11 +11,10 @@ ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'src'),str(ROOT/'assets_external/python_deps')]
 from densekp_retrain.io import read_combined_depth_index
 from densekp_retrain.camera.double_sphere import DS_20260320, build_erp_to_fisheye_lut, build_fisheye_to_source_erp_lut
-from tools.fisheye.build_ds_multiperson_pilot import remap_periodic_erp
-from densekp.core.configs import DATASET_FILES,DATASET_FOLDERS
+from densekp_retrain.imaging.remap import remap_periodic_erp
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
-from tools.validate.validate_bedlam_densekp_tiny import audit_cfg
-from tools.validate.validate_source_isolated_split import validate_split
+from densekp.core.datasets.configuration import audit_cfg
+from densekp_retrain.data.source_split import validate_split
 
 
 def write(path,data):path.write_text(json.dumps(data,indent=2,allow_nan=False)+'\n')
@@ -53,8 +51,14 @@ def freeze_layout(directory, side, character_map, accepted):
         buffer_checks.append(dict(camera=camera,foreground_pixels=int(foreground.sum()),mask_instance_box_exact=True,
             depth_range_m=[float(actual_depth[foreground].min()),float(actual_depth[foreground].max())]))
     z=np.load(directory/'diagnostic_loader.npz')
-    with patch.dict(DATASET_FOLDERS,{'source-freeze':str(directory)}),patch.dict(DATASET_FILES[False],{'source-freeze':str(directory/'diagnostic_loader.npz')}):
-        data=DatasetKeypoints(audit_cfg('supervision_weight'),'source-freeze',is_train=False,use_augmentation=False)
+    data = DatasetKeypoints(
+        audit_cfg("supervision_weight"),
+        "source-freeze",
+        is_train=False,
+        use_augmentation=False,
+        annotation_path=str(directory / "diagnostic_loader.npz"),
+        image_root=str(directory),
+    )
     rows=[];excluded=[]
     rejected={r['key']:r['reason'] for r in accepted.get('excluded_rows',[])}
     actual_keys={f'{cam}_person_{int(pid)}' for cam,pid in zip(z['camera_id'],z['person_id'])}

@@ -12,11 +12,12 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT/'src')]
 import cv2
 import numpy as np
-from tools.fisheye.run_ds_scene_pair_pilot import (
-    SCENES, DS_20260320, rig_poses, point_in_view, load_lens_masks,
-    process_scene, add_lens_mask_arguments,
-)
-from tools.fisheye.run_fisheye_multiperson_pilot import world_points
+from tools.fisheye.run_ds_scene_pair_pilot import SCENES, load_lens_masks, add_lens_mask_arguments
+from densekp_retrain.imaging.ds import process_scene
+from densekp_retrain.camera.double_sphere import DS_20260320
+from densekp_retrain.camera.rig import rig_poses
+from densekp_retrain.camera.domain import point_in_view
+from densekp_retrain.body.transforms import world_points
 from tools.validate.validate_ds_scene_pair_pilot import validate
 from densekp_retrain.camera.double_sphere import build_erp_to_fisheye_lut
 from densekp_retrain.runtime import load_appearance_baseline

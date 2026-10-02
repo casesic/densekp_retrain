@@ -7,7 +7,8 @@ import numpy as np
 import torch
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
 from densekp_retrain.body.geometry import load_smplx_model
-from tools.experiments.prepare_cycling_characters import PARAMETERS,evaluate,write_json
+from densekp_retrain.body.parameters import PARAMETERS, evaluate
+from densekp_retrain.io.json import write_json
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('assets',type=Path);a=p.parse_args();torch.set_num_threads(2)

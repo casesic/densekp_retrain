@@ -6,9 +6,10 @@ import sys
 import numpy as np
 
 ROOT=Path(__file__).resolve().parents[2]
-sys.path.insert(0,str(ROOT))
-from tools.experiments.refine_cycling_character_clothing import clipped_shell
-from tools.experiments.prepare_cycling_characters import MATERIALS,write_json
+sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+from densekp_retrain.clothing.shells import clipped_shell
+from tools.experiments.prepare_cycling_characters import MATERIALS
+from densekp_retrain.io.json import write_json
 
 
 def main():

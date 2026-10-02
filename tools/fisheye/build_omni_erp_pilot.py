@@ -21,7 +21,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from densekp_retrain.camera import (  # noqa: E402
     OmniRadtanIntrinsics, build_erp_to_omni_lut, omni_pixels_to_erp,
 )
-from tools.fisheye.build_ds_multiperson_pilot import visible_at_instance_points  # noqa: E402
+from densekp_retrain.camera.visibility import visible_at_instance_points
 
 
 def build(source: Path, output: Path, camera_id: str, width: int, height: int) -> dict:

@@ -47,23 +47,7 @@ def project_official(points: np.ndarray, camera_translation: np.ndarray, K: np.n
     return projected
 
 
-def official_bbox(joints2d: np.ndarray, image_height: int, image_width: int):
-    """复现 BEDLAM 主体 bbox：前 22 joints、图内过滤、1.2 扩张。"""
-    body = np.asarray(joints2d, dtype=np.float64)[:22]
-    finite = np.isfinite(body[:, :2]).all(axis=1)
-    valid = finite & (body[:, 0] >= 0) & (body[:, 0] <= image_width)
-    valid &= (body[:, 1] >= 0) & (body[:, 1] <= image_height)
-    selected = body[valid]
-    if len(selected) < 8:
-        return None
-    xmin, ymin = selected[:, :2].min(axis=0)
-    xmax, ymax = selected[:, :2].max(axis=0)
-    tight_bbox = np.array([xmin, ymin, xmax, ymax], dtype=np.float32)
-    center = np.array([(xmin + xmax) / 2, (ymin + ymax) / 2], dtype=np.float32)
-    scale = np.float32(max(xmax - xmin, ymax - ymin) / 200.0 * 1.2)
-    if not np.isfinite(scale) or scale <= 0:
-        return None
-    return center, scale, np.int32(len(selected)), tight_bbox
+from densekp_retrain.data.boxes import official_bbox  # historical import compatibility
 
 
 def surface_row_error(R: np.ndarray, vertices: np.ndarray, densekp_3d: np.ndarray) -> float:

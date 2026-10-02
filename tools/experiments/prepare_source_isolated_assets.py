@@ -8,12 +8,14 @@ import torch
 
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
 from densekp_retrain.body.geometry import load_smplx_model
-from tools.experiments.prepare_commuter_pilot import rest_body, save_geometry
-from tools.experiments.prepare_cycling_characters import PARAMETERS, write_json
+from densekp_retrain.body.parameters import rest_body
+from densekp_retrain.io.geometry import save_geometry
+from densekp_retrain.body.parameters import PARAMETERS
+from densekp_retrain.io.json import write_json
 from tools.experiments.audit_pedestrian_poses import parameters
 from tools.experiments.prepare_adult_candidates import clothing
 from tools.experiments.prepare_mixed_pedestrians import transfer_groom
-from tools.validate.validate_source_isolated_split import validate_split
+from densekp_retrain.data.source_split import validate_split
 
 
 def main():

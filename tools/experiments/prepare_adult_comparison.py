@@ -8,9 +8,10 @@ import numpy as np
 import torch
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
 from densekp_retrain.body.geometry import load_smplx_model
-from tools.experiments.prepare_commuter_pilot import rest_body
-from tools.experiments.refine_cycling_character_clothing import clipped_shell
-from tools.experiments.prepare_cycling_characters import write_json,MATERIALS
+from densekp_retrain.body.parameters import rest_body
+from densekp_retrain.clothing.shells import clipped_shell
+from densekp_retrain.io.json import write_json
+from tools.experiments.prepare_cycling_characters import MATERIALS
 from tools.experiments.bind_adult_grooms import scalp,PILOT
 
 def main():

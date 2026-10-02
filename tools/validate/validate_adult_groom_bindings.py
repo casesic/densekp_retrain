@@ -3,8 +3,8 @@ import argparse,json,sys
 from pathlib import Path
 import numpy as np
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from tools.experiments.bind_commuter_groom import CONV,triangle_frame
-from tools.experiments.prepare_cycling_characters import write_json
+from densekp_retrain.clothing.binding import CONV, triangle_frame
+from densekp_retrain.io.json import write_json
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('assets',type=Path);a=p.parse_args();root=a.assets.resolve()

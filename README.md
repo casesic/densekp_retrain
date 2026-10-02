@@ -5,7 +5,9 @@
 ## 当前代码从哪里读
 
 先看 [代码阅读指南](docs/READING_GUIDE.md)，再看 [一个实际样本的完整调用链](docs/SAMPLE_WALKTHROUGH.md)。
-两篇依据 2026-09-28 工作树，讲解数据生成、裁剪、模型、训练与诊断之间的关系。
+场景从 [配方、资产与消费入口索引](docs/rendering/SCENE_RECIPE_INDEX.md) 查找；[P3 整体检查表](docs/refactor/P3_COMPLETION_CHECKLIST_20261002.md) 列出验收边界。
+两篇沿用实际样本讲解数据生成、裁剪、模型、训练与诊断，并已同步 2026-10-02 的 Blender 共用装配、DS/Omni 成像后处理、人体/衣物/坐标相机公共计算、来源打包、框与监督适配、显式数据源和裁剪流程，以及公共指标、配置、推理、评价展示及训练回调模块。
+全仓库重构进度及后续验收见 [执行任务清单](docs/refactor/IMPLEMENTATION_TASKS_20261001.md)。
 下方保留的 Phase 记录描述各阶段当时的资产和实现状态，不代表全部当前行为。
 
 ## 最小外观基线

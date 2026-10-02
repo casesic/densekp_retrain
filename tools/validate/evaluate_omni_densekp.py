@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
+from densekp.core.keypoint_supervision import legacy_weight_targets
 from densekp.core.datasets.utils import get_example_projverts  # noqa: E402
 from densekp.core.densekp_trainer import DenseKP  # noqa: E402
 
@@ -53,13 +54,7 @@ def center_erp_person(rgb: np.ndarray, xy: np.ndarray, valid: np.ndarray):
     return np.roll(rgb, shift, axis=1), mask, shifted_xy, shift
 
 
-def erp_points(world: np.ndarray, camera: np.ndarray, width: int, height: int) -> np.ndarray:
-    q = (world - camera[:3, 3]) @ camera[:3, :3]
-    ray = q / np.linalg.norm(q, axis=1, keepdims=True)
-    lon = np.arctan2(ray[:, 0], ray[:, 2])
-    lat = np.arcsin(np.clip(-ray[:, 1], -1, 1))
-    return np.column_stack(((lon / (2 * np.pi) + .5) * width,
-                            (.5 - lat / np.pi) * height))
+from densekp_retrain.camera.erp import erp_points  # historical export
 
 
 def make_cases(source: Path):
@@ -75,8 +70,11 @@ def make_cases(source: Path):
     dense = np.load(geometry / "densekp_3d.npy", mmap_mode="r")[frame]
     lift = -float(verts[:, 1].min())
     world = np.column_stack((dense[:, 0], -dense[:, 2], dense[:, 1] + lift))
-    locations = {"center": source / "center", "cam_left": source / "seam/cam_left",
-                 "cam_right": source / "seam/cam_right"}
+    locations = {
+        "center": source / "center",
+        "cam_left": source / "seam/cam_left",
+        "cam_right": source / "seam/cam_right",
+    }
     for camera in config["cameras"]:
         name = "center" if camera["id"] == "fisheye_center" else camera["id"]
         pose = np.asarray(camera["camera_to_world"], dtype=np.float64)
@@ -102,19 +100,32 @@ def make_cases(source: Path):
 def evaluate_case(model, cfg, device, case, image_dir):
     name, projection, rgb, mask, xy, visible, shift = case
     cx, cy, box_size = tight_square(mask)
-    gt = np.column_stack((xy, np.ones(138, dtype=np.float32))).astype(np.float32)
+    gt = legacy_weight_targets(xy, np.ones(138, dtype=np.float32)).astype(np.float32)
     mean = 255 * np.asarray(cfg.MODEL.IMAGE_MEAN)
     std = 255 * np.asarray(cfg.MODEL.IMAGE_STD)
     patch, display, _, _, _, _, _, _, cropped_gt, _ = get_example_projverts(
-        cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR), cx, cy, box_size, box_size,
-        np.zeros((1, 3), dtype=np.float32), [0], gt, 256, 256,
-        mean, std, do_augment=False, is_bgr=True, border_mode=cv2.BORDER_CONSTANT)
+        cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR),
+        cx,
+        cy,
+        box_size,
+        box_size,
+        np.zeros((1, 3), dtype=np.float32),
+        [0],
+        gt,
+        256,
+        256,
+        mean,
+        std,
+        do_augment=False,
+        is_bgr=True,
+        border_mode=cv2.BORDER_CONSTANT,
+    )
     with torch.inference_mode():
         output = model({"img": torch.from_numpy(patch[None]).to(device)})["pred_keypoints"]
     prediction = output[0, :, :2].float().cpu().numpy()
     target = cropped_gt[:, :2]
     error = np.linalg.norm(prediction - target, axis=1) * 256
-    in_crop = ((target >= -.5) & (target < .5)).all(axis=1)
+    in_crop = ((target >= -0.5) & (target < 0.5)).all(axis=1)
     scored = visible & in_crop & np.isfinite(error)
     overlay = Image.fromarray(cv2.cvtColor(display, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(overlay)
@@ -122,17 +133,23 @@ def evaluate_case(model, cfg, device, case, image_dir):
         for j, (x, y) in enumerate(points):
             if not scored[j]:
                 continue
-            px, py = (np.array([x, y]) + .5) * 256
+            px, py = (np.array([x, y]) + 0.5) * 256
             if np.isfinite(px) and np.isfinite(py):
                 draw.ellipse((px - 2, py - 2, px + 2, py + 2), fill=color)
     image_dir.mkdir(parents=True, exist_ok=True)
     overlay.save(image_dir / f"{name}_{projection}.png")
-    return {"camera": name, "projection": projection, "bbox_center": [cx, cy],
-            "bbox_size": box_size, "erp_roll_pixels": shift,
-            "visible_points": int(visible.sum()), "scored_points": int(scored.sum()),
-            "mean_crop_error_px": float(error[scored].mean()) if scored.any() else None,
-            "median_crop_error_px": float(np.median(error[scored])) if scored.any() else None,
-            "p90_crop_error_px": float(np.percentile(error[scored], 90)) if scored.any() else None}
+    return {
+        "camera": name,
+        "projection": projection,
+        "bbox_center": [cx, cy],
+        "bbox_size": box_size,
+        "erp_roll_pixels": shift,
+        "visible_points": int(visible.sum()),
+        "scored_points": int(scored.sum()),
+        "mean_crop_error_px": float(error[scored].mean()) if scored.any() else None,
+        "median_crop_error_px": float(np.median(error[scored])) if scored.any() else None,
+        "p90_crop_error_px": float(np.percentile(error[scored], 90)) if scored.any() else None,
+    }
 
 
 def main():
@@ -140,7 +157,11 @@ def main():
     parser.add_argument("--source", type=Path, default=ROOT / "outputs/baselines/fisheye_camera_p0")
     parser.add_argument("--checkpoint", type=Path, default=ROOT / "assets_external/densekp.ckpt")
     parser.add_argument("--device", default="cuda:0")
-    parser.add_argument("--output", type=Path, default=ROOT / "outputs/experiments/omni_densekp_baseline/report.json")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=ROOT / "outputs/experiments/omni_densekp_baseline/report.json",
+    )
     args = parser.parse_args()
     with initialize_config_dir(version_base="1.2", config_dir=str(ROOT / "configs/hydra")):
         cfg = compose(config_name="train", overrides=["experiment=densekp"])
@@ -148,12 +169,18 @@ def main():
     torch.set_float32_matmul_precision("medium")
     model = DenseKP.load_from_checkpoint(str(args.checkpoint), cfg=cfg, map_location="cpu")
     model.to(device).eval()
-    rows = [evaluate_case(model, cfg, device, case, args.output.parent / "overlays")
-            for case in make_cases(args.source)]
-    report = {"checkpoint": str(args.checkpoint.resolve()), "source": str(args.source.resolve()),
-              "description": "three paired rendered cameras, no detector; fish boxes from person mask, ERP boxes from visible GT landmarks",
-              "visibility": "same fisheye-visible 3D point subset in each camera's ERP/fisheye pair",
-              "error_unit": "pixels in the 256x256 DenseKP crop", "cases": rows}
+    rows = [
+        evaluate_case(model, cfg, device, case, args.output.parent / "overlays")
+        for case in make_cases(args.source)
+    ]
+    report = {
+        "checkpoint": str(args.checkpoint.resolve()),
+        "source": str(args.source.resolve()),
+        "description": "three paired rendered cameras, no detector; fish boxes from person mask, ERP boxes from visible GT landmarks",
+        "visibility": "same fisheye-visible 3D point subset in each camera's ERP/fisheye pair",
+        "error_unit": "pixels in the 256x256 DenseKP crop",
+        "cases": rows,
+    }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))

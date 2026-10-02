@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image
 
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from tools.experiments.prepare_box_robustness import write
+from densekp_retrain.io.json import write_json as write
 
 
 def read(p):return json.loads(p.read_text())
@@ -86,8 +86,8 @@ def main():
             if backup.exists():raise FileExistsError(backup)
             shutil.copyfile(path,backup)
             if name.startswith('challenge_'):
-                from tools.validate.evaluate_candidate_baseline import aggregate
-                from tools.validate.occlusion_metrics import evaluation_masks
+                from densekp_retrain.evaluation.candidates import aggregate
+                from densekp.core.evaluation import evaluation_masks
                 states={}
                 for case in report['cases']:
                     z=np.load(case['prediction']);masks=evaluation_masks(z['in_view'],z['visible'],z['target_crop_xy'])

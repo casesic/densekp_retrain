@@ -4,15 +4,15 @@ import argparse
 import json
 from pathlib import Path
 import sys
-from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from tools.validate.evaluate_ds_occlusion_control import (
-    np, torch, Image, DatasetKeypoints, DATASET_FILES, DATASET_FOLDERS,
-    audit_cfg, DenseKP, initialize_config_dir, compose, restore_crop_xy,
-    point_errors, summarize, draw_case,
-)
+from tools.validate.evaluate_ds_occlusion_control import np, torch, Image, DatasetKeypoints, DenseKP, initialize_config_dir, compose, restore_crop_xy, draw_case
+
+from densekp.core.keypoint_supervision import legacy_weight_targets
+from densekp.core.inference import load_lightning_checkpoint, predict_batch
+from densekp.core.datasets.configuration import audit_cfg
+from densekp.core.evaluation import point_errors, summarize
 
 
 def main():
@@ -38,7 +38,7 @@ def main():
     with initialize_config_dir(version_base='1.2',config_dir=str(ROOT/'configs/hydra')):
         cfg=compose(config_name='train',overrides=['experiment=densekp'])
     cfg.DATASETS.TARGET_VALUE_SEMANTICS='supervision_weight'
-    model=DenseKP.load_from_checkpoint(str(args.checkpoint),cfg=cfg,map_location='cpu',strict=True).to('cuda:0').eval()
+    model=load_lightning_checkpoint(args.checkpoint, cfg).to('cuda:0').eval()
     cases=[];sheet=Image.new('RGB',(1024,1024));reference=None;affines={}
     for i,(image_name,directory) in enumerate(images.items()):
         with np.load(directory/'cam2/annotations.npz') as a:
@@ -52,14 +52,20 @@ def main():
             name=f'{image_name}_{box_name}'
             archive=args.output/f'{name}_loader.npz'
             np.savez(archive,imgname=np.array(['cam2/normal_erp.png']),center=center[None].astype(np.float32),
-                     scale=np.array([scale],dtype=np.float32),proj_verts=np.column_stack([gt,visible])[None].astype(np.float32))
-            with patch.dict(DATASET_FOLDERS,{'box-control':str(directory)}),patch.dict(DATASET_FILES[False],{'box-control':str(archive)}):
-                dataset=DatasetKeypoints(audit_cfg('supervision_weight'),'box-control',is_train=False,use_augmentation=False)
+                     scale=np.array([scale],dtype=np.float32),proj_verts=legacy_weight_targets(gt, visible)[None].astype(np.float32))
+            dataset = DatasetKeypoints(
+                audit_cfg("supervision_weight"),
+                "box-control",
+                is_train=False,
+                use_augmentation=False,
+                annotation_path=str(archive),
+                image_root=str(directory),
+            )
             item=dataset[0]
             if box_name not in affines: affines[box_name]=item['_trans'].copy()
             np.testing.assert_array_equal(item['_trans'],affines[box_name])
             np.testing.assert_allclose(restore_crop_xy(item['proj_verts_cropped'][:,:2],item['_trans'],(256,256)),gt,atol=2e-4,rtol=0)
-            with torch.inference_mode(): raw=model({'img':torch.from_numpy(item['img'][None]).to('cuda:0')})['pred_keypoints']
+            with torch.inference_mode(): raw=predict_batch(model, item['img'][None], 'cuda:0')
             if tuple(raw.shape)!=(1,138,3) or not torch.isfinite(raw).all():raise ValueError('Invalid output')
             raw=raw[0].float().cpu().numpy();restored=restore_crop_xy(raw[:,:2],item['_trans'],(256,256))
             crop,erp=point_errors(raw[:,:2],item['proj_verts_cropped'][:,:2],restored,gt,1536)

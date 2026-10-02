@@ -9,7 +9,6 @@ import json
 from pathlib import Path
 import subprocess
 import sys
-from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
@@ -19,13 +18,13 @@ from PIL import Image, ImageDraw
 import torch
 from hydra import compose, initialize_config_dir
 from omegaconf import OmegaConf
-from densekp.core.configs import DATASET_FILES, DATASET_FOLDERS
 from densekp.core.crop_geometry import restore_crop_xy
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
 from densekp.core.densekp_trainer import DenseKP
 from densekp.core.keypoint_supervision import SUPERVISION_POLICY, points_in_mask
-from tools.validate.validate_bedlam_densekp_tiny import audit_cfg
-from tools.validate.occlusion_metrics import (
+from densekp.core.inference import load_lightning_checkpoint, predict_batch
+from densekp.core.datasets.configuration import audit_cfg
+from densekp.core.evaluation import (
     summarize, point_errors, evaluation_masks, prediction_retention, pair_masks,
 )
 
@@ -75,9 +74,14 @@ def evaluate_scene(directory, output, model, device):
             else:
                 records.append(row)
     cfg = audit_cfg('supervision_weight')
-    with patch.dict(DATASET_FOLDERS, {'scene-pair-eval': str(directory)}), \
-         patch.dict(DATASET_FILES[False], {'scene-pair-eval': str(annotation_path)}):
-        dataset = DatasetKeypoints(cfg, 'scene-pair-eval', is_train=False, use_augmentation=False)
+    dataset = DatasetKeypoints(
+        cfg,
+        "scene-pair-eval",
+        is_train=False,
+        use_augmentation=False,
+        annotation_path=str(annotation_path),
+        image_root=str(directory),
+    )
     if len(dataset) != len(records):
         raise ValueError('Diagnostic NPZ rows differ from oracle box population')
     ids = arrays['cam2']['person_ids'].tolist()
@@ -100,7 +104,7 @@ def evaluate_scene(directory, output, model, device):
         np.testing.assert_allclose(item['box_center'], (box[:2] + box[2:]) / 2)
         np.testing.assert_allclose(item['box_size'], max(box[2:] - box[:2]) * 1.2, rtol=1e-6)
         with torch.inference_mode():
-            raw = model({'img': torch.from_numpy(item['img'][None]).to(device)})['pred_keypoints']
+            raw = predict_batch(model, item['img'][None], device)
         if tuple(raw.shape) != (1, 138, 3) or not torch.isfinite(raw).all():
             np.save(output / f'{camera}_person_{person_id}_failed_output.npy', raw.float().cpu().numpy())
             raise ValueError(f'Invalid prediction for {camera}/{person_id}; evaluation aborted')
@@ -220,7 +224,7 @@ def main():
     OmegaConf.save(cfg, args.output / 'model_config.yaml')
     (args.output / 'loader_config.yaml').write_text(audit_cfg('supervision_weight').dump())
     print(f'Loading original checkpoint: {args.checkpoint}', flush=True)
-    model = DenseKP.load_from_checkpoint(str(args.checkpoint), cfg=cfg, map_location='cpu', strict=True)
+    model = load_lightning_checkpoint(args.checkpoint, cfg)
     model.to(device).eval()
     results = [evaluate_scene(args.pilot_root / name, args.output / name, model, device)
                for name in ('cycling_forest', 'urban_street_assets')]

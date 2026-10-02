@@ -21,7 +21,8 @@ from densekp.core.datasets.utils import do_augmentation, get_example_projverts
 from densekp.core.keypoint_contract import validate_annotations
 from densekp.core.keypoint_objective import keypoint_loss, keypoint_error_totals
 from densekp.core.training_config import validate_training_config
-from tools.validate.validate_bedlam_densekp_tiny import audit_cfg
+from densekp.core.datasets.augmentation import Augmentation
+from densekp.core.datasets.configuration import audit_cfg
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -80,7 +81,7 @@ class GeometryContractTests(TestCase):
         points = np.tile([80., 60., 1.], (138, 1)).astype(np.float32)
         cfg = audit_cfg('supervision_weight').DATASETS.CONFIG
         sampled = (1.2, 30., False, False, 0, [1., 1., 1.], .1, -.1)
-        with mock.patch('densekp.core.datasets.utils.do_augmentation', return_value=sampled):
+        with mock.patch('densekp.core.datasets.crop_pipeline.sample_augmentation', return_value=Augmentation(*sampled)):
             result = get_example_projverts(image, 96, 64, 128, 128, np.zeros((44, 3)), [],
                                           points, 256, 256, do_augment=True, augm_config=cfg)
         intensity = result[1][..., 0].astype(float)
@@ -109,7 +110,7 @@ class GeometryContractTests(TestCase):
     def test_antialias_only_blurs_downsampling(self):
         args = (np.zeros((120, 240, 3), np.uint8), 100, 60)
         for source_size, expected in [(512, True), (64, False)]:
-            with mock.patch('densekp.core.datasets.utils.gaussian', side_effect=lambda x, **kw: x) as blur:
+            with mock.patch('densekp.core.datasets.image_processing.gaussian', side_effect=lambda x, **kw: x) as blur:
                 get_example_projverts(*args, source_size, source_size, np.zeros((44, 3)), [],
                                       np.zeros((138, 3)), 256, 256, use_skimage_antialias=True)
                 self.assertEqual(blur.called, expected)
@@ -232,7 +233,7 @@ class LifecycleTests(TestCase):
                  mock.patch('densekp.core.densekp_trainer.create_backbone', side_effect=tiny_backbone), \
                  mock.patch('densekp.core.densekp_trainer.build_keypoints_head', side_effect=TinyHead):
                 ds = DatasetKeypoints(cfg, 'test-fixture', use_augmentation=False)
-                with mock.patch('densekp.core.datasets.utils.do_augmentation', side_effect=AssertionError('augmentation disabled')):
+                with mock.patch('densekp.core.datasets.crop_pipeline.sample_augmentation', side_effect=AssertionError('augmentation disabled')):
                     self.assertEqual(ds[0]['img'].shape, (3, 256, 256))
                 dm = DataModule(cfg, dataset_config())
                 dm.setup('fit')

@@ -9,6 +9,8 @@ import numpy as np
 from PIL import Image
 
 from tools.fisheye import run_ds_scene_pair_pilot as pilot
+from densekp_retrain.imaging import ds as processor
+from densekp_retrain.imaging import source as source_buffers
 from tools.fisheye.run_fisheye_multiperson_pilot import world_points
 from tools.experiments.prepare_cycling_clothing import shell
 
@@ -71,10 +73,11 @@ class CyclingGeometryTests(unittest.TestCase):
                 people.append(person); expected.append(world_points(dense,vertices,person))
             for name in poses:
                 Image.fromarray(np.full((32,64,3),150,np.uint8)).save(root/'source'/f'{name}_preview.png')
-            with patch.object(pilot,'DS_20260320',intrinsics), \
-                 patch.object(pilot,'read_combined_depth_index',return_value=(None,np.ones((32,64)),np.ones((32,64)),None)), \
-                 patch.object(pilot,'erp_visibility',return_value=(None,np.ones(276,bool))):
-                pilot.process_scene(root,people,poses,{n:np.ones((32,64),bool) for n in poses},
+            with patch('densekp_retrain.camera.domain.DS_20260320', intrinsics), \
+                 patch.object(processor,'DS_20260320',intrinsics), \
+                 patch.object(source_buffers,'read_combined_depth_index',return_value=(None,np.ones((32,64)),np.ones((32,64)),None)), \
+                 patch.object(processor,'erp_visibility',return_value=(None,np.ones(276,bool))):
+                processor.process_scene(root,people,poses,{n:np.ones((32,64),bool) for n in poses},
                                     None,None,lens_masks={n:np.ones((64,64),bool) for n in poses},
                                     lens_metadata={n:{} for n in poses})
             np.testing.assert_allclose(np.load(root/'shared_world_densekp.npy'),expected)

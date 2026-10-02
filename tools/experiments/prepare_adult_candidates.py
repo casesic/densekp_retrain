@@ -14,9 +14,13 @@ from scipy.optimize import lsq_linear
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'src')]
 from densekp_retrain.body.geometry import load_smplx_model
-from tools.experiments.prepare_cycling_characters import PARAMETERS, POSES, evaluate, zero_pose, write_json
-from tools.experiments.prepare_commuter_pilot import rest_body, measurement_rows, measure, save_geometry
-from tools.experiments.refine_cycling_character_clothing import clipped_shell
+from densekp_retrain.body.parameters import PARAMETERS, evaluate, zero_pose
+from tools.experiments.prepare_cycling_characters import POSES
+from densekp_retrain.io.json import write_json
+from densekp_retrain.body.parameters import rest_body
+from densekp_retrain.body.measurements import measurement_rows, measure
+from densekp_retrain.io.geometry import save_geometry
+from densekp_retrain.clothing.shells import clipped_shell
 
 PILOT=ROOT/'outputs/experiments/cycling_commuter_pilot_20260930'
 OLD=ROOT/'outputs/experiments/cycling_four_characters_20260929'

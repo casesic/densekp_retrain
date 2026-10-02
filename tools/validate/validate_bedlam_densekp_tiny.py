@@ -8,44 +8,17 @@ import sys
 
 import cv2
 import numpy as np
-from yacs.config import CfgNode as CN
 
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from densekp.core.configs import DATASET_FILES, DATASET_FOLDERS  # noqa: E402
+from densekp.core.datasets.configuration import audit_cfg  # noqa: E402; historical re-export
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints  # noqa: E402
 from densekp.core.datasets.utils import trans_points2d_parallel  # noqa: E402
 
 
 DATASET_NAME = "bedlam-densekp-tiny-audit"
-
-
-def audit_cfg(value_semantics=None) -> CN:
-    cfg = CN(new_allowed=True)
-    cfg.MODEL = CN(new_allowed=True)
-    cfg.MODEL.IMAGE_SIZE = 256
-    cfg.MODEL.IMAGE_MEAN = [0.485, 0.456, 0.406]
-    cfg.MODEL.IMAGE_STD = [0.229, 0.224, 0.225]
-    cfg.DATASETS = CN(new_allowed=True)
-    cfg.DATASETS.TARGET_VALUE_SEMANTICS = value_semantics
-    cfg.DATASETS.USE_SKIMAGE_ANTIALIAS = False
-    cfg.DATASETS.BORDER_MODE = "constant"
-    cfg.DATASETS.CONFIG = CN(new_allowed=True)
-    cfg.DATASETS.CONFIG.SCALE_FACTOR = 0.0
-    cfg.DATASETS.CONFIG.ROT_FACTOR = 0.0
-    cfg.DATASETS.CONFIG.TRANS_FACTOR = 0.0
-    cfg.DATASETS.CONFIG.COLOR_SCALE = 0.0
-    cfg.DATASETS.CONFIG.ROT_AUG_RATE = 0.0
-    cfg.DATASETS.CONFIG.TRANS_AUG_RATE = 0.0
-    cfg.DATASETS.CONFIG.DO_FLIP = False
-    cfg.DATASETS.CONFIG.FLIP_AUG_RATE = 0.0
-    cfg.DATASETS.CONFIG.EXTREME_CROP_AUG_RATE = 0.0
-    cfg.DATASETS.CONFIG.EXTREME_CROP_AUG_LEVEL = 0
-    cfg.DATASETS.CONFIG.USE_ALB = False
-    cfg.DATASETS.CONFIG.ALB_PROB = 0.0
-    return cfg
 
 
 def draw_points(image: np.ndarray, points: np.ndarray, color, radius: int, label_every=0):
@@ -76,9 +49,10 @@ def main() -> int:
         if not path.exists():
             raise SystemExit(f"missing required input: {path}")
 
-    DATASET_FOLDERS[DATASET_NAME] = str(image_root)
-    DATASET_FILES[True][DATASET_NAME] = str(annotation)
-    dataset = DatasetKeypoints(audit_cfg("supervision_weight"), DATASET_NAME, use_augmentation=False, is_train=True)
+    dataset = DatasetKeypoints(
+        audit_cfg("supervision_weight"), DATASET_NAME, use_augmentation=False, is_train=True,
+        annotation_path=annotation, image_root=image_root,
+    )
 
     original_dir = args.output / "original"
     cropped_dir = args.output / "cropped"

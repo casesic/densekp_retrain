@@ -1,0 +1,877 @@
+{
+  "source_boundaries": {
+    "valid_with_unindexed_occluder": {
+      "value": {
+        "status": "passed",
+        "characters": {
+          "train": 2,
+          "val": 2
+        },
+        "candidate_rows": {
+          "train": 1,
+          "val": 1
+        },
+        "images": 2,
+        "layouts": 2,
+        "memberships": {
+          "identity_family_id": {
+            "train": [
+              "cycling_F01",
+              "cycling_M01"
+            ],
+            "val": [
+              "cycling_F02",
+              "cycling_M02"
+            ]
+          },
+          "shape_source_group": {
+            "train": [
+              "F01",
+              "M01"
+            ],
+            "val": [
+              "F02",
+              "M02"
+            ]
+          },
+          "face_source_group": {
+            "train": [
+              "F01",
+              "M01"
+            ],
+            "val": [
+              "F02",
+              "M02"
+            ]
+          },
+          "all_texture_members": {
+            "train": [
+              "F01_texture",
+              "M01_texture"
+            ],
+            "val": [
+              "F02_texture",
+              "M02_texture"
+            ]
+          },
+          "ancestry": {
+            "train": [
+              "F01_asset",
+              "M01_asset"
+            ],
+            "val": [
+              "F02_asset",
+              "M02_asset"
+            ]
+          },
+          "cycling": {
+            "train": [
+              "trainphoto"
+            ],
+            "val": [
+              "valphoto"
+            ]
+          },
+          "pedestrian": {
+            "train": [
+              "trainclip"
+            ],
+            "val": [
+              "valclip"
+            ]
+          },
+          "pedestrian_person": {
+            "train": [
+              "trainactor"
+            ],
+            "val": [
+              "valactor"
+            ]
+          },
+          "image": {
+            "train": [
+              "<RUN>/source_boundaries/train/image.png"
+            ],
+            "val": [
+              "<RUN>/source_boundaries/val/image.png"
+            ]
+          },
+          "layout": {
+            "train": [
+              "<RUN>/source_boundaries/train"
+            ],
+            "val": [
+              "<RUN>/source_boundaries/val"
+            ]
+          }
+        },
+        "train_val_intersections": {
+          "identity_family_id": [],
+          "shape_source_group": [],
+          "face_source_group": [],
+          "all_texture_members": [],
+          "ancestry": [],
+          "cycling": [],
+          "pedestrian": [],
+          "pedestrian_person": [],
+          "image": [],
+          "layout": []
+        },
+        "meaning": "Declared source-risk groups and every rendered target/occluder checked; not proof of unknown photographed face identities"
+      },
+      "error": null
+    },
+    "empty_indices": {
+      "value": {
+        "status": "passed",
+        "characters": {
+          "train": 2,
+          "val": 2
+        },
+        "candidate_rows": {
+          "train": 0,
+          "val": 0
+        },
+        "images": 0,
+        "layouts": 0,
+        "memberships": {
+          "identity_family_id": {
+            "train": [
+              "cycling_F01",
+              "cycling_M01"
+            ],
+            "val": [
+              "cycling_F02",
+              "cycling_M02"
+            ]
+          },
+          "shape_source_group": {
+            "train": [
+              "F01",
+              "M01"
+            ],
+            "val": [
+              "F02",
+              "M02"
+            ]
+          },
+          "face_source_group": {
+            "train": [
+              "F01",
+              "M01"
+            ],
+            "val": [
+              "F02",
+              "M02"
+            ]
+          },
+          "all_texture_members": {
+            "train": [
+              "F01_texture",
+              "M01_texture"
+            ],
+            "val": [
+              "F02_texture",
+              "M02_texture"
+            ]
+          },
+          "ancestry": {
+            "train": [
+              "F01_asset",
+              "M01_asset"
+            ],
+            "val": [
+              "F02_asset",
+              "M02_asset"
+            ]
+          },
+          "cycling": {
+            "train": [
+              "trainphoto"
+            ],
+            "val": [
+              "valphoto"
+            ]
+          },
+          "pedestrian": {
+            "train": [
+              "trainclip"
+            ],
+            "val": [
+              "valclip"
+            ]
+          },
+          "pedestrian_person": {
+            "train": [
+              "trainactor"
+            ],
+            "val": [
+              "valactor"
+            ]
+          },
+          "image": {
+            "train": [],
+            "val": []
+          },
+          "layout": {
+            "train": [],
+            "val": []
+          }
+        },
+        "train_val_intersections": {
+          "identity_family_id": [],
+          "shape_source_group": [],
+          "face_source_group": [],
+          "all_texture_members": [],
+          "ancestry": [],
+          "cycling": [],
+          "pedestrian": [],
+          "pedestrian_person": [],
+          "image": [],
+          "layout": []
+        },
+        "meaning": "Declared source-risk groups and every rendered target/occluder checked; not proof of unknown photographed face identities"
+      },
+      "error": null
+    },
+    "identity_family_id_leak": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "identity_family_id crosses partitions"
+      }
+    },
+    "shape_source_group_leak": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "shape_source_group crosses partitions"
+      }
+    },
+    "face_source_group_leak": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "face_source_group crosses partitions"
+      }
+    },
+    "all_texture_members_leak": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "all_texture_members crosses partitions"
+      }
+    },
+    "ancestry_leak": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "ancestry crosses partitions"
+      }
+    },
+    "cycling_leak": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "cycling not held out"
+      }
+    },
+    "pedestrian_leak": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "pedestrian not held out"
+      }
+    },
+    "pedestrian_person_leak": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "pedestrian_person not held out"
+      }
+    },
+    "unreviewed": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Split is not approved/frozen"
+      }
+    },
+    "proposal_awaiting_scope_decision": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Split is not approved/frozen"
+      }
+    },
+    "allowed_proposal": {
+      "value": {
+        "status": "passed_proposal_only",
+        "characters": {
+          "train": 2,
+          "val": 2
+        },
+        "candidate_rows": {
+          "train": 1,
+          "val": 1
+        },
+        "images": 2,
+        "layouts": 2,
+        "memberships": {
+          "identity_family_id": {
+            "train": [
+              "cycling_F01",
+              "cycling_M01"
+            ],
+            "val": [
+              "cycling_F02",
+              "cycling_M02"
+            ]
+          },
+          "shape_source_group": {
+            "train": [
+              "F01",
+              "M01"
+            ],
+            "val": [
+              "F02",
+              "M02"
+            ]
+          },
+          "face_source_group": {
+            "train": [
+              "F01",
+              "M01"
+            ],
+            "val": [
+              "F02",
+              "M02"
+            ]
+          },
+          "all_texture_members": {
+            "train": [
+              "F01_texture",
+              "M01_texture"
+            ],
+            "val": [
+              "F02_texture",
+              "M02_texture"
+            ]
+          },
+          "ancestry": {
+            "train": [
+              "F01_asset",
+              "M01_asset"
+            ],
+            "val": [
+              "F02_asset",
+              "M02_asset"
+            ]
+          },
+          "cycling": {
+            "train": [
+              "trainphoto"
+            ],
+            "val": [
+              "valphoto"
+            ]
+          },
+          "pedestrian": {
+            "train": [
+              "trainclip"
+            ],
+            "val": [
+              "valclip"
+            ]
+          },
+          "pedestrian_person": {
+            "train": [
+              "trainactor"
+            ],
+            "val": [
+              "valactor"
+            ]
+          },
+          "image": {
+            "train": [
+              "<RUN>/source_boundaries/train/image.png"
+            ],
+            "val": [
+              "<RUN>/source_boundaries/val/image.png"
+            ]
+          },
+          "layout": {
+            "train": [
+              "<RUN>/source_boundaries/train"
+            ],
+            "val": [
+              "<RUN>/source_boundaries/val"
+            ]
+          }
+        },
+        "train_val_intersections": {
+          "identity_family_id": [],
+          "shape_source_group": [],
+          "face_source_group": [],
+          "all_texture_members": [],
+          "ancestry": [],
+          "cycling": [],
+          "pedestrian": [],
+          "pedestrian_person": [],
+          "image": [],
+          "layout": []
+        },
+        "meaning": "Declared source-risk groups and every rendered target/occluder checked; not proof of unknown photographed face identities"
+      },
+      "error": null
+    },
+    "missing_audit": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Updated facial-source audit is required; old split is rejected"
+      }
+    },
+    "missing_source_field": {
+      "value": null,
+      "error": {
+        "type": "KeyError",
+        "message": "'shape_source_group'"
+      }
+    },
+    "excluded_family": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Excluded family is still included"
+      }
+    },
+    "missing_gender": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Each partition must include both genders"
+      }
+    },
+    "possible_facial_source_leak": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Possible facial source crosses partitions"
+      }
+    },
+    "unfrozen_index": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Unfrozen candidate index"
+      }
+    },
+    "index_side": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Unfrozen candidate index"
+      }
+    },
+    "unaccepted_row": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Unaccepted row"
+      }
+    },
+    "wrong_row_side": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Unaccepted row"
+      }
+    },
+    "missing_image": {
+      "value": null,
+      "error": {
+        "type": "KeyError",
+        "message": "'image'"
+      }
+    },
+    "same_image": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Same image/dual-view layout crosses partitions"
+      }
+    },
+    "same_scene": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Same image/dual-view layout crosses partitions"
+      }
+    },
+    "unknown_partition": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Unknown partition"
+      }
+    },
+    "occluder_identity": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Target/occluder identity leakage"
+      }
+    },
+    "occluder_unknown": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Target/occluder identity leakage"
+      }
+    },
+    "occluder_pose": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Target/occluder pose-source leakage"
+      }
+    },
+    "target_pose": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Target/occluder pose-source leakage"
+      }
+    },
+    "valid_pair": {
+      "value": {
+        "status": "passed",
+        "characters": {
+          "train": 2,
+          "val": 2
+        },
+        "candidate_rows": {
+          "train": 2,
+          "val": 1
+        },
+        "images": 2,
+        "layouts": 2,
+        "memberships": {
+          "identity_family_id": {
+            "train": [
+              "cycling_F01",
+              "cycling_M01"
+            ],
+            "val": [
+              "cycling_F02",
+              "cycling_M02"
+            ]
+          },
+          "shape_source_group": {
+            "train": [
+              "F01",
+              "M01"
+            ],
+            "val": [
+              "F02",
+              "M02"
+            ]
+          },
+          "face_source_group": {
+            "train": [
+              "F01",
+              "M01"
+            ],
+            "val": [
+              "F02",
+              "M02"
+            ]
+          },
+          "all_texture_members": {
+            "train": [
+              "F01_texture",
+              "M01_texture"
+            ],
+            "val": [
+              "F02_texture",
+              "M02_texture"
+            ]
+          },
+          "ancestry": {
+            "train": [
+              "F01_asset",
+              "M01_asset"
+            ],
+            "val": [
+              "F02_asset",
+              "M02_asset"
+            ]
+          },
+          "cycling": {
+            "train": [
+              "trainphoto"
+            ],
+            "val": [
+              "valphoto"
+            ]
+          },
+          "pedestrian": {
+            "train": [
+              "trainclip"
+            ],
+            "val": [
+              "valclip"
+            ]
+          },
+          "pedestrian_person": {
+            "train": [
+              "trainactor"
+            ],
+            "val": [
+              "valactor"
+            ]
+          },
+          "image": {
+            "train": [
+              "<RUN>/source_boundaries/train/image.png"
+            ],
+            "val": [
+              "<RUN>/source_boundaries/val/image.png"
+            ]
+          },
+          "layout": {
+            "train": [
+              "<RUN>/source_boundaries/train"
+            ],
+            "val": [
+              "<RUN>/source_boundaries/val"
+            ]
+          }
+        },
+        "train_val_intersections": {
+          "identity_family_id": [],
+          "shape_source_group": [],
+          "face_source_group": [],
+          "all_texture_members": [],
+          "ancestry": [],
+          "cycling": [],
+          "pedestrian": [],
+          "pedestrian_person": [],
+          "image": [],
+          "layout": []
+        },
+        "meaning": "Declared source-risk groups and every rendered target/occluder checked; not proof of unknown photographed face identities"
+      },
+      "error": null
+    },
+    "pair_character_id": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Paired target/camera/box/affine changed"
+      }
+    },
+    "pair_pose_source_id": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Paired target/camera/box/affine changed"
+      }
+    },
+    "pair_given_bbox_xyxy": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Paired target/camera/box/affine changed"
+      }
+    },
+    "pair_affine_flat": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Paired target/camera/box/affine changed"
+      }
+    },
+    "pair_target_object_to_world_flat": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Paired target/camera/box/affine changed"
+      }
+    },
+    "pair_camera_to_world_flat": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Paired target/camera/box/affine changed"
+      }
+    }
+  },
+  "contract": {
+    "legacy_weights": {
+      "value": null,
+      "error": null
+    },
+    "missing_imgname": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Missing annotation field: imgname"
+      }
+    },
+    "missing_center": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Missing annotation field: center"
+      }
+    },
+    "missing_scale": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Missing annotation field: scale"
+      }
+    },
+    "missing_proj_verts": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Missing annotation field: proj_verts"
+      }
+    },
+    "undeclared": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Declare DATASETS.TARGET_VALUE_SEMANTICS=supervision_weight only after verifying the annotation producer. DenseKP keypoint_value is not automatically a weight."
+      }
+    },
+    "empty_supervision": {
+      "value": null,
+      "error": null
+    },
+    "undefined_zero_weight_xy": {
+      "value": null,
+      "error": null
+    },
+    "occluded_reliable": {
+      "value": null,
+      "error": null
+    },
+    "missing_in_view": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "in_view must be boolean [N,138] for in_view_full_crop"
+      }
+    },
+    "missing_visible": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "visible must be boolean [N,138] for in_view_full_crop"
+      }
+    },
+    "visible_outside_view": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Visible points must be in_view"
+      }
+    },
+    "weight_negative": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Declared supervision weights must be finite in [0,1]"
+      }
+    },
+    "weight_nan": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Declared supervision weights must be finite in [0,1]"
+      }
+    },
+    "weight_too_large": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Declared supervision weights must be finite in [0,1]"
+      }
+    }
+  },
+  "boxes": {
+    "change_0_10": {
+      "type": "IndexError",
+      "message": "index 4 is out of bounds for axis 0 with size 4"
+    },
+    "change_1_10": {
+      "type": "IndexError",
+      "message": "index 4 is out of bounds for axis 0 with size 4"
+    },
+    "change_2_10": {
+      "type": "IndexError",
+      "message": "index 4 is out of bounds for axis 0 with size 4"
+    },
+    "change_3_10": {
+      "type": "IndexError",
+      "message": "index 4 is out of bounds for axis 0 with size 4"
+    },
+    "official_valid": false,
+    "official_too_few": true,
+    "official_degenerate": true,
+    "official_nonfinite": true,
+    "official_bounds": false
+  },
+  "boxes_npz_base64": "UEsDBBQAAAAAAAAAIQA/LHSkoAAAAKAAAAAOABQAY2hhbmdlXzBfMC5ucHkBABAAoAAAAAAAAACgAAAAAAAAAJNOVU1QWQEAdgB7J2Rlc2NyJzogJzxmOCcsICdmb3J0cmFuX29yZGVyJzogRmFsc2UsICdzaGFwZSc6ICg0LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKAAAAAAAAWUAAAAAAAABZQAAAAAAAAGlAAAAAAADAckBQSwMEFAAAAAAAAAAhAK9/0KqgAAAAoAAAAA4AFABjaGFuZ2VfMF8xLm5weQEAEACgAAAAAAAAAKAAAAAAAAAAk05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBlJzogKDQsKSwgfSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoAAAAAAABhQAAAAAAAAFlAAAAAAACAbUAAAAAAAMByQFBLAwQUAAAAAAAAACEAmUyn76AAAACgAAAADgAUAGNoYW5nZV8wXzIubnB5AQAQAKAAAAAAAAAAoAAAAAAAAACTTlVNUFkBAHYAeydkZXNjcic6ICc8ZjgnLCAnZm9ydHJhbl9vcmRlcic6IEZhbHNlLCAnc2hhcGUnOiAoNCwpLCB9ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgAAAAAAAFlAAAAAAAAASkAAAAAAAABpQAAAAAAAgG9AUEsDBBQAAAAAAAAAIQBPhu3KoAAAAKAAAAAOABQAY2hhbmdlXzBfMy5ucHkBABAAoAAAAAAAAACgAAAAAAAAAJNOVU1QWQEAdgB7J2Rlc2NyJzogJzxmOCcsICdmb3J0cmFuX29yZGVyJzogRmFsc2UsICdzaGFwZSc6ICg0LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKVVVVVVUVW0CqqqqqqipdQFZVVVVV9WdAVlVVVVW1cUBQSwMEFAAAAAAAAAAhALmSLQigAAAAoAAAAA4AFABjaGFuZ2VfMF80Lm5weQEAEACgAAAAAAAAAKAAAAAAAAAAk05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBlJzogKDQsKSwgfSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoAAAAAAMBiQAAAAAAAAGlAAAAAAADAYkAAAAAAAABpQFBLAwQUAAAAAAAAACEA2aNQTqAAAACgAAAADgAUAGNoYW5nZV8wXzUubnB5AQAQAKAAAAAAAAAAoAAAAAAAAACTTlVNUFkBAHYAeydkZXNjcic6ICc8ZjgnLCAnZm9ydHJhbl9vcmRlcic6IEZhbHNlLCAnc2hhcGUnOiAoNCwpLCB9ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgAAAAAAAPh/AAAAAAAA+H8AAAAAAAD4fwAAAAAAAPh/UEsDBBQAAAAAAAAAIQAJ4buzoAAAAKAAAAAOABQAY2hhbmdlXzBfNi5ucHkBABAAoAAAAAAAAACgAAAAAAAAAJNOVU1QWQEAdgB7J2Rlc2NyJzogJzxmOCcsICdmb3J0cmFuX29yZGVyJzogRmFsc2UsICdzaGFwZSc6ICg0LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKAAAAAADgYEAAAAAAAABZQAAAAAAAAGlAAAAAAADAckBQSwMEFAAAAAAAAAAhADVdYIagAAAAoAAAAA4AFABjaGFuZ2VfMF83Lm5weQEAEACgAAAAAAAAAKAAAAAAAAAAk05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBlJzogKDQsKSwgfSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoAAAAAAABZQAAAAAAAQGVAAAAAAAAAaUAAAAAAAMByQFBLAwQUAAAA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AAAOABQAY2hhbmdlXzJfNC5ucHkBABAAoAAAAAAAAACgAAAAAAAAAJNOVU1QWQEAdgB7J2Rlc2NyJzogJzxmOCcsICdmb3J0cmFuX29yZGVyJzogRmFsc2UsICdzaGFwZSc6ICg0LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKAAAAAAAA4D8AAAAAAADgPwAAAAAAAOA/AAAAAAAA4D9QSwMEFAAAAAAAAAAhANmjUE6gAAAAoAAAAA4AFABjaGFuZ2VfMl81Lm5weQEAEACgAAAAAAAAAKAAAAAAAAAAk05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBlJzogKDQsKSwgfSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoAAAAAAAD4fwAAAAAAAPh/AAAAAAAA+H8AAAAAAAD4f1BLAwQUAAAAAAAAACEANoojJKAAAACgAAAADgAUAGNoYW5nZV8yXzYubnB5AQAQAKAAAAAAAAAAoAAAAAAAAACTTlVNUFkBAHYAeydkZXNjcic6ICc8ZjgnLCAnZm9ydHJhbl9vcmRlcic6IEZhbHNlLCAnc2hhcGUnOiAoNCwpLCB9ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCmZmZmZmZtY/AAAAAAAAAAAAAAAAAADwPwAAAAAAAPA/UEsDBBQAAAAAAAAAIQA7W1IJoAAAAKAAAAAOABQAY2hhbmdlXzJfNy5ucHkBABAAoAAAAAAAAACgAAAAAAAAAJNOVU1QWQEAdgB7J2Rlc2NyJzogJzxmOCcsICdmb3J0cmFuX29yZGVyJzogRmFsc2UsICdzaGFwZSc6ICg0LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKAAAAAAAAAABmZmZmZmbWPwAAAAAAAPA/AAAAAAAA8D9QSwMEFAAAAAAAAAAhAGwL8L2gAAAAoAAAAA4A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YWxpZF8wLm5weQEAEACIAAAAAAAAAIgAAAAAAAAAk05VTVBZAQB2AHsnZGVzY3InOiAnPGY0JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBlJzogKDIsKSwgfSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoAAKhBAAD8QVBLAwQUAAAAAAAAACEA5fLisIQAAACEAAAAFAAUAG9mZmljaWFsX3ZhbGlkXzEubnB5AQAQAIQAAAAAAAAAhAAAAAAAAACTTlVNUFkBAHYAeydkZXNjcic6ICc8ZjQnLCAnZm9ydHJhbl9vcmRlcic6IEZhbHNlLCAnc2hhcGUnOiAoKSwgfSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCjeJwT5QSwMEFAAAAAAAAAAhAPYdFFyEAAAAhAAAABQAFABvZmZpY2lhbF92YWxpZF8yLm5weQEAEACEAAAAAAAAAIQAAAAAAAAAk05VTVBZAQB2AHsnZGVzY3InOiAnPGk0JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBlJzogKCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoWAAAAUEsDBBQAAAAAAAAAIQC4+VzgkAAAAJAAAAAUABQAb2ZmaWNpYWxfdmFsaWRfMy5ucHkBABAAkAAAAAAAAACQAAAAAAAAAJNOVU1QWQEAdgB7J2Rlc2NyJzogJzxmNCcsICdmb3J0cmFuX29yZGVyJzogRmFsc2UsICdzaGFwZSc6ICg0LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKAAAAAAAAAAAAAChCAAB8QlBLAwQUAAAAAAAAACEARt3pQIgAAACIAAAAFQAUAG9mZmljaWFsX2JvdW5kc18wLm5weQEAEACIAAAAAAAAAIgAAAAAAAAAk05VTVBZAQB2AHsnZGVzY3InOiAnPGY0JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBlJzogKDIsKSwgfSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoAAIBBAADoQVBLAwQUAAAAAAAAACEAihwrv4QAAACEAAAAFQAUAG9mZmljaWFsX2JvdW5kc18xLm5weQEAEACEAAAAAAAAAIQAAAAAAAAAk05VTVBZAQB2AHsnZGVzY3InOiAnPGY0JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBlJzogKCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAq8dJM+UEsDBBQAAAAAAAAAIQBPJcPBhAAAAIQAAAAVABQAb2ZmaWNpYWxfYm91bmRzXzIubnB5AQAQAIQAAAAAAAAAhAAAAAAAAACTTlVNUFkBAHYAeydkZXNjcic6ICc8aTQnLCAnZm9ydHJhbl9vcmRlcic6IEZhbHNlLCAnc2hhcGUnOiAoKSwgfSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgChEAAABQSwMEFAAAAAAAAAAhAJ/ZNCGQAAAAkAAAABUAFABvZmZpY2lhbF9ib3VuZHNfMy5ucHkBABAAkAAAAAAAAACQAAAAAAAAAJNOVU1QWQEAdgB7J2Rlc2NyJzogJzxmNCcsICdmb3J0cmFuX29yZGVyJzogRmFsc2UsICdzaGFwZSc6ICg0LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKAAAAAAAAoEAAAABCAABUQlBLAQIUAxQAAAAAAAAAIQA/LHSkoAAAAKAAAAAOAAAAAAAAAAAAAACAAQAAAABjaGFuZ2VfMF8wLm5weVBLAQIUAxQAAAAAAAAAIQCvf9CqoAAAAKAAAAAOAAAAAAAAAAAAAACAAeAAAABjaGFuZ2VfMF8xLm5weVBLAQIUAxQAAAAAAAAAIQCZTKfvoAAAAKAAAAAOAAAAAAAAAAAAAACAAcABAABjaGFuZ2VfMF8yLm5weVBLAQIUAxQA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",
+  "contract_arrays_npz_base64": "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",
+  "provenance": "Captured from original live implementations before migration; source paths alone normalized to <RUN>.",
+  "packing_errors": {
+    "missing_center": {
+      "value": null,
+      "error": {
+        "type": "KeyError",
+        "message": "'center'"
+      }
+    },
+    "missing_visible": {
+      "value": null,
+      "error": {
+        "type": "KeyError",
+        "message": "'visible'"
+      }
+    },
+    "wrong_policy": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Supervision mismatch"
+      }
+    },
+    "empty_rows": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "imgname must be a nonempty [N] array"
+      }
+    },
+    "empty_supervision": {
+      "value": null,
+      "error": null
+    },
+    "fallback": {
+      "value": null,
+      "error": null
+    },
+    "fallback_failure": {
+      "value": null,
+      "error": {
+        "type": "ValueError",
+        "message": "Original accepted training sample failed support check"
+      }
+    }
+  }
+}

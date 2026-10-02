@@ -7,8 +7,8 @@ import sys
 import time
 import numpy as np
 
-ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
-from tools.validate.validate_source_isolated_split import validate_split
+ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/"src")]
+from densekp_retrain.data.source_split import validate_split
 
 
 def write(path,data):path.write_text(json.dumps(data,indent=2,allow_nan=False)+'\n')

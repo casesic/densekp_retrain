@@ -9,7 +9,6 @@ import gc
 import json
 from pathlib import Path
 import sys
-from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT/'src')]
@@ -19,47 +18,24 @@ import torch
 from torch.utils.data import DataLoader
 from hydra import compose, initialize_config_dir
 from omegaconf import OmegaConf
-from densekp.core.configs import DATASET_FILES, DATASET_FOLDERS
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
 from densekp.core.densekp_trainer import DenseKP
-from tools.validate.validate_bedlam_densekp_tiny import audit_cfg
+from densekp.core.training_audit import CheckUpdates, probes  # Historical re-exports.
+from densekp.core.inference import predict_item as predict  # Historical re-export.
+from densekp.core.datasets.configuration import audit_cfg
 from tools.validate.evaluate_ds_scene_pair import evaluate_scene
 
 
 def dataset(directory):
     cfg = audit_cfg('supervision_weight')
-    with patch.dict(DATASET_FOLDERS, {'cycling-smoke': str(directory)}), \
-         patch.dict(DATASET_FILES[False], {'cycling-smoke': str(directory/'diagnostic_loader.npz')}):
-        return DatasetKeypoints(cfg, 'cycling-smoke', is_train=False, use_augmentation=False)
-
-
-def probes(model):
-    return {name: next(module.parameters()).detach().flatten()[:4096].float().cpu().clone()
-            for name, module in (('backbone',model.backbone),('head',model.head))}
-
-
-class CheckUpdates(pl.Callback):
-    def __init__(self):
-        self.attempts = []
-
-    def on_before_optimizer_step(self, trainer, model, optimizer):
-        groups = {}
-        for name,module in (('backbone',model.backbone),('head',model.head)):
-            gradients = [p.grad for p in module.parameters() if p.grad is not None]
-            if not gradients or not all(bool(torch.isfinite(g).all()) for g in gradients):
-                raise ValueError(f'Missing/nonfinite {name} gradients; stop before update')
-            groups[name] = len(gradients)
-        self.attempts.append(dict(step=trainer.global_step, finite_gradient_tensors=groups))
-        print('Finite optimizer update '+str(trainer.global_step),flush=True)
-
-
-def predict(model, item, device):
-    model.eval()
-    with torch.inference_mode():
-        value=model({'img':torch.from_numpy(item['img'][None]).to(device)})['pred_keypoints']
-    if value.shape!=(1,138,3) or not torch.isfinite(value).all():
-        raise ValueError('Expected finite 138x3 output')
-    return value.float().cpu().numpy()
+    return DatasetKeypoints(
+        cfg,
+        "cycling-smoke",
+        is_train=False,
+        use_augmentation=False,
+        annotation_path=str(directory / "diagnostic_loader.npz"),
+        image_root=str(directory),
+    )
 
 
 def main():

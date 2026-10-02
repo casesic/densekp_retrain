@@ -3,18 +3,16 @@ import argparse
 import json
 from pathlib import Path
 import sys
-from unittest.mock import patch
 import cv2
 import numpy as np
 from PIL import Image,ImageDraw
 
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from densekp.core.configs import DATASET_FILES,DATASET_FOLDERS
 from densekp.core.crop_geometry import restore_crop_xy
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
 from densekp.core.keypoint_supervision import make_targets
-from tools.validate.validate_bedlam_densekp_tiny import audit_cfg
+from densekp.core.datasets.configuration import audit_cfg
 
 
 def main():
@@ -42,28 +40,36 @@ def main():
              proj_verts=np.stack([r['target'] for r in rows]),split=np.array('integration_only'))
     cfg=audit_cfg('supervision_weight');dataset_name='commuter-studio-diagnostic'
     records=[];panels=[]
-    with patch.dict(DATASET_FOLDERS,{dataset_name:''}),patch.dict(DATASET_FILES[False],{dataset_name:str(path)}):
-        dataset=DatasetKeypoints(cfg,dataset_name,is_train=False,use_augmentation=False)
-        for i,row in enumerate(rows):
-            item=dataset[i]
-            restored=restore_crop_xy(item['proj_verts_cropped'][:,:2],item['_trans'],(256,256))
-            error=float(np.abs(restored-item['proj_verts'][:,:2]).max())
-            if error>2e-4:raise ValueError(f'Existing crop gate failed: {error}')
-            if item['img'].shape!=(3,256,256) or not np.isfinite(item['img']).all():
-                raise ValueError('Invalid loader input')
-            np.testing.assert_array_equal(item['proj_verts_cropped'][:,2],row['target'][:,2])
-            rgb=cv2.cvtColor(item['img_disp'],cv2.COLOR_BGR2RGB)
-            name=f"{row['character_id']}_{row['pose_source_id']}_{row['view']}"
-            Image.fromarray(rgb).save(output/(name+'_square.png'))
-            Image.fromarray(rgb[:,32:-32]).save(output/(name+'_network_center.png'))
-            np.save(output/(name+'_network_input.npy'),item['img'][:,:,32:-32])
-            record=dict(character_id=row['character_id'],pose_source_id=row['pose_source_id'],view=row['view'],
-                        roundtrip_max_px=error,square_shape=[256,256],network_shape=[256,192])
-            records.append(record)
-            if row['pose_source_id']!='reference' and row['view']=='front':
-                panel=Image.new('RGB',(448,280),(35,35,35));panel.paste(Image.fromarray(rgb),(0,0))
-                panel.paste(Image.fromarray(rgb[:,32:-32]),(256,0))
-                ImageDraw.Draw(panel).text((4,260),name,fill='white');panels.append(panel)
+    dataset = DatasetKeypoints(
+        cfg,
+        dataset_name,
+        is_train=False,
+        use_augmentation=False,
+        annotation_path=str(path),
+        image_root="",
+    )
+    for i, row in enumerate(rows):
+        item = dataset[i]
+        restored = restore_crop_xy(item['proj_verts_cropped'][:, :2], item['_trans'], (256, 256))
+        error = float(np.abs(restored - item['proj_verts'][:, :2]).max())
+        if error > 0.0002:
+            raise ValueError(f'Existing crop gate failed: {error}')
+        if item['img'].shape != (3, 256, 256) or not np.isfinite(item['img']).all():
+            raise ValueError('Invalid loader input')
+        np.testing.assert_array_equal(item['proj_verts_cropped'][:, 2], row['target'][:, 2])
+        rgb = cv2.cvtColor(item['img_disp'], cv2.COLOR_BGR2RGB)
+        name = f"{row['character_id']}_{row['pose_source_id']}_{row['view']}"
+        Image.fromarray(rgb).save(output / (name + '_square.png'))
+        Image.fromarray(rgb[:, 32:-32]).save(output / (name + '_network_center.png'))
+        np.save(output / (name + '_network_input.npy'), item['img'][:, :, 32:-32])
+        record = dict(character_id=row['character_id'], pose_source_id=row['pose_source_id'], view=row['view'], roundtrip_max_px=error, square_shape=[256, 256], network_shape=[256, 192])
+        records.append(record)
+        if row['pose_source_id'] != 'reference' and row['view'] == 'front':
+            panel = Image.new('RGB', (448, 280), (35, 35, 35))
+            panel.paste(Image.fromarray(rgb), (0, 0))
+            panel.paste(Image.fromarray(rgb[:, 32:-32]), (256, 0))
+            ImageDraw.Draw(panel).text((4, 260), name, fill='white')
+            panels.append(panel)
     sheet=Image.new('RGB',(896,280*max(1,(len(panels)+1)//2)),(35,35,35))
     for i,panel in enumerate(panels):sheet.paste(panel,(448*(i%2),280*(i//2)))
     sheet.save(output/'square_and_network_center.jpg')

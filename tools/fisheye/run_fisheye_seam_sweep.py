@@ -14,7 +14,7 @@ sys.path.insert(0,str(ROOT))
 sys.path.insert(0,str(ROOT/'tools'))
 from densekp_retrain.camera import OmniRadtanIntrinsics
 from densekp_retrain.camera import pose
-from fisheye.run_fisheye_camera_p0 import warp_case
+from densekp_retrain.imaging.omni import warp_case
 from densekp_retrain.runtime import find_blender_executable, load_appearance_baseline
 from densekp_retrain.rendering.process import run_logged
 

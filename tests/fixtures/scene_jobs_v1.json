@@ -1,0 +1,1661 @@
+[
+  {
+    "route": "eye",
+    "case": "relative",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/eye_relative/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/eye_relative/project/baseline data/geometry",
+          "--clothing-geometry",
+          "<ROOT>/eye_relative/project/baseline data/geometry",
+          "--output-dir",
+          "render out",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "/mnt/data1/yy<HOME>/fixture clothing",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "0",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/eye_relative/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256"
+        ],
+        "cwd": "<ROOT>/eye_relative/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/eye_relative/project/baseline data/geometry",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "eye",
+    "case": "absolute",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/eye_absolute/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/eye_absolute/project/baseline data/geometry",
+          "--clothing-geometry",
+          "<ROOT>/eye_absolute/project/baseline data/geometry",
+          "--output-dir",
+          "<ROOT>/eye_absolute/output",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "/mnt/data1/yy<HOME>/fixture clothing",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "0",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/eye_absolute/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256"
+        ],
+        "cwd": "<ROOT>/eye_absolute/project",
+        "log_path": "<ROOT>/eye_absolute/output/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/eye_absolute/project/baseline data/geometry",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "eye",
+    "case": "camera",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/eye_camera/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/eye_camera/project/baseline data/geometry",
+          "--clothing-geometry",
+          "<ROOT>/eye_camera/project/baseline data/geometry",
+          "--output-dir",
+          "render out",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "/mnt/data1/yy<HOME>/fixture clothing",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "0",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/eye_camera/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256",
+          "--camera-placement",
+          "<ROOT>/eye_camera/cwd/camera relative.json"
+        ],
+        "cwd": "<ROOT>/eye_camera/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/eye_camera/project/baseline data/geometry",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "eye",
+    "case": "no_clothing",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/eye_no_clothing/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/eye_no_clothing/project/baseline data/geometry",
+          "--clothing-geometry",
+          "<ROOT>/eye_no_clothing/project/baseline data/geometry",
+          "--output-dir",
+          "render out",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "/mnt/data1/yy<HOME>/fixture clothing",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "0",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/eye_no_clothing/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256"
+        ],
+        "cwd": "<ROOT>/eye_no_clothing/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/eye_no_clothing/project/baseline data/geometry",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "eye",
+    "case": "existing_directory",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/eye_existing_directory/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/eye_existing_directory/project/baseline data/geometry",
+          "--clothing-geometry",
+          "<ROOT>/eye_existing_directory/project/baseline data/geometry",
+          "--output-dir",
+          "render out",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "/mnt/data1/yy<HOME>/fixture clothing",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "0",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/eye_existing_directory/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256"
+        ],
+        "cwd": "<ROOT>/eye_existing_directory/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": true
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": false,
+        "target": null,
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "eye",
+    "case": "existing_link",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/eye_existing_link/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/eye_existing_link/project/baseline data/geometry",
+          "--clothing-geometry",
+          "<ROOT>/eye_existing_link/project/baseline data/geometry",
+          "--output-dir",
+          "render out",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "/mnt/data1/yy<HOME>/fixture clothing",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "0",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/eye_existing_link/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256"
+        ],
+        "cwd": "<ROOT>/eye_existing_link/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": true
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/eye_existing_link/cwd/geometry space",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "eye",
+    "case": "dangling_link",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/eye_dangling_link/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/eye_dangling_link/project/baseline data/geometry",
+          "--clothing-geometry",
+          "<ROOT>/eye_dangling_link/project/baseline data/geometry",
+          "--output-dir",
+          "render out",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "/mnt/data1/yy<HOME>/fixture clothing",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "0",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/eye_dangling_link/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256"
+        ],
+        "cwd": "<ROOT>/eye_dangling_link/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": {
+      "type": "FileExistsError",
+      "message": "[Errno 17] File exists: '<ROOT>/eye_dangling_link/project/baseline data/geometry' -> 'render out/geometry'"
+    },
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/eye_dangling_link/missing",
+        "directory": false,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "eye",
+    "case": "missing_report",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/eye_missing_report/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/eye_missing_report/project/baseline data/geometry",
+          "--clothing-geometry",
+          "<ROOT>/eye_missing_report/project/baseline data/geometry",
+          "--output-dir",
+          "render out",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "/mnt/data1/yy<HOME>/fixture clothing",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "0",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/eye_missing_report/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256"
+        ],
+        "cwd": "<ROOT>/eye_missing_report/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": {
+      "type": "RuntimeError",
+      "message": "Blender did not finish rendering; inspect render out/render.log"
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "eye",
+    "case": "invalid_report_json",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/eye_invalid_report_json/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/eye_invalid_report_json/project/baseline data/geometry",
+          "--clothing-geometry",
+          "<ROOT>/eye_invalid_report_json/project/baseline data/geometry",
+          "--output-dir",
+          "render out",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "/mnt/data1/yy<HOME>/fixture clothing",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "0",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/eye_invalid_report_json/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256"
+        ],
+        "cwd": "<ROOT>/eye_invalid_report_json/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/eye_invalid_report_json/project/baseline data/geometry",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "not json"
+      }
+    ]
+  },
+  {
+    "route": "eye",
+    "case": "launch_failure",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/eye_launch_failure/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/eye_launch_failure/project/baseline data/geometry",
+          "--clothing-geometry",
+          "<ROOT>/eye_launch_failure/project/baseline data/geometry",
+          "--output-dir",
+          "render out",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "/mnt/data1/yy<HOME>/fixture clothing",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "0",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/eye_launch_failure/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256"
+        ],
+        "cwd": "<ROOT>/eye_launch_failure/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": {
+      "type": "CalledProcessError",
+      "message": "Command '['/fixture/blender', '-b', '-t', '4', '--python', '<ROOT>/eye_launch_failure/project/tools/render/render_p0_blender.py', '--', '--input-geometry', '<ROOT>/eye_launch_failure/project/baseline data/geometry', '--clothing-geometry', '<ROOT>/eye_launch_failure/project/baseline data/geometry', '--output-dir', 'render out', '--clothing-texture-id', 'texture_01', '--clothing-texture-dir', '/mnt/data1/yy<HOME>/fixture clothing', '--body-texture', 'textures/body color.png', '--body-uv', 'uv relative.npz', '--environment-mode', 'hdri', '--hdri-path', 'environment relative.exr', '--hdri-strength', '1.0', '--hdri-rotation-deg', '0', '--manual-lights', 'fill', '--eye-render-mode', 'procedural', '--eye-mapping', '<ROOT>/eye_launch_failure/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz', '--ground-mode', 'shadow_catcher', '--render-frame-count', '3', '--resolution', '256']' returned non-zero exit status 7."
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "eye",
+    "case": "resolver_failure",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      }
+    ],
+    "exception": {
+      "type": "RuntimeError",
+      "message": "fixture resolver failure"
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "eye",
+    "case": "missing_manifest",
+    "events": [],
+    "exception": {
+      "type": "FileNotFoundError",
+      "message": "[Errno 2] No such file or directory: '<ROOT>/eye_missing_manifest/project/baseline data/manifest.jsonl'"
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "eye",
+    "case": "empty_manifest",
+    "events": [],
+    "exception": {
+      "type": "IndexError",
+      "message": "list index out of range"
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "eye",
+    "case": "missing_field",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      }
+    ],
+    "exception": {
+      "type": "KeyError",
+      "message": "'body_uv_path'"
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "eye",
+    "case": "missing_texture",
+    "events": [],
+    "exception": {
+      "type": "AttributeError",
+      "message": "'NoneType' object has no attribute 'expanduser'"
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "temporal",
+    "case": "relative",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/temporal_relative/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/temporal_relative/cwd/geometry space",
+          "--output-dir",
+          "<ROOT>/temporal_relative/cwd/render out",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256",
+          "--appearance-baseline",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "<ROOT>/temporal_relative/cwd/environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "17",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/temporal_relative/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--clothing-geometry",
+          "<ROOT>/temporal_relative/cwd/cloth relative",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "<ROOT>/temporal_relative/cwd/~/fixture clothing"
+        ],
+        "cwd": "<ROOT>/temporal_relative/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/temporal_relative/cwd/geometry space",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "temporal",
+    "case": "absolute",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/temporal_absolute/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/temporal_absolute/cwd/geometry space",
+          "--output-dir",
+          "<ROOT>/temporal_absolute/output",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256",
+          "--appearance-baseline",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "<ROOT>/temporal_absolute/cwd/environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "17",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/temporal_absolute/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--clothing-geometry",
+          "<ROOT>/temporal_absolute/cwd/cloth relative",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "<ROOT>/temporal_absolute/cwd/~/fixture clothing"
+        ],
+        "cwd": "<ROOT>/temporal_absolute/project",
+        "log_path": "<ROOT>/temporal_absolute/output/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/temporal_absolute/cwd/geometry space",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "temporal",
+    "case": "camera",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/temporal_camera/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/temporal_camera/cwd/geometry space",
+          "--output-dir",
+          "<ROOT>/temporal_camera/cwd/render out",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256",
+          "--appearance-baseline",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "<ROOT>/temporal_camera/cwd/environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "17",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/temporal_camera/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--clothing-geometry",
+          "<ROOT>/temporal_camera/cwd/cloth relative",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "<ROOT>/temporal_camera/cwd/~/fixture clothing"
+        ],
+        "cwd": "<ROOT>/temporal_camera/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/temporal_camera/cwd/geometry space",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "temporal",
+    "case": "no_clothing",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/temporal_no_clothing/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/temporal_no_clothing/cwd/geometry space",
+          "--output-dir",
+          "<ROOT>/temporal_no_clothing/cwd/render out",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256",
+          "--appearance-baseline",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "<ROOT>/temporal_no_clothing/cwd/environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "17",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/temporal_no_clothing/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher"
+        ],
+        "cwd": "<ROOT>/temporal_no_clothing/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/temporal_no_clothing/cwd/geometry space",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "temporal",
+    "case": "existing_directory",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/temporal_existing_directory/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/temporal_existing_directory/cwd/geometry space",
+          "--output-dir",
+          "<ROOT>/temporal_existing_directory/cwd/render out",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256",
+          "--appearance-baseline",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "<ROOT>/temporal_existing_directory/cwd/environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "17",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/temporal_existing_directory/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--clothing-geometry",
+          "<ROOT>/temporal_existing_directory/cwd/cloth relative",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "<ROOT>/temporal_existing_directory/cwd/~/fixture clothing"
+        ],
+        "cwd": "<ROOT>/temporal_existing_directory/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": true
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": false,
+        "target": null,
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "temporal",
+    "case": "existing_link",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/temporal_existing_link/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/temporal_existing_link/cwd/geometry space",
+          "--output-dir",
+          "<ROOT>/temporal_existing_link/cwd/render out",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256",
+          "--appearance-baseline",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "<ROOT>/temporal_existing_link/cwd/environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "17",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/temporal_existing_link/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--clothing-geometry",
+          "<ROOT>/temporal_existing_link/cwd/cloth relative",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "<ROOT>/temporal_existing_link/cwd/~/fixture clothing"
+        ],
+        "cwd": "<ROOT>/temporal_existing_link/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": true
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/temporal_existing_link/cwd/geometry space",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "temporal",
+    "case": "dangling_link",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/temporal_dangling_link/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/temporal_dangling_link/cwd/geometry space",
+          "--output-dir",
+          "<ROOT>/temporal_dangling_link/cwd/render out",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256",
+          "--appearance-baseline",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "<ROOT>/temporal_dangling_link/cwd/environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "17",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/temporal_dangling_link/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--clothing-geometry",
+          "<ROOT>/temporal_dangling_link/cwd/cloth relative",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "<ROOT>/temporal_dangling_link/cwd/~/fixture clothing"
+        ],
+        "cwd": "<ROOT>/temporal_dangling_link/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": {
+      "type": "FileExistsError",
+      "message": "[Errno 17] File exists: '<ROOT>/temporal_dangling_link/cwd/geometry space' -> 'render out/geometry'"
+    },
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/temporal_dangling_link/missing",
+        "directory": false,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "{\"fixture\":true}\n"
+      }
+    ]
+  },
+  {
+    "route": "temporal",
+    "case": "missing_report",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/temporal_missing_report/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/temporal_missing_report/cwd/geometry space",
+          "--output-dir",
+          "<ROOT>/temporal_missing_report/cwd/render out",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256",
+          "--appearance-baseline",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "<ROOT>/temporal_missing_report/cwd/environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "17",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/temporal_missing_report/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--clothing-geometry",
+          "<ROOT>/temporal_missing_report/cwd/cloth relative",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "<ROOT>/temporal_missing_report/cwd/~/fixture clothing"
+        ],
+        "cwd": "<ROOT>/temporal_missing_report/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": {
+      "type": "RuntimeError",
+      "message": "Blender did not finish; inspect render out/render.log"
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "temporal",
+    "case": "invalid_report_json",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/temporal_invalid_report_json/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/temporal_invalid_report_json/cwd/geometry space",
+          "--output-dir",
+          "<ROOT>/temporal_invalid_report_json/cwd/render out",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256",
+          "--appearance-baseline",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "<ROOT>/temporal_invalid_report_json/cwd/environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "17",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/temporal_invalid_report_json/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--clothing-geometry",
+          "<ROOT>/temporal_invalid_report_json/cwd/cloth relative",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "<ROOT>/temporal_invalid_report_json/cwd/~/fixture clothing"
+        ],
+        "cwd": "<ROOT>/temporal_invalid_report_json/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": null,
+    "return_value": null,
+    "output": [
+      {
+        "name": "geometry",
+        "symlink": true,
+        "target": "<ROOT>/temporal_invalid_report_json/cwd/geometry space",
+        "directory": true,
+        "text": null
+      },
+      {
+        "name": "p0_render_report.json",
+        "symlink": false,
+        "target": null,
+        "directory": false,
+        "text": "not json"
+      }
+    ]
+  },
+  {
+    "route": "temporal",
+    "case": "launch_failure",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      },
+      {
+        "event": "launch",
+        "command": [
+          "/fixture/blender",
+          "-b",
+          "-t",
+          "4",
+          "--python",
+          "<ROOT>/temporal_launch_failure/project/tools/render/render_p0_blender.py",
+          "--",
+          "--input-geometry",
+          "<ROOT>/temporal_launch_failure/cwd/geometry space",
+          "--output-dir",
+          "<ROOT>/temporal_launch_failure/cwd/render out",
+          "--render-frame-count",
+          "3",
+          "--resolution",
+          "256",
+          "--appearance-baseline",
+          "--body-texture",
+          "textures/body color.png",
+          "--body-uv",
+          "uv relative.npz",
+          "--environment-mode",
+          "hdri",
+          "--hdri-path",
+          "<ROOT>/temporal_launch_failure/cwd/environment relative.exr",
+          "--hdri-strength",
+          "1.0",
+          "--hdri-rotation-deg",
+          "17",
+          "--manual-lights",
+          "fill",
+          "--eye-render-mode",
+          "procedural",
+          "--eye-mapping",
+          "<ROOT>/temporal_launch_failure/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz",
+          "--ground-mode",
+          "shadow_catcher",
+          "--clothing-geometry",
+          "<ROOT>/temporal_launch_failure/cwd/cloth relative",
+          "--clothing-texture-id",
+          "texture_01",
+          "--clothing-texture-dir",
+          "<ROOT>/temporal_launch_failure/cwd/~/fixture clothing"
+        ],
+        "cwd": "<ROOT>/temporal_launch_failure/project",
+        "log_path": "render out/render.log",
+        "output_exists": true,
+        "geometry_exists": false
+      }
+    ],
+    "exception": {
+      "type": "CalledProcessError",
+      "message": "Command '['/fixture/blender', '-b', '-t', '4', '--python', '<ROOT>/temporal_launch_failure/project/tools/render/render_p0_blender.py', '--', '--input-geometry', '<ROOT>/temporal_launch_failure/cwd/geometry space', '--output-dir', '<ROOT>/temporal_launch_failure/cwd/render out', '--render-frame-count', '3', '--resolution', '256', '--appearance-baseline', '--body-texture', 'textures/body color.png', '--body-uv', 'uv relative.npz', '--environment-mode', 'hdri', '--hdri-path', '<ROOT>/temporal_launch_failure/cwd/environment relative.exr', '--hdri-strength', '1.0', '--hdri-rotation-deg', '17', '--manual-lights', 'fill', '--eye-render-mode', 'procedural', '--eye-mapping', '<ROOT>/temporal_launch_failure/project/outputs/eye_fix_v2/procedural_eye_coordinates.npz', '--ground-mode', 'shadow_catcher', '--clothing-geometry', '<ROOT>/temporal_launch_failure/cwd/cloth relative', '--clothing-texture-id', 'texture_01', '--clothing-texture-dir', '<ROOT>/temporal_launch_failure/cwd/~/fixture clothing']' returned non-zero exit status 7."
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "temporal",
+    "case": "resolver_failure",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      }
+    ],
+    "exception": {
+      "type": "RuntimeError",
+      "message": "fixture resolver failure"
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "temporal",
+    "case": "missing_manifest",
+    "events": [],
+    "exception": {
+      "type": "RuntimeError",
+      "message": "Appearance baseline manifest not found: <ROOT>/temporal_missing_manifest/project/baseline data/manifest.jsonl. Pass --appearance-manifest to override it."
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "temporal",
+    "case": "empty_manifest",
+    "events": [],
+    "exception": {
+      "type": "RuntimeError",
+      "message": "Appearance baseline manifest is empty: <ROOT>/temporal_empty_manifest/project/baseline data/manifest.jsonl"
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "temporal",
+    "case": "missing_field",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      }
+    ],
+    "exception": {
+      "type": "KeyError",
+      "message": "'body_uv_path'"
+    },
+    "return_value": null,
+    "output": []
+  },
+  {
+    "route": "temporal",
+    "case": "missing_texture",
+    "events": [
+      {
+        "event": "resolve_blender",
+        "input": "blender relative"
+      }
+    ],
+    "exception": {
+      "type": "AttributeError",
+      "message": "'NoneType' object has no attribute 'resolve'"
+    },
+    "return_value": null,
+    "output": []
+  }
+]

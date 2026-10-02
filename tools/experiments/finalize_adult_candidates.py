@@ -4,7 +4,8 @@ from datetime import datetime,timezone
 from pathlib import Path
 import numpy as np
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from tools.experiments.prepare_cycling_characters import write_json,POSES
+from densekp_retrain.io.json import write_json
+from tools.experiments.prepare_cycling_characters import POSES
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('assets',type=Path);p.add_argument('--visual-review',type=Path,required=True);a=p.parse_args()

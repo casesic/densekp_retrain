@@ -3,7 +3,6 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 import sys
-from unittest.mock import patch
 import cv2
 import numpy as np
 from PIL import Image
@@ -12,12 +11,12 @@ ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'src'),str(ROOT/'assets_external/python_deps')]
 from densekp_retrain.io import read_combined_depth_index
 from densekp_retrain.camera.double_sphere import DS_20260320, build_erp_to_fisheye_lut, build_fisheye_to_source_erp_lut
-from tools.fisheye.build_ds_multiperson_pilot import remap_periodic_erp
-from tools.experiments.prepare_cycling_characters import write_json, PARAMETERS
+from densekp_retrain.imaging.remap import remap_periodic_erp
+from densekp_retrain.io.json import write_json
+from densekp_retrain.body.parameters import PARAMETERS
 from tools.experiments.audit_pedestrian_poses import SOURCES, parameters
-from densekp.core.configs import DATASET_FOLDERS, DATASET_FILES
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
-from tools.validate.validate_bedlam_densekp_tiny import audit_cfg
+from densekp.core.datasets.configuration import audit_cfg
 
 
 def main():
@@ -69,8 +68,14 @@ def main():
                 instance_mask_and_bbox_exact=True,depth_units='camera ray range metres, nearest-neighbor DS roundtrip',
                 invalid_depth='NaN outside explicit mask; background sky depth is renderer sentinel'))
         z=np.load(directory/'diagnostic_loader.npz')
-        with patch.dict(DATASET_FOLDERS,{'mixed-freeze':str(directory)}),patch.dict(DATASET_FILES[False],{'mixed-freeze':str(directory/'diagnostic_loader.npz')}):
-            dataset=DatasetKeypoints(audit_cfg('supervision_weight'),'mixed-freeze',is_train=False,use_augmentation=False)
+        dataset = DatasetKeypoints(
+            audit_cfg("supervision_weight"),
+            "mixed-freeze",
+            is_train=False,
+            use_augmentation=False,
+            annotation_path=str(directory / "diagnostic_loader.npz"),
+            image_root=str(directory),
+        )
         for i,(pid,camera) in enumerate(zip(z['person_id'],z['camera_id'])):
             pid=int(pid);camera=str(camera);person=people[pid];item=dataset[i]
             supervise=item['proj_verts_cropped'][:,2]>0;visible=z['visible'][i]

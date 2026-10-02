@@ -10,9 +10,9 @@ import numpy as np
 from mathutils import Matrix, Vector
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
-from tools.render.character_materials import apply_character_materials, add_clothing_materials
-from tools.render.character_groom import add_groom
+sys.path[:0] = [str(ROOT), str(ROOT / "src")]
+from densekp_retrain.rendering.blender.materials import apply_character_materials, add_clothing_materials
+from densekp_retrain.rendering.blender.groom import add_groom
 
 
 def main():

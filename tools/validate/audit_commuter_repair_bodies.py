@@ -9,7 +9,7 @@ import torch
 
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
 from densekp_retrain.body.geometry import load_smplx_model
-from tools.experiments.prepare_cycling_characters import PARAMETERS,evaluate
+from densekp_retrain.body.parameters import PARAMETERS, evaluate
 
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);p.add_argument('repair',type=Path)
 a=p.parse_args();start=time.monotonic();torch.set_num_threads(2);regressor=np.load(ROOT/'assets/densekp_regressor_R.npy')

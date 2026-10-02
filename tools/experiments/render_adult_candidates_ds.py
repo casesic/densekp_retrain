@@ -9,32 +9,44 @@ import time
 import cv2
 import numpy as np
 from PIL import Image,ImageDraw
-from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from tools.experiments.prepare_cycling_characters import POSES,write_json
+from tools.experiments.prepare_cycling_characters import POSES
+from densekp_retrain.io.json import write_json
 from tools.experiments.render_cycling_ds import layout
-from tools.fisheye.run_ds_scene_pair_pilot import SCENES,DS_20260320,rig_poses,process_scene
-from tools.fisheye.run_fisheye_multiperson_pilot import world_points
+from tools.fisheye.run_ds_scene_pair_pilot import SCENES
+from densekp_retrain.imaging.ds import process_scene
+from densekp_retrain.camera.double_sphere import DS_20260320
+from densekp_retrain.camera.rig import rig_poses
+from densekp_retrain.body.transforms import world_points
 from tools.validate.validate_ds_scene_pair_pilot import validate
 from densekp_retrain.camera.double_sphere import build_erp_to_fisheye_lut
-from densekp.core.configs import DATASET_FILES,DATASET_FOLDERS
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
-from tools.validate.validate_bedlam_densekp_tiny import audit_cfg
+from densekp.core.datasets.configuration import audit_cfg
 
 def crops(out):
     folder=out/'actual_inputs';folder.mkdir();panels=[]
-    with patch.dict(DATASET_FOLDERS,{'adult-diagnostic':str(out)}),patch.dict(DATASET_FILES[False],{'adult-diagnostic':str(out/'diagnostic_loader.npz')}):
-        dataset=DatasetKeypoints(audit_cfg('supervision_weight'),'adult-diagnostic',is_train=False,use_augmentation=False)
-        z=np.load(out/'diagnostic_loader.npz')
-        for i in range(len(z['person_id'])):
-            item=dataset[i];rgb=cv2.cvtColor(item['img_disp'],cv2.COLOR_BGR2RGB)
-            name=f"{z['camera_id'][i]}_person_{z['person_id'][i]}"
-            Image.fromarray(rgb).save(folder/(name+'_square.png'))
-            Image.fromarray(rgb[:,32:-32]).save(folder/(name+'_center.png'))
-            np.save(folder/(name+'_input.npy'),item['img'][:,:,32:-32])
-            panel=Image.new('RGB',(448,280),(30,30,30));panel.paste(Image.fromarray(rgb),(0,0));panel.paste(Image.fromarray(rgb[:,32:-32]),(256,0))
-            ImageDraw.Draw(panel).text((5,260),name,fill='white');panels.append(panel)
+    dataset = DatasetKeypoints(
+        audit_cfg("supervision_weight"),
+        "adult-diagnostic",
+        is_train=False,
+        use_augmentation=False,
+        annotation_path=str(out / "diagnostic_loader.npz"),
+        image_root=str(out),
+    )
+    z = np.load(out / 'diagnostic_loader.npz')
+    for i in range(len(z['person_id'])):
+        item = dataset[i]
+        rgb = cv2.cvtColor(item['img_disp'], cv2.COLOR_BGR2RGB)
+        name = f"{z['camera_id'][i]}_person_{z['person_id'][i]}"
+        Image.fromarray(rgb).save(folder / (name + '_square.png'))
+        Image.fromarray(rgb[:, 32:-32]).save(folder / (name + '_center.png'))
+        np.save(folder / (name + '_input.npy'), item['img'][:, :, 32:-32])
+        panel = Image.new('RGB', (448, 280), (30, 30, 30))
+        panel.paste(Image.fromarray(rgb), (0, 0))
+        panel.paste(Image.fromarray(rgb[:, 32:-32]), (256, 0))
+        ImageDraw.Draw(panel).text((5, 260), name, fill='white')
+        panels.append(panel)
     sheet=Image.new('RGB',(896,280*((len(panels)+1)//2)),(30,30,30))
     for i,panel in enumerate(panels):sheet.paste(panel,(i%2*448,i//2*280))
     sheet.save(out/'actual_inputs.jpg')

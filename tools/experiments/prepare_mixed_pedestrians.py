@@ -11,10 +11,11 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT/'src')]
 from tools.experiments.audit_pedestrian_poses import SOURCES, parameters
 from tools.experiments.prepare_adult_candidates import clothing
-from tools.experiments.prepare_commuter_pilot import rest_body, save_geometry
-from tools.experiments.prepare_cycling_characters import write_json
-from tools.experiments.bind_commuter_groom import CONV, triangle_frame
-from tools.experiments.build_commuter_clothing import closest_surface
+from densekp_retrain.body.parameters import rest_body
+from densekp_retrain.io.geometry import save_geometry
+from densekp_retrain.io.json import write_json
+from densekp_retrain.clothing.binding import CONV, triangle_frame
+from densekp_retrain.clothing.binding import closest_surface
 from densekp_retrain.body.geometry import load_smplx_model
 
 OLD = ROOT/'outputs/experiments/cycling_ten_adults_candidates_20260930'

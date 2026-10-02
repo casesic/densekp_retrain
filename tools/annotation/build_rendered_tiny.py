@@ -4,6 +4,7 @@
 import argparse
 import json
 import shutil
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -11,6 +12,8 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+from densekp.core.keypoint_supervision import legacy_weight_targets
 
 
 def build(source: Path, output: Path) -> dict:
@@ -42,7 +45,7 @@ def build(source: Path, output: Path) -> dict:
             "imgname": output_name,
             "center": [(xmin + xmax) / 2, (ymin + ymax) / 2],
             "scale": box_size / 200,
-            "proj_verts": np.column_stack((points[index], np.ones(138, np.float32))),
+            "proj_verts": legacy_weight_targets(points[index], np.ones(138, np.float32)),
         })
 
     # Every fourth frame is held out for a loader/validation smoke check.

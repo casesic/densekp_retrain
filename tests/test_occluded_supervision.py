@@ -17,8 +17,9 @@ from densekp.core.keypoint_contract import validate_annotations
 from densekp.core.keypoint_objective import keypoint_loss
 from densekp.core.keypoint_supervision import SUPERVISION_POLICY, make_targets, points_in_mask
 from tools.annotation.build_omni_multiperson_tiny import build
-from tools.validate.occlusion_metrics import evaluation_masks, pair_masks, prediction_retention, summarize
-from tools.validate.validate_bedlam_densekp_tiny import audit_cfg
+from densekp.core.evaluation import evaluation_masks, pair_masks, prediction_retention, summarize
+from densekp.core.datasets.augmentation import Augmentation
+from densekp.core.datasets.configuration import audit_cfg
 
 
 class OccludedSupervisionTests(TestCase):
@@ -52,7 +53,7 @@ class OccludedSupervisionTests(TestCase):
                 np.testing.assert_array_equal(old['proj_verts_cropped'][:, 2], target[:, 2])
                 ds.use_augmentation = True
                 sampled = (1., 0., False, False, 0, [1., 1., 1.], .25, 0.)
-                with mock.patch('densekp.core.datasets.utils.do_augmentation', return_value=sampled):
+                with mock.patch('densekp.core.datasets.crop_pipeline.sample_augmentation', return_value=Augmentation(*sampled)):
                     augmented = ds[0]
                 np.testing.assert_array_equal(augmented['proj_verts_cropped'][:4, 2], [1, 0, 1, 0])
                 for with_var in (False, True):

@@ -11,8 +11,9 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
 from densekp_retrain.body.geometry import load_smplx_model
-from tools.experiments.prepare_commuter_pilot import rest_body
-from tools.experiments.prepare_cycling_characters import evaluate, write_json
+from densekp_retrain.body.parameters import rest_body
+from densekp_retrain.body.parameters import evaluate
+from densekp_retrain.io.json import write_json
 
 SOURCES = [Path('/home/yy/datasets/BEDLAM/motion_data/tiny/rp_aaron_posed_009/1095/motion_seq.npz'),
            ROOT / 'third_party/bedlam_render/blender/smplx_anim_to_alembic/smplx_animation.npz']

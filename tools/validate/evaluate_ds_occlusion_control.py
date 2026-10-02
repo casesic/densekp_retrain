@@ -6,7 +6,6 @@ from pathlib import Path
 import subprocess
 import shutil
 import sys
-from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT/'src')]
@@ -16,13 +15,13 @@ from PIL import Image, ImageDraw
 import torch
 from hydra import compose, initialize_config_dir
 from omegaconf import OmegaConf
-from densekp.core.configs import DATASET_FILES, DATASET_FOLDERS
 from densekp.core.crop_geometry import restore_crop_xy
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
 from densekp.core.densekp_trainer import DenseKP
 from densekp.core.keypoint_supervision import SUPERVISION_POLICY, make_targets, points_in_mask
-from tools.validate.validate_bedlam_densekp_tiny import audit_cfg
-from tools.validate.occlusion_metrics import (
+from densekp.core.inference import load_lightning_checkpoint, predict_batch
+from densekp.core.datasets.configuration import audit_cfg
+from densekp.core.evaluation import (
     summarize, point_errors, evaluation_masks, prediction_retention, pair_masks,
 )
 
@@ -133,7 +132,7 @@ def main():
     model = None
     if not args.reuse_predictions:
         print('Loading original DenseKP checkpoint',flush=True)
-        model=DenseKP.load_from_checkpoint(str(args.checkpoint),cfg=cfg,map_location='cpu',strict=True).to(device).eval()
+        model=load_lightning_checkpoint(args.checkpoint, cfg).to(device).eval()
     fixed=[]
     for camera in CAMERAS:
         for box in json.loads((args.root/'clear'/camera/'boxes.json').read_text()):
@@ -160,9 +159,14 @@ def main():
                  visible=np.stack([subset(data,level,r['camera'],r['person_id'],'visible') for r in fixed]),
                  camera_id=np.array([r['camera'] for r in fixed]),
                  person_id=np.array([r['person_id'] for r in fixed]))
-        with patch.dict(DATASET_FOLDERS,{'occlusion-control':str(args.root/level)}), \
-             patch.dict(DATASET_FILES[False],{'occlusion-control':str(archive)}):
-            dataset=DatasetKeypoints(audit_cfg('supervision_weight'),'occlusion-control',is_train=False,use_augmentation=False)
+        dataset = DatasetKeypoints(
+            audit_cfg("supervision_weight"),
+            "occlusion-control",
+            is_train=False,
+            use_augmentation=False,
+            annotation_path=str(archive),
+            image_root=str(args.root / level),
+        )
         for i,row in enumerate(fixed):
             item=dataset[i]; camera,pid=row['camera'],row['person_id']; key=(camera,pid)
             if level=='clear': affine_reference[key]=item['_trans'].copy()
@@ -177,7 +181,7 @@ def main():
                     prediction = saved['prediction_raw'].copy()
             else:
                 with torch.inference_mode():
-                    raw=model({'img':torch.from_numpy(item['img'][None]).to(device)})['pred_keypoints']
+                    raw=predict_batch(model, item['img'][None], device)
                 if tuple(raw.shape)!=(1,138,3): raise ValueError('Invalid prediction shape')
                 prediction=raw[0].float().cpu().numpy()
             if prediction.shape != (138,3) or not np.isfinite(prediction).all():

@@ -8,7 +8,7 @@ import numpy as np
 from skimage.measure import marching_cubes
 
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT));sys.path.insert(0,str(ROOT/'src'))
-from tools.experiments.build_commuter_clothing import clip_surface
+from densekp_retrain.clothing.binding import clip_surface
 
 
 def smooth_union(a,b,radius):

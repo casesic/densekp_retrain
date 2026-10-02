@@ -3,18 +3,17 @@ from datetime import datetime,timezone
 import json
 from pathlib import Path
 import sys
-from unittest.mock import patch
 import cv2
 import numpy as np
 from PIL import Image
 
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from densekp.core.configs import DATASET_FILES,DATASET_FOLDERS
+from densekp.core.keypoint_supervision import in_view_targets
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
 from densekp.core.keypoint_supervision import SUPERVISION_POLICY
 from densekp.core.crop_geometry import restore_crop_xy
-from tools.validate.validate_bedlam_densekp_tiny import audit_cfg
-from tools.validate.validate_source_isolated_split import validate_split
+from densekp.core.datasets.configuration import audit_cfg
+from densekp_retrain.data.source_split import validate_split
 
 
 def main():
@@ -37,7 +36,7 @@ def main():
                 z=np.load(directory/camera/'annotations.npz');j=z['person_ids'].tolist().index(pid)
                 if camera in saved_gt:np.testing.assert_array_equal(z['xy'][j],saved_gt[camera])
                 else:saved_gt[camera]=z['xy'][j]
-                raw.append(np.column_stack([z['xy'][j],z['in_view'][j]]));boxes.append(box);cameras.append(camera)
+                raw.append(in_view_targets(z['xy'][j], z['in_view'][j]));boxes.append(box);cameras.append(camera)
                 visible.append(z['visible'][j]);in_view.append(z['in_view'][j])
             if not boxes:continue
             boxes=np.array(boxes);archive=folder/'loader.npz'
@@ -45,8 +44,14 @@ def main():
                 center=((boxes[:,:2]+boxes[:,2:])/2).astype(np.float32),scale=(np.max(boxes[:,2:]-boxes[:,:2],axis=1)*1.2/200).astype(np.float32),
                 proj_verts=np.array(raw,np.float32),in_view=in_view,visible=visible,supervision_policy=SUPERVISION_POLICY,
                 camera_id=cameras,person_id=np.full(len(cameras),pid),split=side)
-            with patch.dict(DATASET_FOLDERS,{'paired-source':str(directory)}),patch.dict(DATASET_FILES[False],{'paired-source':str(archive)}):
-                dataset=DatasetKeypoints(audit_cfg('supervision_weight'),'paired-source',is_train=False,use_augmentation=False)
+            dataset = DatasetKeypoints(
+                audit_cfg("supervision_weight"),
+                "paired-source",
+                is_train=False,
+                use_augmentation=False,
+                annotation_path=str(archive),
+                image_root=str(directory),
+            )
             for i,camera in enumerate(cameras):
                 item=dataset[i];supervised=item['proj_verts_cropped'][:,2]>0
                 if camera in affines:

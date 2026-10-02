@@ -10,10 +10,10 @@ from scipy.spatial import cKDTree
 from PIL import Image
 
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from tools.experiments.prepare_cycling_characters import write_json
-from tools.experiments.prepare_cycling_clothing import vertex_normals
-from tools.experiments.bind_commuter_groom import CONV,frame,triangle_frame
-from tools.experiments.build_commuter_clothing import closest_surface
+from densekp_retrain.io.json import write_json
+from densekp_retrain.clothing.shells import vertex_normals
+from densekp_retrain.clothing.binding import CONV, frame, triangle_frame
+from densekp_retrain.clothing.binding import closest_surface
 from tools.experiments.prepare_commuter_scalp import ramp
 PILOT=ROOT/'outputs/experiments/cycling_commuter_pilot_20260930'
 HAIR={'F01':'03-1_short-casual-MF','F03':'07-1_medium-layered-bob-MF','F04':'18-1_short-bob-F',

@@ -8,20 +8,18 @@ import argparse
 import json
 from pathlib import Path
 import sys
-from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw
-from densekp.core.configs import DATASET_FILES, DATASET_FOLDERS
 from densekp.core.crop_geometry import restore_crop_xy
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
 from densekp.core.keypoint_supervision import SUPERVISION_POLICY, make_targets
-from tools.validate.validate_bedlam_densekp_tiny import audit_cfg
-from tools.fisheye.run_fisheye_multiperson_pilot import world_points
-from tools.fisheye.run_ds_scene_pair_pilot import point_in_view
+from densekp.core.datasets.configuration import audit_cfg
+from densekp_retrain.body.transforms import world_points
+from densekp_retrain.camera.domain import point_in_view
 
 
 def validate(directory):
@@ -87,30 +85,36 @@ def validate(directory):
     cfg = audit_cfg('supervision_weight')
     crop_panels = {}
     max_error = 0.
-    with patch.dict(DATASET_FOLDERS, {dataset_name:str(directory)}), \
-         patch.dict(DATASET_FILES[False], {dataset_name:str(annotation_path)}):
-        dataset = DatasetKeypoints(cfg, dataset_name, is_train=False, use_augmentation=False)
-        for i, row in enumerate(records):
-            item = dataset[i]
-            restored = restore_crop_xy(item['proj_verts_cropped'][:,:2],item['_trans'],(256,256))
-            error = float(np.max(np.abs(restored-item['proj_verts'][:,:2])))
-            max_error=max(max_error,error)
-            if error > 2e-4: raise ValueError(f'Crop inverse error {error}')
-            if item['img'].shape != (3,256,256) or not np.isfinite(item['img']).all():
-                raise ValueError('Invalid actual loader model input')
-            np.testing.assert_array_equal(item['proj_verts_cropped'][:,2],row['target'][:,2])
-            panel = Image.fromarray(cv2.cvtColor(item['img_disp'],cv2.COLOR_BGR2RGB))
-            draw = ImageDraw.Draw(panel)
-            draw.rectangle((0,0,256,19),fill=(0,0,0))
-            draw.text((5,4),f"{row['camera']} / person {row['person_id']} / oracle crop",fill='white')
-            points=(item['proj_verts_cropped'][:,:2]+.5)*256
-            for j,(x,y) in enumerate(points):
-                if 0<=x<256 and 20<=y<256:
-                    color = (0,255,100) if row['visible'][j] else (255,170,40)
-                    if row['target'][j,2] == 0:
-                        color = (170,170,170)
-                    draw.ellipse((x-1.5,y-1.5,x+1.5,y+1.5),fill=color)
-            crop_panels[(row['person_id'],row['camera'])]=panel
+    dataset = DatasetKeypoints(
+        cfg,
+        dataset_name,
+        is_train=False,
+        use_augmentation=False,
+        annotation_path=str(annotation_path),
+        image_root=str(directory),
+    )
+    for i, row in enumerate(records):
+        item = dataset[i]
+        restored = restore_crop_xy(item['proj_verts_cropped'][:, :2], item['_trans'], (256, 256))
+        error = float(np.max(np.abs(restored - item['proj_verts'][:, :2])))
+        max_error = max(max_error, error)
+        if error > 0.0002:
+            raise ValueError(f'Crop inverse error {error}')
+        if item['img'].shape != (3, 256, 256) or not np.isfinite(item['img']).all():
+            raise ValueError('Invalid actual loader model input')
+        np.testing.assert_array_equal(item['proj_verts_cropped'][:, 2], row['target'][:, 2])
+        panel = Image.fromarray(cv2.cvtColor(item['img_disp'], cv2.COLOR_BGR2RGB))
+        draw = ImageDraw.Draw(panel)
+        draw.rectangle((0, 0, 256, 19), fill=(0, 0, 0))
+        draw.text((5, 4), f"{row['camera']} / person {row['person_id']} / oracle crop", fill='white')
+        points = (item['proj_verts_cropped'][:, :2] + 0.5) * 256
+        for j, (x, y) in enumerate(points):
+            if 0 <= x < 256 and 20 <= y < 256:
+                color = (0, 255, 100) if row['visible'][j] else (255, 170, 40)
+                if row['target'][j, 2] == 0:
+                    color = (170, 170, 170)
+                draw.ellipse((x - 1.5, y - 1.5, x + 1.5, y + 1.5), fill=color)
+        crop_panels[row['person_id'], row['camera']] = panel
     ids=arrays[0]['person_ids'].tolist()
     sheet=Image.new('RGB',(512,256*len(ids)),(25,25,25))
     for i, person_id in enumerate(ids):

@@ -9,9 +9,10 @@ import torch
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'src')]
 from densekp_retrain.body.geometry import load_smplx_model
-from tools.experiments.prepare_cycling_characters import PARAMETERS,evaluate,write_json
-from tools.experiments.build_commuter_clothing import pose_rotations
-from tools.render.commuter_clothing_contract import validate_binding
+from densekp_retrain.body.parameters import PARAMETERS, evaluate
+from densekp_retrain.io.json import write_json
+from densekp_retrain.clothing.binding import pose_rotations
+from densekp_retrain.clothing.contracts import validate_binding
 
 
 def boundary_components(faces):

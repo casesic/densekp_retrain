@@ -10,6 +10,8 @@ import numpy as np
 from PIL import Image
 
 from tools.fisheye import run_ds_scene_pair_pilot as pilot
+from densekp_retrain.imaging import ds as processor
+from densekp_retrain.imaging import source as source_buffers
 from tools.fisheye.run_ds_scene_pair_pilot import rig_poses, point_in_view
 from tools.fisheye.run_fisheye_multiperson_pilot import project_erp
 from densekp_retrain.camera.double_sphere import DS_20260320, project_double_sphere
@@ -74,12 +76,13 @@ class ScenePairRigTests(unittest.TestCase):
             for name in poses:
                 Image.fromarray(np.full((32, 64, 3), 200, dtype=np.uint8)).save(
                     output/'source'/f'{name}_preview.png')
-            with patch.object(pilot, 'DS_20260320', intrinsics), \
-                 patch.object(pilot, 'world_points', return_value=world), \
-                 patch.object(pilot, 'read_combined_depth_index', return_value=(
+            with patch('densekp_retrain.camera.domain.DS_20260320', intrinsics), \
+                 patch.object(processor, 'DS_20260320', intrinsics), \
+                 patch.object(processor, 'world_points', return_value=world), \
+                 patch.object(source_buffers, 'read_combined_depth_index', return_value=(
                      None, np.ones((32, 64)), np.ones((32, 64)), None)), \
-                 patch.object(pilot, 'erp_visibility', return_value=(None, np.ones(138, dtype=bool))):
-                pilot.process_scene(output, people, poses, masks, np.zeros((1, 1, 3)),
+                 patch.object(processor, 'erp_visibility', return_value=(None, np.ones(138, dtype=bool))):
+                processor.process_scene(output, people, poses, masks, np.zeros((1, 1, 3)),
                                     np.zeros((1, 138, 3)), lens_masks=lenses,
                                     lens_metadata={name: {} for name in poses})
             with np.load(output/'cam2/annotations.npz') as a:

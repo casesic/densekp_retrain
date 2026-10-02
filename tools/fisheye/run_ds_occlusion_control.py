@@ -10,9 +10,11 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT/'src')]
-from tools.fisheye.run_ds_scene_pair_pilot import (
-    process_scene, world_points, np, DS_20260320, add_lens_mask_arguments, load_lens_masks,
-)
+from tools.fisheye.run_ds_scene_pair_pilot import add_lens_mask_arguments, load_lens_masks
+import numpy as np
+from densekp_retrain.imaging.ds import process_scene
+from densekp_retrain.body.transforms import world_points
+from densekp_retrain.camera.double_sphere import DS_20260320
 from densekp_retrain.runtime import load_appearance_baseline
 
 LEVELS = ('clear', 'mild', 'heavy')

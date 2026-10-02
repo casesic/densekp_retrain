@@ -10,8 +10,9 @@ from PIL import Image
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'src')]
 from tools.experiments.audit_pedestrian_poses import parameters, mesh_panel
-from tools.experiments.prepare_commuter_pilot import rest_body
-from tools.experiments.prepare_cycling_characters import evaluate, write_json
+from densekp_retrain.body.parameters import rest_body
+from densekp_retrain.body.parameters import evaluate
+from densekp_retrain.io.json import write_json
 from densekp_retrain.body.geometry import load_smplx_model
 
 

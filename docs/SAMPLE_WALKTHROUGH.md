@@ -8,6 +8,21 @@ NPZ 和真实 Dataset 读取结果；本轮没有重新训练或生成图片。
 `outputs/experiments/ds_occlusion_amodal_20260929/`，模型预测没有改变。
 完整规则和结果见 [遮挡点监督说明](training/OCCLUDED_SUPERVISION_20260929.md)。
 
+**2026-10-01 代码位置更新：** `audit_cfg` 已归入
+[datasets/configuration.py](../densekp/core/datasets/configuration.py)；评分集合、周期误差和严格统计在
+[evaluation.py](../densekp/core/evaluation.py)。候选实验的失败状态统计与按点/按人汇总在
+[evaluation/candidates.py](../src/densekp_retrain/evaluation/candidates.py)。
+下面的样本、坐标和监督语义保持原样。首批指标迁移未重新推理；第二批另用七个固定输入和三权重
+验证 [公共推理](../densekp/core/inference.py)，没有改写本文样本的历史预测或重新渲染。
+第三批将候选入口拆为输入核查、预测、配对汇总和报告，阅读起点为
+[candidate_runner.evaluate_rows](../src/densekp_retrain/evaluation/candidate_runner.py)。
+展示在 [visualization/keypoints.py](../src/densekp_retrain/visualization/keypoints.py)，
+有界实验验证在 [training/trial_callbacks.py](../src/densekp_retrain/training/trial_callbacks.py)。
+本批用保存预测验收报告/图片、真实 GPU 小网络验收回调；没有更新本文样本或真实 DenseKP 参数。
+
+**2026-10-02 代码位置更新：** Dataset 已支持显式数据路径，裁剪主流程见下文第 4 节。
+第 4.1 节补充本批七样本基线中的实际框和增强对照，原 09-28 样本及其数值继续保留。
+
 ## 0. 先确定我们要跟踪谁
 
 选择 **heavy 条件、cam2、人物 3**，即被前景人物遮挡的后方目标。
@@ -45,16 +60,46 @@ densekp_3d = np.einsum('kv,tvc->tkc', regressor, vertices)
 `source_translation_used=true`。当前 adapter 支持 poses `[T,165]` 的完整 SMPL-X
 axis-angle；是否使用 source translation 由生成时的参数决定，不可概括为总是置零。
 
-接着看 [world_points](../tools/fisheye/run_fisheye_multiperson_pilot.py)：几何点从人体的轴
+接着看 [world_points](../src/densekp_retrain/body/transforms.py)：几何点从人体的轴
 约定转换到 Blender 世界轴，按身体最低点抬到地面，再应用 yaw 和位置。渲染器给 body
 和 clothing 应用对应的物体变换。本例人物位置 `[1.8,0.3,0]`、yaw=90°，三个条件不变。
 
 这些 3D 点是生成标注用的。DenseKP forward 本身没有输入这些点或 SMPL-X 参数。
 
+### 1.1 从已有骑行姿态到公共几何计算
+
+另一条已验收路径是 F01 女性、M01 男性各自的两种独立 COCO 骑行姿态，
+位于 `cycling_four_characters_20260929/derivatives/`；本批只回读既有参数，不生成新资产。
+[body/parameters.py](../src/densekp_retrain/body/parameters.py) 的 `evaluate` 按 PARAMETERS 顺序
+将参数转成 CPU float32，调用本地 SMPL-X，返回身体 `[T,10475,3]` 与关节 `[T,J,3]`。
+姿态是轴角弧度，平移与顶点是米；`zero_pose` 用负的 shaped pelvis 作为平移，使参考骨盆归零。
+这是该角色系列的策略，不能据此改写上面保留 source translation 的旧时间序列。
+
+```mermaid
+flowchart LR
+    P[已有姿态参数与角色 betas] --> B[CPU SMPL-X 身体与关节]
+    B --> K[固定 regressor 得到 138 点]
+    B --> C[rest 衣片选择与 posed 身体绑定]
+    B --> W[共同身体 lift、轴变换、yaw、location]
+    K --> W
+    C --> W
+    W --> R[相机坐标、ERP 与 DS 有效域]
+    R --> V[深度和实例判可见性，再与 in_view 相交]
+```
+
+[clothing/shells.py](../src/densekp_retrain/clothing/shells.py) 保留两条方案：整面选衣片后偏移，
+以及在 rest 三角形内裁剪并保存重心对应。后者每个衣物顶点都有 `body_barycentric_indices[N,3]`
+和 `body_barycentric_weights[N,3]`，其参考位置是同一 posed 身体三角形的加权和。
+这些索引属于身体网格顶点，不是 138 点编号。profile 改覆盖范围，材质和款式配方仍在实验入口。
+
+`world_points` 按 `(x,-z,y)` 把模型 +Y 向上转换为世界 +Z 向上；用身体最低 Y 做 lift，
+再旋转和平移。调用衣物/138 点变换时必须传入同一身体 vertices，不能各自按最低点贴地。
+这批四组合的身体、138 点和衣物重算与原资产误差均为 0；它验证计算，不代表重新验收 Blender 装配。
+
 ## 2. 3D 世界怎样变成带标注的图片
 
 看 [render_equirectangular_source.py](../tools/fisheye/render_equirectangular_source.py)
-和 [process_scene](../tools/fisheye/run_ds_scene_pair_pilot.py)。
+和 [process_scene](../src/densekp_retrain/imaging/ds.py)。
 
 1. Blender 打开街景，把固定的人体放入场景；两相机分别从各自光心渲染完整 ERP。
 2. 渲染出 RGB、Depth 和 IndexOB。IndexOB 是人物实例 ID，用于区分身体属于谁。
@@ -62,9 +107,40 @@ axis-angle；是否使用 source translation 由生成时的参数决定，不�
 4. 图像再应用该相机的有效区域 mask。黑色有效区之外没有可用观测。
 5. 同时保存各相机 xy、可见状态、实例 mask 和由实例像素得到的框。
 
+对象装配的稳定计算现位于 [rendering/blender/assembly.py](../src/densekp_retrain/rendering/blender/assembly.py)：
+创建 mesh/object → 绑定对应材质、衣物和 groom → 设置共享世界变换 → 创建 ERP 相机与 compositor → 渲染各相机。
+[materials.py](../src/densekp_retrain/rendering/blender/materials.py) 和 [groom.py](../src/densekp_retrain/rendering/blender/groom.py)
+保留已有 shader/曲线策略；原生场景加载、灯光与逐人物检查继续由入口组合。
+历史链接单人入口保留另一套场景/灯光和实例 ID，不能直接替换成多人配方。
+两条代表路径已做实际 Blender 世界网格和有限像素对照，见 [P3.4 验收](refactor/P3_BLENDER_20261002.md)；
+这不代表所有资产组合都已经验收。场景配方与执行边界见 [配方索引](rendering/SCENE_RECIPE_INDEX.md)：
+本例的街景先由 `build_urban_street.py` 制作基底，再由 `upgrade_urban_street_assets.py` 使用 apartment kit 和 Hidden Alley 道具升级为 `urban_street_assets.blend`；
+`configs/fisheye_scene_urban_street_assets.json` 引用它，候选 DS 配方再把人体布局交给原生多人渲染入口。
+公共 `rendering/jobs.py` 组织的是另一条历史透视路径，不是本例 ERP 的场景制作器。
+P3.5 已分离四个场景脚本的导入与 main，核查命令/路径及 Blender 导入，没有重新制作这些资产。
+
 上述样例描述的是原有产物。当前 `process_scene` 还在鱼眼阶段应用真实参考图提取的
 镜头遮罩：同时裁 RGB 和实例图，并将其映射至 ERP，与已有有效区取交集后再判定
 `in_view` / `visible`。新产物目录和对比结果见 [DS 镜头遮罩更新](rendering/DS_LENS_MASK_20260928.md)。
+
+公共 [rig_poses](../src/densekp_retrain/camera/rig.py) 同时给出 normal ERP 与物理 DS 的 camera-to-world。
+对行向量世界点，相机坐标为 `(world - camera[:3,3]) @ camera[:3,:3]`；列轴是右、下、前。
+[project_erp](../src/densekp_retrain/camera/erp.py) 返回像素与 `norm(camera_point)`，后者是射线距离，
+不是 optical-Z 深度。经度接缝可得到 x=0 或 x=width，消费方各自处理周期边界。
+
+[point_in_view](../src/densekp_retrain/camera/domain.py) 使用 DS 几何域、鱼眼边界及显式 mask；
+[erp_visibility](../src/densekp_retrain/camera/visibility.py) 则在原始源 ERP 深度/实例图上用周期 5×5 邻域
+和 `<4 cm` 距离差判断表面可见。旧 DS 的实例邻域规则、Omni 后处理内的深度规则保留各自实现，
+不能把规则互换，也不能从 RGB 黑色判断无效区。
+
+成像主流程现在直接从 `imaging/ds.py` 或 [imaging/omni.py](../src/densekp_retrain/imaging/omni.py) 阅读：
+读取源数据 → 准备采样表并重映射 → 应用显式有效域 → 生成标签与框 → 保存与预览。
+DS 保留原先在重映射前计算源可见性和 roundtrip 预检查的顺序；Omni 保留先保存基础图像再检查人物 ID 的顺序。
+
+注意深度的阶段：DS `SourceERP.ray_range_m` 是原始 EXR 的 ERP 射线距离，本流程不生成新的 depth.npy。
+Omni `OmniBuffers.ray_range_m` 是 nearest 重映射并清理非有限值后的鱼眼距离，写入 `depth.npy`；
+其 5×5 可见性判定在鱼眼上进行。二者均以米为单位，均不是 optical-Z，不能互换。
+独立完整制品对照见 [P3.3 验收](refactor/P3_IMAGING_20261002.md)。
 
 ERP 是经纬度展开的二维图片；这里 normal ERP 是当前 DenseKP 使用的图像栅格。
 物理 DS 相机光轴相反，但两路 normal ERP 的虚拟轴向对齐。cam4 的翻转在 DS 投影映射中
@@ -111,18 +187,84 @@ NPZ 有这些字段：
 以及人物/相机 ID。其第三列选择 **有效视野内且落在完整裁剪中的 GT**，遮挡不使其归零。
 本例 cam2 人物 3 的监督点由 22 个变为 123 个，其中 101 个被判为遮挡。
 
+### 3.1 来源、样本、衍生框与监督标签
+
+完整来源隔离小试采用另一套冻结索引：`source_isolated_pilot_20260930` 的
+`split_v2.json`、`train_index.json`、`val_index.json`，有 198/79 行。
+[source_split.validate_split](../src/densekp_retrain/data/source_split.py) 先核查人物、外观和姿态来源，
+再读取每个 scene 的 `people.json`；所有渲染人物都要属于同一划分，包括没有目标框的遮挡者。
+同一图片及双相机场景不能跨 train/val。旧 omni 按相机或人物划分仅为 smoke，不等同于这种来源隔离。
+
+每一行 index 的 `loader_input` 与 `loader_row` 指向原标注，`image` 指向原 RGB。
+[pack_index_rows](../src/densekp_retrain/data/packing.py) 按这个顺序提取 center、scale、138 点、in_view、visible、
+人物和相机字段，将 imgname 写为原图绝对路径；不复制整套 RGB，不重排索引。
+入口 [build_source_isolated_trial.py](../tools/annotation/build_source_isolated_trial.py) 再用实际 Dataset 回读核查。
+
+框增强小试在这些样本上派生输入：
+
+```mermaid
+flowchart LR
+    S[split 与来源审计] --> I[198 train / 79 val 索引]
+    I --> P[按原行序打包 loader]
+    P --> B[父样本与框提议]
+    L[原 400 次更新日志] --> B
+    B --> C[实际 Dataset 裁剪与监督重算]
+    C --> A[检查 GT 和目标像素支持]
+    A --> O[400 训练曝光 / 143 验证框]
+```
+
+[prepare_box_robustness.py](../tools/experiments/prepare_box_robustness.py) 读取旧训练日志中的 400 个父行号，
+保持原顺序，仅把框策略按 seed 930 分配到这些曝光。配额仍由该实验定义：200 reference、100 center、
+50 scale、50 single_edge。公共 [boxes.py](../src/densekp_retrain/data/boxes.py) 负责移动、缩放、单侧裁剪和
+center/scale 计算；当前 change_box 仅按合成 **1536×768** 栅格截断，不是所有真实图像的通用裁剪规则。
+
+派生行保留 `parent_row`、`parent_index`、`parent_bbox_xyxy`、人物/姿态来源及同一原图；
+400 行表示 400 次曝光，不是 400 个独立身份或图像。验证选定的 18 个目标观测提出 144 个框，
+现有支持量 gate 拒绝一个，保留 143 行。训练候选失败则回退到原框，原框仍失败就停止。
+
+新标签先保留原 XY 和 in_view，或者由 `make_targets` 预计算固定框监督；声明新 policy 的 Dataset
+都在实际 affine 后重算 `in_view & inside_full_crop`。可靠但遮挡的点继续监督。
+旧权重不强行换成此策略：legacy 常数/可见性标签保持原值，commuter-studio 保持诊断用途。
+打包时的空监督与框实验的最低支持量是不同规则，不能统一过滤。
+
+实际 `challenge_001` 的框与标签变化见下文 4.1；本批独立 before/after 和历史元数据区别见
+[P2.3–P2.5 验收](refactor/P2_SOURCES_BOXES_20261002.md)。
+
 ## 4. Dataset 怎样同时裁图和变换标签
 
 打开 [DatasetKeypoints.__getitem__](../densekp/core/datasets/dataset_keypoints.py)。
-它取出一行、恢复像素边长，然后调用 `get_example_projverts`。
+它取出一行、恢复像素边长，然后依次读取、确定裁剪、变换和计算监督；
+活动路径不再调用旧十项 tuple 包装 `get_example_projverts`。
 
-在 [datasets/utils.py](../densekp/core/datasets/utils.py) 中：
+数据源在 [loading.py](../densekp/core/datasets/loading.py) 中解析。例如，对本文原始样本：
+
+```python
+dataset = DatasetKeypoints(
+    audit_cfg("supervision_weight"),
+    "occlusion-control",  # 保留名称；不必注册这个 ID。
+    annotation_path="outputs/experiments/ds_occlusion_control_prediction_20260928/heavy/fixed_box_loader.npz",
+    image_root="outputs/experiments/ds_occlusion_control_20260928/heavy",
+    is_train=False,
+    use_augmentation=False,
+)
+sample = dataset[1]
+```
+
+相对 `imgname` 拼接到 image_root；绝对 `imgname` 覆盖这个根目录。
+不根据 NPZ 所在位置猜根目录，也不调用 resolve 改写原有路径。缺省的路径才查询旧 dataset ID 注册表。
+名称仍用于返回的 `dataset`、日志以及 portrait/closeup 历史分支；路径显式化不取消这些用途。
+
+先读 [crop_pipeline.py](../densekp/core/datasets/crop_pipeline.py) 的 `determine_crop`、`transform_crop`，
+再按需进入 [image_processing.py](../densekp/core/datasets/image_processing.py)：
 
 ```text
-cv2.imread → 原图 BGR
-generate_image_patch_cv2 → 裁剪图 BGR + affine[2,3]
-BGR→RGB、HWC→CHW、颜色标准化 → img[3,256,256]
-同一个 affine 作用于标签 xy → 裁剪像素 → xy/256 - 0.5
+read_image → 原图 BGR、原图尺寸
+determine_crop → 增强参数、极端裁剪后的框、平移后的中心（CropPlan）
+transform_crop
+  → 抗锯齿/外观增强 → generate_image_patch_cv2 → 裁剪 BGR + affine[2,3]
+  → normalize_image → RGB、float32 CHW、逐通道颜色和标准化
+  → transform_labels → 辅助关节和 138 点共用 affine，再归一化 XY
+Dataset._supervision → 根据变换后的 GT 重算监督，再返回原样本字段
 ```
 
 本例 affine 约为：
@@ -139,7 +281,10 @@ crop_pixel_xy = A @ [original_x, original_y, 1]
 target_normalized_xy = crop_pixel_xy / [256,256] - 0.5
 ```
 
-图像颜色归一化另有含义：`(RGB/255 - mean) / std`。不要把它与坐标归一化混淆。
+图像颜色归一化另有含义：实际先转换 float32 CHW，逐通道乘颜色倍率并 clip 到 0..255，
+再按 `(channel - 255*mean) / (255*std)` 写回。不要把它与坐标归一化混淆。
+标签也保留两次赋值：affine 得到的像素坐标先写入 float32 标签，再除以裁剪宽高并减 0.5。
+把两步合为一个表达式会改变中间舍入，因此本次重构没有合并。
 
 返回字典最值得关注的字段：
 
@@ -161,6 +306,53 @@ affine 只变换 xy。旧 NPZ 的第三字段保持原样；声明了新版策�
 当前增强由 `is_train and use_augmentation` 决定；本例明确关闭。训练时尺度、平移、旋转
 通过同一 affine 影响图像和点，颜色/降质增强作用于图像。水平翻转目前有保护性报错，
 因为尚无验证过的 138 行左右置换；44 关节的置换不能代替它。
+
+### 4.1 当前框增强样本：框如何改变输入
+
+以下来自本批独立 before 的 `challenge_001`，并非重新推理的模型结果。
+数据为 `box_robustness_400_20261001/data_v2/loader/val.npz` 第 1 行，图像属于合成
+1536×768 ERP。其保存的 center 为 `[1110.760009765625, 405]`，scale 为
+`1.6080000400543213`，恢复方形边长为 `scale*200 = 321.60000801086426` 像素。
+若配置 BBOX_SHAPE，则先扩到该比例再取最大边；此样本没有额外比例扩展。
+
+```mermaid
+flowchart LR
+    B[保存的中心与 scale] --> C[极端裁剪与平移后的框]
+    C --> A[缩放和旋转构造 affine]
+    I[原图] --> W[图像插值裁剪]
+    A --> W
+    W --> N[颜色与归一化输入]
+    G[138 点原图 XY] --> T[标签变换与坐标归一化]
+    A --> T
+    T --> S[in_view 与完整裁剪内共同决定监督]
+```
+
+| 实际记录 | 关闭增强 | 固定 seed 930 的增强 |
+| --- | ---: | ---: |
+| 随机缩放倍率 | 1 | 0.8 |
+| 旋转（度） | 0 | -33.8913182284 |
+| 平移比例 tx / ty | 0 / 0 | 0.00451869254 / 0.00184875851 |
+| 实际中心 | 1110.760010, 405 | 1112.213221, 405.594561 |
+| in_view 点数 | 112 | 112 |
+| 监督点数 | 112 | 102 |
+| 其中遮挡点 | 71 | 68 |
+
+平移是 `cx += width*tx`、`cy += height*ty`，之后 affine 使用 `width*随机倍率`、
+`height*随机倍率` 和旋转角。这里随机缩放后的宽度约为 257.280006 像素；返回的
+`box_size` 仍为缩放前的 321.600008，这是保留的历史字段语义，不能拿它当作全部增强后的视野宽度。
+
+关闭增强时 affine 约为：
+
+```text
+[[0.796019659, 0, -756.186804],
+ [0, 0.796019961, -194.388084]]
+```
+
+第 0 点的原图 XY `[1174.683228,315.733704]` 变为归一化 XY
+`[0.198766172,-0.277569354]`；同一增强后的点为 `[0.396316528,-0.154534906]`。
+图像和标签共用实际 affine；只重算 GT 是否落在完整 256-square 内，不依据模型预测挑点。
+网络之后取中间 192 列，坐标仍属于完整方形，不额外加 32 px。
+完整精度的参数与矩阵见 [样本记录](../outputs/acceptance/refactor_dataset_crop_20261001/walkthrough_sample.json)。
 
 ## 5. 模型怎样知道我们想预测谁
 
@@ -245,6 +437,10 @@ GT xy 可以通过相同逆变换回到原图，是几何检查。预测与 GT �
 ## 8. 训练如何接上这条链
 
 当前这个样本只用于诊断，没有在本轮参与训练。若看正式训练代码，调用关系是：
+
+2026-10-01 的有界训练审计已归入
+[training_audit.py](../densekp/core/training_audit.py)，负责更新前梯度检查和参数快照。
+本次仅用 CPU 小网络验证审计的保存/恢复行为，没有对本文样本恢复 DenseKP 效果训练。
 
 ```text
 train_keypoints.train(cfg)

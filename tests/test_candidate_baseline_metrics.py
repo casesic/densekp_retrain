@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from tools.validate.evaluate_candidate_baseline import summary, aggregate
+from densekp_retrain.evaluation.candidates import summary, aggregate
 
 
 class CandidateMetricsTest(unittest.TestCase):

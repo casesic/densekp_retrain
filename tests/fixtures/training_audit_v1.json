@@ -1,0 +1,405 @@
+{
+  "events": [
+    {
+      "key": "initial_00_batch_start",
+      "step": 0,
+      "training": true,
+      "row": 1,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "initial_01_before_step",
+      "step": 0,
+      "training": true,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "initial_02_batch_end",
+      "step": 1,
+      "training": true,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "initial_03_batch_start",
+      "step": 1,
+      "training": true,
+      "row": 0,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "initial_04_before_step",
+      "step": 1,
+      "training": true,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "initial_05_batch_end",
+      "step": 2,
+      "training": true,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "initial_06_validation_start",
+      "step": 2,
+      "training": false,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "initial_07_validation_end",
+      "step": 2,
+      "training": false,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "resumed_00_validation_start",
+      "step": 2,
+      "training": false,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "resumed_01_validation_end",
+      "step": 2,
+      "training": false,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "resumed_02_batch_start",
+      "step": 2,
+      "training": true,
+      "row": 0,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "resumed_03_before_step",
+      "step": 2,
+      "training": true,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "resumed_04_batch_end",
+      "step": 3,
+      "training": true,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "resumed_05_batch_start",
+      "step": 3,
+      "training": true,
+      "row": 1,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "resumed_06_before_step",
+      "step": 3,
+      "training": true,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "resumed_07_batch_end",
+      "step": 4,
+      "training": true,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "resumed_08_validation_start",
+      "step": 4,
+      "training": false,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    },
+    {
+      "key": "resumed_09_validation_end",
+      "step": 4,
+      "training": false,
+      "row": null,
+      "optimizer_parameter_order": [
+        [
+          "head.linear.weight",
+          "head.linear.bias",
+          "backbone.2.weight",
+          "backbone.2.bias"
+        ]
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "module": "backbone",
+      "problem": "missing",
+      "type": "ValueError",
+      "message": "Missing/nonfinite backbone gradients; stop before update",
+      "attempts": []
+    },
+    {
+      "module": "backbone",
+      "problem": "nan",
+      "type": "ValueError",
+      "message": "Missing/nonfinite backbone gradients; stop before update",
+      "attempts": []
+    },
+    {
+      "module": "backbone",
+      "problem": "inf",
+      "type": "ValueError",
+      "message": "Missing/nonfinite backbone gradients; stop before update",
+      "attempts": []
+    },
+    {
+      "module": "head",
+      "problem": "missing",
+      "type": "ValueError",
+      "message": "Missing/nonfinite head gradients; stop before update",
+      "attempts": []
+    },
+    {
+      "module": "head",
+      "problem": "nan",
+      "type": "ValueError",
+      "message": "Missing/nonfinite head gradients; stop before update",
+      "attempts": []
+    },
+    {
+      "module": "head",
+      "problem": "inf",
+      "type": "ValueError",
+      "message": "Missing/nonfinite head gradients; stop before update",
+      "attempts": []
+    }
+  ],
+  "runs": [
+    {
+      "prefix": "initial",
+      "steps": 2,
+      "attempts": [
+        {
+          "step": 0,
+          "finite_gradient_tensors": {
+            "backbone": 2,
+            "head": 2
+          }
+        },
+        {
+          "step": 1,
+          "finite_gradient_tensors": {
+            "backbone": 2,
+            "head": 2
+          }
+        }
+      ],
+      "mode_after_fit": true,
+      "state_key": "CheckUpdates",
+      "callback_state": {},
+      "parameter_order": [
+        "backbone.2.weight",
+        "backbone.2.bias",
+        "head.linear.weight",
+        "head.linear.bias"
+      ],
+      "optimizer_type": "AdamW"
+    },
+    {
+      "prefix": "resumed",
+      "steps": 4,
+      "attempts": [
+        {
+          "step": 2,
+          "finite_gradient_tensors": {
+            "backbone": 2,
+            "head": 2
+          }
+        },
+        {
+          "step": 3,
+          "finite_gradient_tensors": {
+            "backbone": 2,
+            "head": 2
+          }
+        }
+      ],
+      "mode_after_fit": true,
+      "state_key": "CheckUpdates",
+      "callback_state": {},
+      "parameter_order": [
+        "backbone.2.weight",
+        "backbone.2.bias",
+        "head.linear.weight",
+        "head.linear.bias"
+      ],
+      "optimizer_type": "AdamW"
+    }
+  ],
+  "checkpoint": {
+    "step": 2,
+    "schema": [
+      {
+        "key": "backbone.2.weight",
+        "shape": [
+          3,
+          3
+        ],
+        "dtype": "torch.float32"
+      },
+      {
+        "key": "backbone.2.bias",
+        "shape": [
+          3
+        ],
+        "dtype": "torch.float32"
+      },
+      {
+        "key": "head.linear.weight",
+        "shape": [
+          414,
+          3
+        ],
+        "dtype": "torch.float32"
+      },
+      {
+        "key": "head.linear.bias",
+        "shape": [
+          414
+        ],
+        "dtype": "torch.float32"
+      }
+    ],
+    "optimizer_parameter_ids": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "callback_keys": []
+  },
+  "stdout": "Finite optimizer update 0\nFinite optimizer update 1\nFinite optimizer update 2\nFinite optimizer update 3\n"
+}

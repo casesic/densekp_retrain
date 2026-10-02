@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from tools.validate.evaluate_candidate_baseline import summary
+from densekp_retrain.evaluation.candidates import summary
 
 
 def read(path):return json.loads(path.read_text())

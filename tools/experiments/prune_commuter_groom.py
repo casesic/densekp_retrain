@@ -8,8 +8,8 @@ import numpy as np
 from scipy.spatial import cKDTree
 
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from tools.experiments.build_commuter_clothing import closest_surface
-from tools.experiments.prepare_cycling_characters import write_json
+from densekp_retrain.clothing.binding import closest_surface
+from densekp_retrain.io.json import write_json
 
 
 def main():
