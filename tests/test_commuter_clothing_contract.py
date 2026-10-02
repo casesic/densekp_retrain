@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 import numpy as np
-from tools.render.commuter_clothing_contract import validate_binding
+from densekp_retrain.clothing.contracts import validate_binding
 
 
 class CommuterBindingTests(unittest.TestCase):

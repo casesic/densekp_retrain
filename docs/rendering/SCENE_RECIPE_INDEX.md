@@ -20,7 +20,7 @@
 | `validate_cycling_forest.py` | 已打开的保存后森林、贴图与场景对象 | `outputs/scenes/cycling_forest/reopen_geometry_check.json`；射线/路面核查，不制作场景 |
 | `validate_urban_street.py` | 既有街景资产及报告 | 由原参数指定的检查报告；Blender 几何与道路探针，保留专用约束 |
 | `render_scene_fisheye.py` | `--scene`、`--camera`，冻结 Omni-Radtan 内参 | `--output-dir` 下 equirectangular、source.json、鱼眼、valid_mask、fisheye_report；纯环境预览，无人体标签 |
-| `blender_scene_bridge.py` / `__init__.py` | 旧导入接口 / 包标记 | bridge 兼容导出到公共 `rendering/blender/scene_bridge.py`；不制作资产 |
+| `__init__.py` | 包标记 | 场景读取直接使用公共 `rendering/blender/scene_bridge.py`；旧 bridge 包装已在 B1 删除 |
 
 森林/街景消费路线：
 
@@ -49,7 +49,7 @@
 | `finalize_temporal_case.py` | 序列渲染与标签 → CSV、时序统计与 ffmpeg 视频 | 专用归档/展示，不在导入时执行 |
 | `review_cycling_characters.py` | 候选人体、衣物/groom、材质 → studio 预览与报告 | 角色外观配方；直接调用 P3.4 公共材质/groom |
 | `review_commuter_component.py` | rest/bound/final 组件 → 分阶段 studio 检查 | 保留三阶段含义和原配方 |
-| `character_materials.py`、`character_groom.py`、`commuter_clothing_contract.py` | 历史 import → 公共实现 | P3.4 兼容导出；活动调用方直接引用公共包 |
+| 公共 `rendering/blender/materials.py`、`groom.py` 与 `clothing/contracts.py` | 材质/发型/衣物契约 | 活动调用方直引公共实现；对应 tools 纯导出已在 B1 删除，制作与渲染配方不变 |
 
 `src/densekp_retrain/rendering/jobs.py` 是两条冻结透视任务的公共组织层：
 `build_eye_background_job` / `build_temporal_job` 读取 manifest、解析原路径规则并返回具名 `GeometryRenderJob`；

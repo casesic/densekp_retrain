@@ -14,7 +14,7 @@ from PIL import Image
 from densekp_retrain.imaging import ds, omni, remap, source
 from densekp_retrain.camera import OmniRadtanIntrinsics
 from tests.imaging_pipeline_fixture import capture
-from tools.validate.verify_imaging_pipeline import compare
+from tests.artifact_comparison import compare
 
 
 class ImagingPipelineTests(unittest.TestCase):

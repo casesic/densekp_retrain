@@ -2,7 +2,7 @@
 
 DenseKP 对指定人体框预测固定的 138 个语义点，用于跨相机同一人体的点对应。本项目包含数据生成、Dataset、模型训练与应用评价；检测漏检、最终合图和部署代码由外部项目负责。
 
-目前暂停效果优化。P1–P3 已完成并提交于 `aaf08bd`；P4 安装、入口和历史清理已整体通过评审。P4/P5 改动随本次提交交付；P5 最终阅读与交付核查已完成，待评审后决定整个重构收尾。见 [最终交付报告](docs/refactor/P5_READING_DELIVERY_20261002.md)。
+目前暂停效果优化。P1–P3 已完成并提交于 `aaf08bd`；P4 安装、入口和历史清理已整体通过评审。P4/P5 改动随本次提交交付；P5 最终阅读与交付核查已完成，待评审后决定整个重构收尾。见 [最终交付报告](docs/refactor/P5_READING_DELIVERY_20261002.md)。当前进一步精简仅实施 B1，已退役接口与验收见 [B1 报告](docs/refactor/PRUNING_B1_20261002.md)；B2–B5 未实施。
 最近的框增强权重仍是诊断结果，未获部署替换认可。
 
 ## 从这里开始
@@ -26,7 +26,7 @@ DenseKP 对指定人体框预测固定的 138 个语义点，用于跨相机同�
 | 评价固定候选 | `tools/validate/evaluate_candidate_baseline.py` → `densekp_retrain/evaluation/`；先用 `--help` 核对输入 |
 | 找哪个配方生成哪个资产 | [场景配方索引](docs/rendering/SCENE_RECIPE_INDEX.md)；多人原生与历史单人路径分别保留 |
 | 安装和跨目录运行 | [安装、依赖、路径与资产](docs/environment/INSTALLATION.md) |
-| 查兼容代码或旧实验 | [代码归属与历史保留表](docs/refactor/LEGACY_RETENTION_20261002.md)；旧 loss 不等于当前 DenseKP loss |
+| 查已退役接口或旧实验 | [当前 B1 精简报告](docs/refactor/PRUNING_B1_20261002.md)；[上轮保留表](docs/refactor/LEGACY_RETENTION_20261002.md) 仅描述当时状态 |
 
 核心实现放在 `densekp/`（模型及直接数据处理）和 `src/densekp_retrain/`（生成与应用评价）。
 `tools/` 负责组合具体实验和制作配方；旧导入包装为历史调用保留，不是新增代码的默认入口。
@@ -40,7 +40,7 @@ bash scripts/audit_workspace.sh
 bash scripts/audit_workspace.sh --model-contracts
 ```
 
-默认检查源码、配置语法和 9 项无资产几何/相机契约；第二条增加裁剪、来源、评价与兼容测试，共 32 项。
+默认检查源码、配置语法及无资产几何/相机契约；第二条增加裁剪、来源、成像、评价、归一化与导入安全检查。具体测试列表见 tools/validate/check_workspace.py，不加载真实模型。
 这些检查不训练、不加载真实权重、不渲染，也不遍历 outputs 或纹理目录。可用 `PYTHON_BIN=/path/to/python` 指定解释器。
 检查本地 regressor 是显式选择：`--surface-operator /absolute/path/to/densekp_regressor_R.npy`。
 

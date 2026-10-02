@@ -36,4 +36,6 @@ NumPy 状态向量和 Python RNG；另有 6 个拒绝梯度用例。
 ## 历史兼容清理基线
 
 legacy_cleanup_v1.json 在本轮修改前从原 utils/train_utils/losses 捕获，含数值、RNG 和拒绝行为；legacy_import_bodies_v1.json 是 12 个历史脚本的冻结原执行体 AST。
-tests.test_legacy_cleanup 不从新实现重建期望值，允许的唯一删除是 generate_image_patch_skimage 内的字面量 if False 块。完整 before/after 和 pickle 恢复证据保留在 outputs/acceptance/refactor_cleanup_20261002。
+B1 保留这两份原始 fixture 的全部字节。tests.test_legacy_cleanup 继续检查尚未退役的裁剪值、RNG 和拒绝行为；tests.test_image_normalization 直接使用其中 denormalize 的独立期望。tests.test_import_boundaries 保留12脚本导入无副作用和冻结执行体检查，并验证已退役 capture 在导入数据依赖或写文件前拒绝。旧 loss/train_utils 的接口断言随 B1 退役，不再保证完整对象 pickle。此前 before/after 和 pickle 恢复证据仍保留在 outputs/acceptance/refactor_cleanup_20261002。
+
+来源打包的输入构造位于 tests/source_packing_fixture.py，成像逐制品比较位于 tests/artifact_comparison.py；它们只迁移必要辅助，source_packing_v1.json、imaging_pipeline_v1.json 等独立期望均未重新生成。B1 记录见 docs/refactor/PRUNING_B1_20261002.md。

@@ -110,4 +110,4 @@ extras 选择单一 headless provider `<4.12` 并保留 `numpy<2`，避免把上
 六份此前被忽略的 `configs/hydra/data/*.yaml` 已解除忽略、保留内容并列入交付；这不改变默认选择或承诺历史 BEDLAM 数据在本机可用。
 Python 源码和测试 fixture 的必要性以无资产交付目录实际检查为依据，`tests/fixtures/training_audit_v1.npz` 仍是可选原始记录，测试读取已交付的无损 JSON。
 
-日常检查现统一为 `bash scripts/audit_workspace.sh`（源码/配置和 9 项无资产契约），`--model-contracts` 扩展为 32 项。表面算子改为显式 `--surface-operator`，默认不扫大资产或 outputs。
+日常检查现统一为 `bash scripts/audit_workspace.sh`（源码/配置及无资产契约），`--model-contracts` 增加裁剪、来源、成像、评价、归一化和导入安全检查；当前列表见 tools/validate/check_workspace.py。表面算子改为显式 `--surface-operator`，默认不扫大资产或 outputs。

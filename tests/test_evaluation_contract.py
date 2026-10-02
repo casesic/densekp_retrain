@@ -76,11 +76,9 @@ class EvaluationContractTests(unittest.TestCase):
 
     def test_historical_imports_remain_available(self):
         # Identity only verifies compatibility; numerical evidence is frozen above.
-        from tools.validate import occlusion_metrics, evaluate_candidate_baseline
+        from tools.validate import evaluate_candidate_baseline
         from tools.validate import validate_bedlam_densekp_tiny
 
-        for name in ['summarize', 'point_errors', 'evaluation_masks', 'prediction_retention', 'pair_masks']:
-            self.assertIs(getattr(occlusion_metrics, name), getattr(evaluation, name))
         self.assertIs(evaluate_candidate_baseline.summary, candidates.summary)
         self.assertIs(evaluate_candidate_baseline.aggregate, candidates.aggregate)
         self.assertIs(validate_bedlam_densekp_tiny.audit_cfg, audit_cfg)

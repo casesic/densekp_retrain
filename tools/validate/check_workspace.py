@@ -21,6 +21,9 @@ MODEL_TESTS = [
     "tests.test_scene_recipes",
     "tests.test_evaluation_contract",
     "tests.test_legacy_cleanup",
+    "tests.test_image_normalization",
+    "tests.test_import_boundaries",
+    "tests.test_imaging_pipeline",
 ]
 
 

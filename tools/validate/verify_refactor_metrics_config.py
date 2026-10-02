@@ -1,25 +1,19 @@
-"""Freeze pre-migration CPU evidence, or compare it with the public modules.
+"""Verify preserved pre-migration CPU evidence using current public modules.
 
-Capture is deliberately restricted to the original defining modules. It cannot
-overwrite a baseline or recapture it from compatibility re-exports. No model is
-constructed: predictions are read from the seven existing planning references.
+Capture was retired in pruning B1. It is rejected before optional imports or
+file access. Verify reads the original seven-sample baseline and saved predictions;
+no model is constructed and baseline files are never overwritten.
 """
 import argparse
 from datetime import datetime, timezone
-import importlib
 import json
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
 
-import numpy as np
-
-from densekp.core.crop_geometry import restore_crop_xy
-from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
 
 
 def write_json(path, value):
@@ -91,23 +85,14 @@ def json_safe(value):
     return value
 
 
-def functions(capture):
-    metric_name = 'tools.validate.occlusion_metrics' if capture else 'densekp.core.evaluation'
-    candidate_name = ('tools.validate.evaluate_candidate_baseline' if capture
-                      else 'densekp_retrain.evaluation.candidates')
-    config_name = ('tools.validate.validate_bedlam_densekp_tiny' if capture
-                   else 'densekp.core.datasets.configuration')
-    metrics = importlib.import_module(metric_name)
-    candidates = importlib.import_module(candidate_name)
-    config = importlib.import_module(config_name)
+def functions():
+    from densekp.core import evaluation as metrics
+    from densekp.core.datasets import configuration as config
+    from densekp_retrain.evaluation import candidates
+
     result = {name: getattr(metrics, name) for name in
               ['summarize', 'point_errors', 'evaluation_masks', 'prediction_retention', 'pair_masks']}
     result.update(summary=candidates.summary, aggregate=candidates.aggregate, audit_cfg=config.audit_cfg)
-    if capture:
-        for name, function in result.items():
-            expected = config_name if name == 'audit_cfg' else candidate_name if name in ('summary', 'aggregate') else metric_name
-            if function.__module__ != expected:
-                raise RuntimeError('Capture requires pre-migration implementations, not wrappers')
     return result
 
 
@@ -136,41 +121,25 @@ def main():
     parser.add_argument('--selection', type=Path,
                         default=ROOT / 'outputs/plans/full_refactor_20261001/selected_baselines.json')
     args = parser.parse_args()
-    capture = args.phase == 'capture'
-    api = functions(capture)
+    if args.phase == 'capture':
+        parser.error('capture retired in B1; use preserved pre-migration baselines with --phase verify')
+
+    # Defer data dependencies until after the retired mode has been rejected.
+    global np
+    import numpy as np
+    from densekp.core.crop_geometry import restore_crop_xy
+    from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
+
+    api = functions()
     baseline = args.baseline.resolve()
-    if capture:
-        baseline.mkdir(parents=True, exist_ok=False)
-        selection = json.loads(args.selection.read_text())
-        write_json(baseline / 'selection.json', selection)
-        sources = ['tools/validate/occlusion_metrics.py', 'tools/validate/evaluate_candidate_baseline.py',
-                   'tools/validate/validate_bedlam_densekp_tiny.py', 'densekp/core/datasets/dataset_keypoints.py',
-                   'densekp/core/datasets/utils.py', 'densekp/core/crop_geometry.py',
-                   'densekp/core/keypoint_supervision.py', 'tools/validate/verify_refactor_metrics_config.py']
-        for source in sources:
-            target = baseline / 'source_snapshot' / source
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(ROOT / source, target)
-        for name, source in {
-            'original_model_config.yaml': 'outputs/experiments/source_isolated_pilot_20260930/original_baseline/model_config.yaml',
-            'box_model_config.yaml': 'outputs/experiments/box_robustness_400_20261001/training/model_config.yaml',
-        }.items():
-            shutil.copyfile(ROOT / source, baseline / name)
-    else:
-        if not args.report or args.report.exists():
-            parser.error('--report must be a new file for verification')
-        selection = json.loads((baseline / 'selection.json').read_text())
+    if not args.report or args.report.exists():
+        parser.error('--report must be a new file for verification')
+    selection = json.loads((baseline / 'selection.json').read_text())
     for value, name in [(None, 'undeclared_loader.yaml'), ('supervision_weight', 'loader.yaml')]:
         dumped = api['audit_cfg'](value).dump()
-        if capture:
-            (baseline / name).write_text(dumped)
-        else:
-            assert dumped == (baseline / name).read_text(), 'Configuration values changed'
+        assert dumped == (baseline / name).read_text(), 'Configuration values changed'
     fixtures = exercise_fixtures(api)
-    if capture:
-        write_json(baseline / 'metric_fixtures.json', fixtures)
-    else:
-        assert fixtures == json.loads((baseline / 'metric_fixtures.json').read_text()), 'Metric fixture changed'
+    assert fixtures == json.loads((baseline / 'metric_fixtures.json').read_text()), 'Metric fixture changed'
     cases, states, records = [], {}, []
     reports = {}
     for entry in selection['samples']:
@@ -207,32 +176,25 @@ def main():
         compare_array(item['proj_verts_cropped'][:, :2], saved['target_crop_xy'])
         compare_array(masks['supervised'], saved['supervised'])
         frozen = baseline / (case_id + '.npz')
-        if capture:
-            np.savez(frozen, **arrays)
-        else:
-            with np.load(frozen, allow_pickle=False) as previous:
-                assert set(previous.files) == set(arrays)
-                for name, array in arrays.items():
-                    compare_array(array, previous[name])
+        with np.load(frozen, allow_pickle=False) as previous:
+            assert set(previous.files) == set(arrays)
+            for name, array in arrays.items():
+                compare_array(array, previous[name])
         cases.append(case)
         states[case_id] = dict(crop=crop, erp=erp, masks=masks)
         records.append(dict(id=case_id, arrays=len(arrays), input_shape=list(item['img'].shape),
                             input_dtype=str(item['img'].dtype), supervised=int(masks['supervised'].sum())))
     aggregate = api['aggregate'](cases, states)
-    if capture:
-        write_json(baseline / 'cases.json', cases)
-        write_json(baseline / 'aggregate.json', aggregate)
-    else:
-        assert cases == json.loads((baseline / 'cases.json').read_text()), 'Case metadata changed'
-        # Serialized text also freezes dictionary insertion order and null fields.
-        expected = json.loads((baseline / 'aggregate.json').read_text())
-        assert json.dumps(aggregate, allow_nan=False) == json.dumps(expected, allow_nan=False)
+    assert cases == json.loads((baseline / 'cases.json').read_text()), 'Case metadata changed'
+    # Serialized text also freezes dictionary insertion order and null fields.
+    expected = json.loads((baseline / 'aggregate.json').read_text())
+    assert json.dumps(aggregate, allow_nan=False) == json.dumps(expected, allow_nan=False)
     result = dict(status='passed', phase=args.phase, utc=datetime.now(timezone.utc).isoformat(),
                   baseline=str(baseline), samples=records, metric_fixtures=len(fixtures),
                   aggregate_groups=len(aggregate), comparison='exact values, shapes, dtypes, configuration dumps and metric outcomes',
                   model_inference=False, training=False, rendering=False,
                   head=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip())
-    write_json(baseline / 'capture.json' if capture else args.report, result)
+    write_json(args.report, result)
     print(json.dumps(result, indent=2))
 
 

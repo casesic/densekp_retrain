@@ -1,35 +1,19 @@
-"""CPU-only independent source/packing/box acceptance; writes fresh output only."""
+"""Small source/packing contract inputs; expected values live in frozen fixtures."""
 
-import argparse
 import copy
-import importlib
 import json
-import random
-from pathlib import Path
-import shutil
-import sys
-from unittest.mock import patch
 
-ROOT = Path(__file__).resolve().parents[2]
-sys.path[:0] = [str(ROOT), str(ROOT / "src")]
 import numpy as np
-import torch
-from PIL import Image
-
-DATA = ROOT / "outputs/experiments/source_isolated_pilot_20260930"
-TRIAL = ROOT / "outputs/experiments/source_isolated_trial_400_gpu1_20261001"
 
 
 def write(path, value):
     path.write_text(json.dumps(value, indent=2, allow_nan=True) + "\n")
-
 
 def outcome(function, *args, **kwargs):
     try:
         return {"value": function(*args, **kwargs), "error": None}
     except Exception as error:
         return {"value": None, "error": {"type": type(error).__name__, "message": str(error)}}
-
 
 def normalize(value, root):
     if isinstance(value, str):
@@ -39,7 +23,6 @@ def normalize(value, root):
     if isinstance(value, dict):
         return {k: normalize(v, root) for k, v in value.items()}
     return value
-
 
 def source_boundaries(root, validate):
     """Every rendered person is audited, even if absent from index target rows."""
@@ -203,7 +186,6 @@ def source_boundaries(root, validate):
         check("pair_" + field, index_value=bad)
     return normalize(results, root)
 
-
 def contract_cases(root):
     from densekp.core.keypoint_contract import validate_annotations
     from densekp.core.keypoint_supervision import make_targets, points_in_mask
@@ -254,7 +236,6 @@ def contract_cases(root):
     np.savez(root / "contract_arrays.npz", **arrays)
     return errors
 
-
 def pure_boxes(root, module, official):
     arrays = {}
     metadata = {}
@@ -293,203 +274,3 @@ def pure_boxes(root, module, official):
                 arrays[f"official_{name}_{i}"] = np.asarray(v)
     np.savez(root / "boxes.npz", **arrays)
     return metadata
-
-
-class TracedGenerator:
-    def __init__(self, generator, trace):
-        self.generator = generator
-        self.trace = trace
-
-    def __getattr__(self, name):
-        value = getattr(self.generator, name)
-        if not callable(value):
-            return value
-
-        def call(*args, **kwargs):
-            before = copy.deepcopy(self.generator.bit_generator.state)
-            result = value(*args, **kwargs)
-
-            def plain(v):
-                if isinstance(v, np.ndarray):
-                    return v.tolist()
-                if isinstance(v, np.generic):
-                    return v.item()
-                return v
-
-            self.trace.append(
-                dict(
-                    method=name,
-                    args=[plain(a) for a in args],
-                    kwargs=kwargs,
-                    result=plain(result),
-                    before=before,
-                    after=copy.deepcopy(self.generator.bit_generator.state),
-                )
-            )
-            return result
-
-        return call
-
-
-def run(root):
-    source = importlib.import_module("tools.validate.validate_source_isolated_split")
-    pack = importlib.import_module("tools.annotation.build_source_isolated_trial")
-    boxes = importlib.import_module("tools.experiments.prepare_box_robustness")
-    bedlam = importlib.import_module("tools.annotation.generate_bedlam_densekp")
-    write(root / "source_boundaries.json", source_boundaries(root, source.validate_split))
-    write(root / "contract.json", contract_cases(root))
-    write(root / "boxes.json", pure_boxes(root, boxes, bedlam.official_bbox))
-    stage = root / "parent_pack"
-    stage.mkdir()
-    for name in ("split_v2.json", "train_index.json", "val_index.json"):
-        shutil.copyfile(DATA / name, stage / name)
-    random.seed(2402)
-    np.random.seed(2402)
-    torch.manual_seed(2402)
-    with patch.object(sys, "argv", ["build_source_isolated_trial.py", str(stage)]):
-        pack.main()
-    for side in ("train", "val"):
-        with (
-            np.load(stage / "loader" / f"{side}.npz") as actual,
-            np.load(DATA / "loader" / f"{side}.npz") as old,
-        ):
-            assert actual.files == old.files
-            for key in actual.files:
-                assert actual[key].dtype == old[key].dtype
-                np.testing.assert_array_equal(actual[key], old[key])
-    trace = []
-    factory = np.random.default_rng
-
-    def traced(seed=None):
-        return TracedGenerator(factory(seed), trace)
-
-    with (
-        patch.object(
-            sys,
-            "argv",
-            [
-                "prepare_box_robustness.py",
-                "--data-root",
-                str(DATA),
-                "--parent-trial",
-                str(TRIAL),
-                "--output",
-                str(root / "derivatives"),
-            ],
-        ),
-        patch.object(np.random, "default_rng", traced),
-    ):
-        boxes.main()
-    write(root / "rng_calls.json", trace)
-    py = random.getstate()
-    ns = np.random.get_state()
-    write(root / "rng_state.json", {"python": py, "numpy_head": [ns[0], ns[2], ns[3], ns[4]]})
-    np.savez(root / "rng_state.npz", numpy=ns[1], torch=torch.get_rng_state().numpy())
-    write(
-        root / "result.json",
-        {
-            "status": "captured",
-            "source_cases": len(json.loads((root / "source_boundaries.json").read_text())),
-            "rng_calls": len(trace),
-            "model_inference": False,
-            "gpu": False,
-        },
-    )
-
-
-def compare(before, after):
-    old_files = {p.relative_to(before) for p in before.rglob("*") if p.is_file()}
-    new_files = {p.relative_to(after) for p in after.rglob("*") if p.is_file()}
-    assert old_files == new_files, (old_files - new_files, new_files - old_files)
-    counts = dict(json=0, arrays=0, images=0, other=0)
-    allowed = {
-        "derivatives/config.json": ["frozen_utc"],
-        "derivatives/train_index.json": ["frozen_utc"],
-        "derivatives/val_index.json": ["frozen_utc"],
-        "derivatives/acceptance.json": ["seconds"],
-    }
-    for prefix in ("fallback", "fallback_failure"):
-        for filename, fields in {
-            "config.json": ["frozen_utc"],
-            "train_index.json": ["frozen_utc"],
-            "val_index.json": ["frozen_utc"],
-            "acceptance.json": ["seconds"],
-        }.items():
-            if Path(prefix, filename) in old_files:
-                allowed[prefix + "/" + filename] = fields
-    for name in sorted(old_files):
-        old, new = before / name, after / name
-        if name.suffix == ".json":
-            left = normalize(json.loads(old.read_text()), before)
-            right = normalize(json.loads(new.read_text()), after)
-            fields = allowed.get(str(name), [])
-            if name.parts[0] in ("fallback", "fallback_failure"):
-                fields = {
-                    "config.json": ["frozen_utc"],
-                    "train_index.json": ["frozen_utc"],
-                    "val_index.json": ["frozen_utc"],
-                    "acceptance.json": ["seconds"],
-                }.get(name.name, [])
-            for field in fields:
-                left.pop(field)
-                right.pop(field)
-            assert json.dumps(left) == json.dumps(right), str(name)
-            counts["json"] += 1
-        elif name.suffix == ".npy":
-            left, right = np.load(old, allow_pickle=False), np.load(new, allow_pickle=False)
-            assert left.dtype == right.dtype and left.shape == right.shape, str(name)
-            np.testing.assert_array_equal(left, right, err_msg=str(name))
-            counts["arrays"] += 1
-        elif name.suffix == ".npz":
-            with (
-                np.load(old, allow_pickle=False) as left,
-                np.load(new, allow_pickle=False) as right,
-            ):
-                assert left.files == right.files, str(name)
-                for key in left.files:
-                    assert (
-                        left[key].dtype == right[key].dtype and left[key].shape == right[key].shape
-                    ), (str(name), key)
-                    np.testing.assert_array_equal(
-                        left[key], right[key], err_msg=str(name) + "/" + key
-                    )
-                    counts["arrays"] += 1
-        elif name.suffix.lower() in (".png", ".jpg"):
-            np.testing.assert_array_equal(
-                np.asarray(Image.open(old)), np.asarray(Image.open(new)), err_msg=str(name)
-            )
-            counts["images"] += 1
-        else:
-            assert old.read_bytes() == new.read_bytes(), str(name)
-            counts["other"] += 1
-    return dict(
-        status="passed",
-        counts=counts,
-        allowed_changes=allowed,
-        path_change="only this acceptance run root prefix",
-        comparison="exact arrays including dtype/shape; JSON order retained in files; decoded image pixels",
-        gpu=False,
-        model_inference=False,
-    )
-
-
-def main():
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--output", type=Path, required=True)
-    p.add_argument("--before", type=Path)
-    a = p.parse_args()
-    if not a.before:
-        from tools.validate.validate_source_isolated_split import validate_split
-        if validate_split.__module__ != "tools.validate.validate_source_isolated_split":
-            raise RuntimeError("Capture requires the independent pre-migration implementations")
-    out = a.output.resolve()
-    out.mkdir(parents=True, exist_ok=False)
-    run(out)
-    if a.before:
-        result = compare(a.before.resolve(), out)
-        write(out.parent / (out.name + "_comparison.json"), result)
-        print(result)
-
-
-if __name__ == "__main__":
-    main()

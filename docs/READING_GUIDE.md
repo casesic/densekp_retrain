@@ -217,10 +217,10 @@ BEDLAM 原始 RGB 标注适配是另一条需要独立核验的路径。不能�
 | --- | --- | --- |
 | 核心实现 | densekp/core 的 Dataset/objective/inference；densekp_retrain 的几何/相机/成像/评价 | 新调用直引定义模块；前五节就是阅读主线 |
 | 实验配方 | tools/experiments、tools/scene 和具体渲染/标注入口 | 保留布局、配额、灯光、随机参数；按你的任务选择一个入口，不通读全部脚本 |
-| 兼容代码 | datasets/utils.py、utils/train_utils.py 的导出，densekp/legacy，旧 loss 类与 Blender 支持导出 | 仅追历史调用时进入；旧 loss 保留类路径，当前训练读 keypoint_objective |
+| 尚保留的兼容代码 | datasets/utils.py 与 densekp/legacy/crop.py | 裁剪接口尚待 B2 评审；B1 已删除旧 loss/train_utils 及 Blender/指标纯导出，当前训练仍读 keypoint_objective |
 | 历史记录 | docs/refactor、旧代码地图、早期阶段报告与历史 outputs | 查来源和验证边界时读，不能以当时状态覆盖当前实现 |
 
-[兼容与历史保留表](refactor/LEGACY_RETENTION_20261002.md) 说明每项保留或删除依据；[配置索引](../configs/README.md) 区分当前与继承配置。
+[B1 精简报告](refactor/PRUNING_B1_20261002.md) 记录当前已退役接口；[此前保留表](refactor/LEGACY_RETENTION_20261002.md) 是上轮状态；[配置索引](../configs/README.md) 区分当前与继承配置。
 日常运行 `bash scripts/audit_workspace.sh`，需要 Dataset/历史合约时加 `--model-contracts`。
 默认检查不读真实权重、不遍历 outputs；完整旧实验回放仍需其明确的资产与版本条件。
 

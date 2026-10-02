@@ -24,7 +24,7 @@ from densekp_retrain.data.boxes import (
     support_rejection,
 )
 from densekp_retrain.data.packing import pack_index_rows, pack_derivative_rows
-from tools.validate.verify_source_packing import source_boundaries, contract_cases, pure_boxes
+from tests.source_packing_fixture import source_boundaries, contract_cases, pure_boxes
 
 
 class SourcePackingContractTests(unittest.TestCase):
