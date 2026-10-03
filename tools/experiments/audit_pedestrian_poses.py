@@ -11,20 +11,12 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
 from densekp_retrain.body.geometry import load_smplx_model
-from densekp_retrain.body.parameters import rest_body
+from densekp_retrain.body.parameters import rest_body, parameters_from_pose
 from densekp_retrain.body.parameters import evaluate
 from densekp_retrain.io.json import write_json
 
 SOURCES = [Path('/home/yy/datasets/BEDLAM/motion_data/tiny/rp_aaron_posed_009/1095/motion_seq.npz'),
            ROOT / 'third_party/bedlam_render/blender/smplx_anim_to_alembic/smplx_animation.npz']
-
-
-def parameters(pose, beta, pelvis):
-    limits = [('global_orient', 0, 3), ('body_pose', 3, 66), ('jaw_pose', 66, 69),
-              ('leye_pose', 69, 72), ('reye_pose', 72, 75),
-              ('left_hand_pose', 75, 120), ('right_hand_pose', 120, 165)]
-    return dict({key: np.asarray(pose[a:b], np.float32)[None] for key, a, b in limits},
-                betas=beta, transl=-pelvis[None])
 
 
 def mesh_panel(vertices, faces, label, size=(300, 280)):
@@ -57,7 +49,7 @@ def main():
         sheet = Image.new('RGB', (1200, 280*((len(frames)+3)//4)), 'white')
         verts, joints = [], []
         for i, frame in enumerate(frames):
-            v, j = evaluate(model, parameters(z['poses'][frame], beta, pelvis))
+            v, j = evaluate(model, parameters_from_pose(z['poses'][frame], beta, pelvis))
             verts.append(v[0]); joints.append(j[0])
             sheet.paste(mesh_panel(v[0], model.faces, f'source {source_id} frame {frame}'), (i%4*300, i//4*280))
         sheet.save(out/f'source_{source_id}_review.jpg')

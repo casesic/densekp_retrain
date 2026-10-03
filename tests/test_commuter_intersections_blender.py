@@ -9,10 +9,10 @@ try:
 except ImportError:
     raise unittest.SkipTest('These geometry checks require Blender mathutils/bpy')
 
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from tools.validate.commuter_intersections import crossings
-from tools.experiments.repair_commuter_top import dual_quaternion_binding
-from tools.experiments.commuter_union_volume import scan
+ROOT = Path(__file__).resolve().parents[1]
+sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
+from densekp_retrain.rendering.blender.intersections import crossings
+from tests.blender_geometry_fixture import dual_quaternion_binding, scan
 from mathutils.bvhtree import BVHTree
 
 

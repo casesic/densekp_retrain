@@ -86,6 +86,10 @@ axis-angle；是否使用 source translation 由生成时的参数决定，不�
 姿态是轴角弧度，平移与顶点是米；`zero_pose` 用负的 shaped pelvis 作为平移，使参考骨盆归零。
 这是该角色系列的策略，不能据此改写上面保留 source translation 的旧时间序列。
 
+来源隔离准备中的单帧行人姿态，先经同一模块的 `parameters_from_pose(pose, beta, pelvis)`：
+按原顺序拆分165维轴角，七个姿态块转为带 batch 维的 float32；`betas` 保留传入对象，
+平移使用 `-pelvis[None]`。角色/帧选择仍由准备入口决定，独立照片不拼成共享 shape 的 motion。
+
 ```mermaid
 flowchart LR
     P[已有姿态参数与角色 betas] --> B[CPU SMPL-X 身体与关节]
@@ -101,11 +105,23 @@ flowchart LR
 [clothing/shells.py](../src/densekp_retrain/clothing/shells.py) 保留两条方案：整面选衣片后偏移，
 以及在 rest 三角形内裁剪并保存重心对应。后者每个衣物顶点都有 `body_barycentric_indices[N,3]`
 和 `body_barycentric_weights[N,3]`，其参考位置是同一 posed 身体三角形的加权和。
-这些索引属于身体网格顶点，不是 138 点编号。profile 改覆盖范围，材质和款式配方仍在实验入口。
+这些索引属于身体网格顶点，不是 138 点编号。profile 改覆盖范围。
+[prepare_simple_clothing](../src/densekp_retrain/clothing/preparation.py) 负责读取现有身体首帧、调用
+`clipped_shell` 并保存数组、材料和来源 manifest；十套款式在
+[adult_candidate_recipe.STYLES](../tools/experiments/adult_candidate_recipe.py)，由入口显式传入。
+它先读几何，再查 style；保留当前全零材质 ID 和写出失败顺序，不负责制作或拟合人体。
+source/adult 入口直引这些公共函数。source-isolated 的 groom 使用
+[clothing/groom_transfer.py](../src/densekp_retrain/clothing/groom_transfer.py) 的 `transfer_groom`：
+按 reference 头皮三角形绑定旋转 local_points 和冻结修正，保留 offsets、active mask 与来源引用；
+不重筛毛或改变头型。固定 `prepare_mixed_pedestrians.py` 制作 CLI 已退役，无兼容包装；
+既有 mixed report、几何及27行回归索引保留，仍由来源准备、冻结和 DS 渲染入口读取。
+旧固定配方需查看 Git 历史版本，不承诺在当前树重新制作。
 
 `world_points` 按 `(x,-z,y)` 把模型 +Y 向上转换为世界 +Z 向上；用身体最低 Y 做 lift，
 再旋转和平移。调用衣物/138 点变换时必须传入同一身体 vertices，不能各自按最低点贴地。
-这批四组合的身体、138 点和衣物重算与原资产误差均为 0；它验证计算，不代表重新验收 Blender 装配。
+P3 几何迁移时四组合的身体、138 点和衣物重算与原资产误差均为 0；它验证计算，不代表重新验收 Blender 装配。
+B3.1 另以四个既有角色的身体/reference/joints 数组对照衣物保存函数；没有重算 `rest_body`
+或执行制作 main，不能把这次对照理解为完整人物重建验收。
 
 ## 2. 3D 世界怎样变成带标注的图片
 

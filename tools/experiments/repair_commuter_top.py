@@ -14,8 +14,8 @@ from mathutils.bvhtree import BVHTree
 from mathutils import Matrix, Quaternion, Vector
 
 ROOT=Path(__file__).resolve().parents[2]
-sys.path.insert(0,str(ROOT))
-from tools.validate.commuter_intersections import crossings
+sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
+from densekp_retrain.rendering.blender.intersections import crossings
 
 
 def edges_of(faces):

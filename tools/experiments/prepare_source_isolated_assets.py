@@ -8,13 +8,13 @@ import torch
 
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(ROOT/'src')]
 from densekp_retrain.body.geometry import load_smplx_model
-from densekp_retrain.body.parameters import rest_body
+from densekp_retrain.body.parameters import rest_body, parameters_from_pose
 from densekp_retrain.io.geometry import save_geometry
 from densekp_retrain.body.parameters import PARAMETERS
 from densekp_retrain.io.json import write_json
-from tools.experiments.audit_pedestrian_poses import parameters
-from tools.experiments.prepare_adult_candidates import clothing
-from tools.experiments.prepare_mixed_pedestrians import transfer_groom
+from densekp_retrain.clothing.preparation import prepare_simple_clothing
+from tools.experiments.adult_candidate_recipe import STYLES
+from densekp_retrain.clothing.groom_transfer import transfer_groom
 from densekp_retrain.data.source_split import validate_split
 
 
@@ -55,13 +55,13 @@ def main():
                     source_params=ROOT/'outputs/experiments/cycling_smplx_20260929'/pose/'canonical_pose.npz'
                     z=np.load(source_params);params={k:z[k] for k in PARAMETERS}
                     params.update(betas=beta,transl=-pelvis[None])
-                else:params=parameters(source['poses'][frame],beta,pelvis)
+                else:params=parameters_from_pose(source['poses'][frame],beta,pelvis)
                 row=save_geometry(folder/'geometry',model,params,dict(character_id=cid,pose_source_id=pose,
                     source_group=source_group,source_frame=frame,source_file=src['source_file'] if action!='cycling' else str(source_params),
                     source_betas=source['betas'].tolist() if action!='cycling' else None,
                     parent_manifest=c['manifest'],partition=side),R)
                 geometry=Path(row['geometry'])
-                row['clothing_geometry']=clothing(folder/'simple_clothing',geometry,rest,joints,short,cid)
+                row['clothing_geometry']=prepare_simple_clothing(folder/'simple_clothing',geometry,rest,joints,short,cid,style_table=STYLES)
                 row['groom_geometry']=transfer_groom(m,geometry,folder/'groom')
                 np.savez(folder/'canonical_pose.npz',**params)
                 row.update(character_id=cid,pose_source_id=pose,appearance=m['appearance'],
@@ -76,7 +76,7 @@ def main():
             # verified. This is not a locked-head donor shape conversion.
             np.testing.assert_allclose(np.pad(saved_beta,(0,len(beta)-len(saved_beta))),beta,atol=0,rtol=0)
             if action!='cycling':
-                expected=parameters(source['poses'][frame],beta,pelvis)
+                expected=parameters_from_pose(source['poses'][frame],beta,pelvis)
                 for key in PARAMETERS:np.testing.assert_array_equal(saved[key],expected[key])
                 body=np.load(Path(row['geometry'])/'vertices.npy')[0];groups=model.lbs_weights.numpy().argmax(1)
                 base=body[:,1].min();base_joint=int(groups[body[:,1].argmin()])

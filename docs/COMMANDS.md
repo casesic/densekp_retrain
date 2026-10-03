@@ -27,6 +27,32 @@ python tools/fisheye/run_fisheye_camera_p0.py --help
 
 ## 按用途选择入口
 
+回归调度使用 `tools/validate/run_regression_suite.py`，默认只打印 JSON 计划（仅标准库，
+不启动子进程、不查询 GPU、不写文件、不读取权重）。例如：
+
+```bash
+python tools/validate/run_regression_suite.py --suite source_trial --trial /path/to/trial --data-root /path/to/data
+python tools/validate/run_regression_suite.py --suite box_robustness --experiment /path/to/experiment
+```
+
+计划列出完整 argv、输入/输出、reference、默认与显式 model_config/device、业务 gate 和汇总顺序。
+缺训练报告或 gate 不通过会显示原因；展示成功不表示可推理。显式增加 `--execute` 才启动实际评价，
+且必须给 `--gpu-uuid GPU-…` 或明确 `--physical-gpu N`；同时给出时必须指向同一设备。
+执行先查询设备和进程，再执行原业务 gate，每个推理任务前复查，子进程经完整 UUID 映射到 cuda:0。
+不自动换卡、重置或终止进程；记录进程不等于保证空闲。
+
+source 按 main → paired → regression 执行，随后调用原配对汇总及 compare_source_trial。
+box 按 challenge_A/B/C → val_C → regression_C → history_B/C 执行；compare_box_robustness
+仅列为独立后续命令，不自动运行，且它固定读取 evaluation_v2，不跟随调度器的 `--output-name`。
+box 保留 `--output-name`（默认 evaluation_v2）和 `--only`：筛选按原任务顺序，必须已有 execution.json；
+未知名称可得到零任务，不能据此认定评价已完成。完整运行拒绝已有输出目录，部分重跑也不替 evaluator 覆盖旧结果。
+source 先 gate 再 mkdir，box 先 mkdir 再 gate；新增设备前置检查先于两者，失败不产生业务输出。
+`--reference-report` 是输入一致性约束，不复用预测。两套 evaluator 的公式、分母与单位保持各自规则。
+
+旧 `tools/experiments/evaluate_source_trial.py`、`evaluate_box_robustness.py` 已退役，无兼容包装。
+suite 路径配方见 [配置](../configs/regression/suites.json)，不自动选择最新权重或修改活动 status。
+本批只用桩验收调度，没有实际 GPU、推理、汇总或比较；框增强权重仍未获部署替换认可。
+
 | 用途与入口 | 必要输入/选择 | 输出与执行边界 | 环境与外部资产 |
 | --- | --- | --- | --- |
 | 标签检查：`tools/annotation/inspect_annotation.py` | 位置参数为 NPZ 的绝对路径 | 读取并打印契约；不生成预测。它不代替图片/Dataset 回读 | data/model 依赖按安装表；显式 NPZ |

@@ -4,8 +4,8 @@ from pathlib import Path
 import numpy as np
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
-ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
-from tools.validate.commuter_intersections import crossings
+ROOT=Path(__file__).resolve().parents[2];sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
+from densekp_retrain.rendering.blender.intersections import crossings
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('assets',type=Path);a=p.parse_args(sys.argv[sys.argv.index('--')+1:])

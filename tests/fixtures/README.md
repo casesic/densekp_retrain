@@ -62,3 +62,15 @@ geometry_camera_v1.json 的独立数值期望、拒绝记录和容差不变。ge
 verify_geometry_camera.py --before 原基线 --output 新目录仍执行真实 CPU SMPL-X 回放，
 需要原人物资产；不属于无资产日常检查，本批没有执行。test_geometry_capture_retirement
 只验提前拒绝和 verify 分支可达性，不能据此宣称真实几何回放通过。
+
+## Blender 小型相交契约
+
+`tests/test_commuter_intersections_blender.py` 的七项断言直接使用公共
+`densekp_retrain.rendering.blender.intersections.crossings`。DQS 与 scan 的最小参考实现
+位于 `tests/blender_geometry_fixture.py`；期望仍由解析刚体矩阵、符号对齐和已知体内外关系给出，
+不从参考 helper 自行生成。测试只需要 Blender 自带 NumPy/mathutils 和临时立方体，不读取人物资产或渲染。
+
+`legacy_import_bodies_v1.json` 字节未改。两个 commuter audit 的冻结 main 检查仅允许
+第 7、8 条语句（AST 索引 6、7）的确切 src 路径与公共 crossings 导入；先核对新节点，
+再还原为旧节点比较整个冻结执行体，其余语句仍精确检查。旧模块名在此仅是 AST 期望，不能用于运行导入。
+独立迁移对照与具体测试 ID 见 `docs/refactor/PRUNING_B3_3_20261003.md`。

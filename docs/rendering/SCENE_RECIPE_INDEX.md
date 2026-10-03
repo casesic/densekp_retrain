@@ -1,8 +1,8 @@
 # 场景配方、资产与消费入口
 
-更新：2026-10-02，P3.5。这里描述现有路径，不是要求重新制作资产的运行清单。
+更新：2026-10-03，B3.3 相交诊断公共接口。这里描述现有路径，不是要求重新制作资产的运行清单。
 配方决定布局、灯光、材质选择与随机参数；公共库负责几何、相机、装配、成像和任务执行。
-本批不新增资产、不重新制作森林或街景。验收范围见 [实施记录](../refactor/P3_SCENE_RECIPES_20261002.md)。
+本批不新增资产、不重新制作森林或街景。场景链的既有验收范围见 [P3.5 实施记录](../refactor/P3_SCENE_RECIPES_20261002.md)。
 
 ## 先找配方，再找消费者
 
@@ -32,7 +32,27 @@
 `render_source_ground_repairs.py` 是选定候选的修复重放配方，消费已有探针/布局与场景，输出修复目录及执行状态；其固定分辨率、采样和 GPU 配方保持，不是通用渲染 API，本批未运行。
 成人候选复用 `render_cycling_ds.layout`，街景升级复用 `build_urban_street.blender_main` 作特定预览；这是配方之间明确的组合，公共库没有反向导入它们。
 
+人物准备先读 `tools/experiments/prepare_source_isolated_assets.py`：来源/角色/帧及复用顺序仍在
+该配方中；姿态块使用 `densekp_retrain.body.parameters.parameters_from_pose`，简单衣物写出使用
+`densekp_retrain.clothing.preparation.prepare_simple_clothing`。adult 准备也直引这些定义，
+显式传入 `tools/experiments/adult_candidate_recipe.py` 中的十套 `STYLES`；公共模块不选择角色或颜色。
+旧脚本的 `parameters`、`clothing` helper 导入已退役，无兼容包装。
+groom 转移直引 `densekp_retrain.clothing.groom_transfer.transfer_groom`，读取冻结绑定和现有身体数组；
+固定 `prepare_mixed_pedestrians.py` 制作 CLI 已退役，不提供旧名包装或当前树重制承诺。
+已有 mixed 资产/report/27行索引以及成人24行索引仍保留；`render_adult_candidates_ds --assets`
+与 `freeze_mixed_candidates` 不依赖退役脚本，source-isolated 仍可复用其保存资产。
+`SOURCES`、`mesh_panel` 的专用配方关系保留。历史实现查 Git，ignored 资产并不由 Git 备份。
+衣物保存与 groom CPU 回放仅写新验收目录，没有运行人物制作 main 或场景链；
+分别见 [B3.1 记录](../refactor/PRUNING_B3_1_20261003.md) 与 [B3.2 记录](../refactor/PRUNING_B3_2_20261003.md)。
+
 ## 历史透视与外观检查路径
+
+相交诊断的公共计算位于 `densekp_retrain.rendering.blender.intersections.crossings`，
+仍需 Blender/mathutils；轻量包入口不自动导入它。`diagnose_adult_contacts`、两个 commuter audit
+及保留的衣物诊断/修复配方直接使用该实现，旧 `tools/validate/commuter_intersections.py` 已退役。
+失败制作工具暂留待 B4 评审，本次仅改其导入和 src 路径，没有改变制作计算。
+小型测试使用 `tests/blender_geometry_fixture.py` 中的 DQS/scan 参考，不再导入失败制作工具。
+七项合成数值测试不代表衣物质量或制作链验收；详见 [B3.3 记录](../refactor/PRUNING_B3_3_20261003.md)。
 
 以下入口均位于 `tools/render/`，保留旧命令、默认值及报告格式。它们不被强制改成 ERP 管线。
 

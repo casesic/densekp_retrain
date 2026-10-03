@@ -62,6 +62,25 @@ runpy.run_path(script, run_name='__main__')
                     for n in tree.body
                     if isinstance(n, ast.FunctionDef) and n.name == "main"
                 )
+                if name in (
+                    "tools/validate/audit_commuter_pose_sources.py",
+                    "tools/validate/audit_commuter_component_contacts.py",
+                ):
+                    # B3.3 authorizes exactly these two statements at these
+                    # positions. Every other node still matches the old fixture.
+                    approved = ast.parse(
+                        "sys.path[:0] = [str(ROOT), str(ROOT / 'src')]\n"
+                        "from densekp_retrain.rendering.blender.intersections import crossings\n"
+                    ).body
+                    for index, expected in zip((6, 7), approved):
+                        self.assertEqual(
+                            ast.dump(main.body[index], include_attributes=False),
+                            ast.dump(expected, include_attributes=False),
+                        )
+                    main.body[6:8] = ast.parse(
+                        "sys.path.insert(0, str(ROOT))\n"
+                        "from tools.validate.commuter_intersections import crossings\n"
+                    ).body
                 self.assertEqual(
                     ast.dump(
                         ast.Module(body=main.body, type_ignores=[]),

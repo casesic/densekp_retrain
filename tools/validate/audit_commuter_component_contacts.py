@@ -8,8 +8,8 @@ def main():
     import sys
     import numpy as np
 
-    ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
-    from tools.validate.commuter_intersections import crossings
+    ROOT=Path(__file__).resolve().parents[2];sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
+    from densekp_retrain.rendering.blender.intersections import crossings
 
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('root',type=Path)
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);rows=[]

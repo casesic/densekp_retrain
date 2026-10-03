@@ -20,23 +20,11 @@ from densekp_retrain.io.json import write_json
 from densekp_retrain.body.parameters import rest_body
 from densekp_retrain.body.measurements import measurement_rows, measure
 from densekp_retrain.io.geometry import save_geometry
-from densekp_retrain.clothing.shells import clipped_shell
+from densekp_retrain.clothing.preparation import prepare_simple_clothing
+from tools.experiments.adult_candidate_recipe import STYLES
 
 PILOT=ROOT/'outputs/experiments/cycling_commuter_pilot_20260930'
 OLD=ROOT/'outputs/experiments/cycling_four_characters_20260929'
-# sleeve: shoulder -> wrist, leg: hip -> ankle. Styles intentionally simplified.
-STYLES={
- 'F01':(.34,.36,'sport',[.08,.24,.55],[.025,.04,.08],[.8,.85,.9]),
- 'F02':(.93,.95,'daily',[.57,.45,.30],[.035,.055,.1],[.57,.45,.30]),
- 'F03':(.38,.40,'daily',[.42,.09,.045],[.28,.20,.10],[.53,.16,.08]),
- 'F04':(.92,.94,'sport',[.025,.30,.24],[.018,.025,.028],[.40,.65,.45]),
- 'F05':(.70,.88,'daily',[.19,.25,.07],[.055,.055,.065],[.25,.32,.1]),
- 'M01':(.32,.42,'sport',[.65,.19,.025],[.02,.04,.09],[.9,.75,.38]),
- 'M02':(.42,.95,'daily',[.15,.24,.31],[.28,.29,.30],[.15,.24,.31]),
- 'M03':(.93,.42,'daily',[.25,.40,.55],[.45,.32,.17],[.4,.55,.65]),
- 'M04':(.92,.72,'sport',[.27,.035,.07],[.045,.045,.055],[.55,.20,.22]),
- 'M05':(.90,.95,'daily',[.035,.17,.09],[.17,.095,.045],[.055,.22,.13]),
-}
 
 def fitted_shape(model, short, labels):
     base=np.zeros(30,np.float32)
@@ -64,23 +52,6 @@ def fitted_shape(model, short, labels):
                      bounds=[-1.5,1.5],meaning='engineering bound, not population standard deviations',
                      method='whole SMPL-X shape-space regularized fit, expression zero',visual_status='pending')
 
-def clothing(destination,geometry,rest,joints,short,cid):
-    body=np.load(geometry/'vertices.npy')[0];faces=np.load(geometry/'faces.npy')
-    sleeve,leg,style,top,pants,band=STYLES[short]
-    profile=dict(sleeve=sleeve,leg=leg,collar=.045,style=style)
-    arrays,meta=clipped_shell(rest,joints,body,faces,profile)
-    destination.mkdir(parents=True)
-    for name,value in arrays.items():np.save(destination/f'{name}.npy',value)
-    np.save(destination/'face_material_ids.npy',np.zeros(len(arrays['clothing_faces']),np.int32))
-    materials=[dict(name=n,color=c+[1]) for n,c in [('top',top),('pants',pants),('panel',band)]]
-    write_json(destination/'materials.json',materials)
-    meta.update(profile=profile,fabric='plain',fabric_note='continuous palette/panels; no rib shader claimed')
-    write_json(destination/'garment_material.json',meta)
-    write_json(destination/'clothing_manifest.json',dict(meta,body_geometry=str(geometry),character_id=cid,
-        split='integration_only',method='existing clipped 4mm fitted shell with anatomical sleeve/leg lengths',
-        limitation='fitted simple clothes; not straight trousers, polo or physically simulated cloth',
-        appearance_status='diagnostic_pending',legacy_clearance_gate_m=.0004,legacy_offset_gate_m=.01))
-    return str(destination)
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True)
@@ -148,7 +119,7 @@ def main():
                     z=np.load(source);params={k:z[k] for k in PARAMETERS};params.update(betas=beta,transl=-pelvis[None])
                 row=save_geometry(folder/'geometry',model,params,dict(manifest,pose_source_id=pose),regressor)
                 geom=Path(row['geometry'])
-            row['clothing_geometry']=clothing(folder/'simple_clothing_v1',geom,rest,joints,short,cid)
+            row['clothing_geometry']=prepare_simple_clothing(folder/'simple_clothing_v1',geom,rest,joints,short,cid,style_table=STYLES)
             row.update(character_id=cid,pose_source_id=pose,appearance=appearance,split='integration_only',
                        appearance_status='diagnostic_pending',pose_source_parameters=None if pose=='reference' else
                        str(ROOT/'outputs/experiments/cycling_smplx_20260929'/pose/'canonical_pose.npz'))

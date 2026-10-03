@@ -13,8 +13,8 @@ from densekp_retrain.io import read_combined_depth_index
 from densekp_retrain.camera.double_sphere import DS_20260320, build_erp_to_fisheye_lut, build_fisheye_to_source_erp_lut
 from densekp_retrain.imaging.remap import remap_periodic_erp
 from densekp_retrain.io.json import write_json
-from densekp_retrain.body.parameters import PARAMETERS
-from tools.experiments.audit_pedestrian_poses import SOURCES, parameters
+from densekp_retrain.body.parameters import PARAMETERS, parameters_from_pose
+from tools.experiments.audit_pedestrian_poses import SOURCES
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
 from densekp.core.datasets.configuration import audit_cfg
 
@@ -29,7 +29,7 @@ def main():
     for d in report['derivatives']:
         if d['action']=='cycling':continue
         saved=np.load(Path(d['geometry'])/'motion_params.npz')
-        original=parameters(source['poses'][d['source_frame']],saved['betas'],np.zeros(3))
+        original=parameters_from_pose(source['poses'][d['source_frame']],saved['betas'],np.zeros(3))
         for key in PARAMETERS:
             if key not in ('betas','transl'):np.testing.assert_array_equal(saved[key],original[key])
     for layout in review['layouts']:

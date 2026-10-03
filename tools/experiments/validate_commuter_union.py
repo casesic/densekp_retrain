@@ -8,8 +8,8 @@ import numpy as np
 import bmesh
 from mathutils.bvhtree import BVHTree
 
-ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
-from tools.validate.commuter_intersections import crossings
+ROOT=Path(__file__).resolve().parents[2];sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
+from densekp_retrain.rendering.blender.intersections import crossings
 from tools.experiments.repair_commuter_top import edges_of,average
 
 

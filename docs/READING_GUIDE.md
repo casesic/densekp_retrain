@@ -13,6 +13,13 @@ P1 的指标、配置、推理、评价展示和训练回调归位已完成；
 P1–P3 已整体通过评审并提交于 aaf08bd；P4 安装、入口和历史清理已整体通过评审。P4/P5 随本次提交交付；[P5 最终阅读与交付核查](refactor/P5_READING_DELIVERY_20261002.md) 已完成，待评审决定整体收尾。推荐命令及计算边界见 [命令表](COMMANDS.md)。
 场景和透视路径从 [配方 → 资产 → 消费入口索引](rendering/SCENE_RECIPE_INDEX.md) 进入；框实验配额与随机配方继续由实验入口负责。
 
+回归调度现在从 [run_regression_suite.py](../tools/validate/run_regression_suite.py) 进入：
+`source_trial_tasks` 与 `box_robustness_tasks` 直接列出两套任务，
+[suites.json](../configs/regression/suites.json) 仅保存固定输入路径角色。默认展示无业务计算；
+`--execute` 的 gate、设备核查和旧入口退役见 [命令表](COMMANDS.md)。
+这次合并不改变 evaluator、summary、compare 的公式；DS box evaluator 对 occlusion evaluator 的历史导入关系仍保留。
+B3.1–B3.4 的交付范围、未运行路径和剩余配方依赖见 [B3 整体验收清单](refactor/PRUNING_B3_COMPLETION_20261003.md)。
+
 ## 1. 先把项目看成三部分
 
 **生成数据、训练模型、检查模型。** 它们共享坐标和关键点约定，但承担不同职责。

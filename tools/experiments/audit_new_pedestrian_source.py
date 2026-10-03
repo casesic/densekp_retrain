@@ -9,8 +9,8 @@ from PIL import Image
 
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'src')]
-from tools.experiments.audit_pedestrian_poses import parameters, mesh_panel
-from densekp_retrain.body.parameters import rest_body
+from tools.experiments.audit_pedestrian_poses import mesh_panel
+from densekp_retrain.body.parameters import rest_body, parameters_from_pose
 from densekp_retrain.body.parameters import evaluate
 from densekp_retrain.io.json import write_json
 from densekp_retrain.body.geometry import load_smplx_model
@@ -31,7 +31,7 @@ def main():
         sheet=Image.new('RGB',(1200,280*((len(frames)+3)//4)),'white')
         vs=[];js=[];checks=[];groups=model.lbs_weights.numpy().argmax(1)
         for i,frame in enumerate(frames):
-            params=parameters(z['poses'][frame],beta,pelvis);v,j=evaluate(model,params)
+            params=parameters_from_pose(z['poses'][frame],beta,pelvis);v,j=evaluate(model,params)
             vs.append(v[0]);js.append(j[0]);base=v[0,:,1].min()
             checks.append(dict(frame=int(frame),base_joint=int(groups[v[0,:,1].argmin()]),
                 foot_height_m={side:float(v[0,np.isin(groups,ids),1].min()-base)

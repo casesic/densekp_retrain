@@ -1,0 +1,17 @@
+{
+  "history": {
+    "mixed": "outputs/experiments/mixed_riders_pedestrians_20260930",
+    "riding": "outputs/experiments/cycling_ten_adults_candidates_20260930"
+  },
+  "source_trial": {
+    "mplconfigdir": "/tmp/densekp-trial-mpl"
+  },
+  "box_robustness": {
+    "data": "outputs/experiments/source_isolated_pilot_20260930",
+    "plain": "outputs/experiments/source_isolated_trial_400_gpu1_20261001",
+    "control": "outputs/experiments/ds_occlusion_control_20260928",
+    "old_scene": "outputs/experiments/ds_scene_pair_20260928_final/urban_street_assets",
+    "checkpoint_a": "assets_external/densekp.ckpt",
+    "mplconfigdir": "/tmp/densekp-box-mpl"
+  }
+}

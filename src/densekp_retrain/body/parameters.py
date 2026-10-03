@@ -20,6 +20,29 @@ PARAMETERS = [
 ]
 
 
+def parameters_from_pose(pose, beta, pelvis):
+    """Split one SMPL-X axis-angle pose into ordered, batched float32 blocks.
+
+    A complete pose has 165 values in radians. Preserve ordinary slice behavior
+    for shorter inputs. ``beta`` is returned unchanged, including its identity;
+    translation is ``-pelvis[None]`` in model-axis meters, without reshaping.
+    """
+    limits = [
+        ("global_orient", 0, 3),
+        ("body_pose", 3, 66),
+        ("jaw_pose", 66, 69),
+        ("leye_pose", 69, 72),
+        ("reye_pose", 72, 75),
+        ("left_hand_pose", 75, 120),
+        ("right_hand_pose", 120, 165),
+    ]
+    return dict(
+        {key: np.asarray(pose[a:b], np.float32)[None] for key, a, b in limits},
+        betas=beta,
+        transl=-pelvis[None],
+    )
+
+
 def evaluate(model, params):
     """Evaluate a CPU model using ordered float32 parameters.
 
