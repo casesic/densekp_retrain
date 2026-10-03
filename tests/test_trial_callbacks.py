@@ -1,4 +1,4 @@
-"""CPU interface checks only; real CUDA acceptance is verify_fixed_validation.py."""
+"""CPU interface checks only; opt-in CUDA acceptance is check_fixed_validation_runtime.py."""
 
 from pathlib import Path
 import pickle

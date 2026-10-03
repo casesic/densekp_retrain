@@ -98,7 +98,8 @@ B4-D 停止 BVH/BABEL 骑行检索和拟合输入、失败衣物修复/union/set
 
 | 检查 | 必要输入/输出 | 计算边界 |
 | --- | --- | --- |
-| `verify_refactor_inference.py`、`verify_fixed_validation.py` | 原独立 before/固定输入及全新 output；仍有历史目录和 GPU1 假设，须先逐项核实 | B4-P 尚未提取，两驱动原样保留；涉及真实模型前向或 CUDA 小网络参数更新。B4-D 未运行；CPU/桩不能替代 |
+| `check_inference_runtime.py` | 必填 `--checkpoint --model-config --backbone --inputs --expected --route --profile --device --output`；expected 按 route 顺序提供独立 JSON 及同名 NPZ，inputs 为完整归一化 `img: float32[3,256,256]` | 默认仅标准库打印；`--execute` 才两类 strict 加载及所选前向。route 为 explicit/lightning；profile 为 batch/item；atol=1e-5、rtol=0，不执行参数更新 |
+| `check_fixed_validation_runtime.py` | 必填 `--source --before --output --scenario --device --max-updates`；resumed 必须另给 `--resume-checkpoint`（独立 step2）；before 含所选场景 JSON/NPZ | 默认仅打印；`--execute` 使用公共 FixedValidation 和源码 tests.fixed_validation_fixture.run_case。success 4次、resumed 2次、其余每场景2次小网络更新，受累计尝试预算限制；不是无需 tests 的 wheel 入口 |
 | `verify_densekp_model_lifecycle.py` | 显式 phase/checkpoint/output-dir；resume 另需 reference-dir；内部固定 p0_dressed_tiny、trainer=gpu，无 --config 参数 | 真实 DenseKP 更新/保存恢复；需要注册数据与初始化资产，不是无资产检查 |
 | `verify_blender_assembly.py` | 显式 case、mode assembly/render、output | 真实 Blender 装配；只有触及渲染行为才安排有限渲染，不默认重做场景 |
 | `compare_blender_acceptance.py` | 指定 before/after/report | CPU 读取选定制品，含 EXR 通道；不启动渲染 |
@@ -109,3 +110,16 @@ B4-D 停止 BVH/BABEL 骑行检索和拟合输入、失败衣物修复/union/set
 三个场景脚本的导入检查在真实 Blender 内单独运行，允许 bpy/mathutils，但禁止 main、资产 IO、场景操作、写出和进程。
 历史完整工具可只读查看，例如 `git show ada2295:tools/experiments/repair_commuter_top.py`；
 Git 不备份 ignored 的 outputs/资产，也不保证历史代码在当前环境无需准备即可执行。
+
+
+以上两个 runtime 入口的所有用户路径按调用 cwd 解析，建议给绝对路径；output 必须不存在。
+`--device` 为明确物理编号或完整 GPU UUID，执行前查询该设备及进程，再以返回 UUID 映射到逻辑 cuda:0。
+查询失败、UUID 不匹配或可用显存不足会拒绝，不换卡、不重置、不终止进程。
+默认展示只检查文件存在性，不读取权重/数组、不查询设备、不创建文件；它不保证数值输入有效。
+推理入口显式用 `--backbone` 设置初始化资产路径，不从旧历史目录或“最新权重”推断。
+回调 source 需 cases.json 及 val_baseline_002/001/004.npz；保留既有 fixture 的采样、比较及异常语义。
+
+旧 verify_refactor_inference / verify_fixed_validation CLI 和其历史 capture、AST 提取已退役。
+历史代码可从 `git show 57d19df:tools/validate/verify_fixed_validation.py` 查阅；独立 before 与原结果保留在本地 outputs，Git 不为它们提供备份。
+本次仅实测原始权重、两个固定输入、两路线×batch/item，以及 success/resumed/save_failure；其它回调场景只验参数派发。
+具体输入与计算计数见 [B4-P 验收](refactor/PRUNING_B4_RUNTIME_20261003.md)。不代表新效果评价或部署认可。

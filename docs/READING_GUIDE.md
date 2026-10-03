@@ -20,6 +20,13 @@ P1–P3 已整体通过评审并提交于 aaf08bd；P4 安装、入口和历史�
 这次合并不改变 evaluator、summary、compare 的公式；DS box evaluator 对 occlusion evaluator 的历史导入关系仍保留。
 B3.1–B3.4 的交付范围、未运行路径和剩余配方依赖见 [B3 整体验收清单](refactor/PRUNING_B3_COMPLETION_20261003.md)。
 
+长期加载与回调检查分别从 [check_inference_runtime.py](../tools/validate/check_inference_runtime.py)
+和 [check_fixed_validation_runtime.py](../tools/validate/check_fixed_validation_runtime.py) 进入：
+先读 `build_plan`（默认无计算），再读 `execute`（显式授权 GPU 前向或替代小网络更新）。
+公共推理和 FixedValidation 算法未改；新工具直接调用当前函数，回调复用源码 tests 中的 run_case。
+输入、独立期望、初始化资产、设备和全新输出均显式指定，详见 [命令与计算边界](COMMANDS.md)。
+旧两个迁移驱动及 capture/AST 路线已退役；[B4 完成检查表](refactor/PRUNING_B4_COMPLETION_20261003.md) 列出实际验证与未覆盖范围。
+
 ## 1. 先把项目看成三部分
 
 **生成数据、训练模型、检查模型。** 它们共享坐标和关键点约定，但承担不同职责。
