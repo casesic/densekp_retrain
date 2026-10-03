@@ -21,11 +21,11 @@ MODEL_TESTS = [
     "tests.test_scene_recipes",
     "tests.test_evaluation_contract",
     "tests.test_geometry_camera_contract",
-    "tests.test_geometry_capture_retirement",
-    "tests.test_dataset_capture_retirement",
     "tests.test_image_normalization",
     "tests.test_import_boundaries",
     "tests.test_imaging_pipeline",
+    "tests.test_source_asset_preparation",
+    "tests.test_regression_suite",
 ]
 
 

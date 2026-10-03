@@ -1,6 +1,6 @@
 # 场景配方、资产与消费入口
 
-更新：2026-10-03，B3.3 相交诊断公共接口。这里描述现有路径，不是要求重新制作资产的运行清单。
+更新：2026-10-03，B4-D 历史工具退役。这里描述现有路径，不是要求重新制作资产的运行清单。
 配方决定布局、灯光、材质选择与随机参数；公共库负责几何、相机、装配、成像和任务执行。
 本批不新增资产、不重新制作森林或街景。场景链的既有验收范围见 [P3.5 实施记录](../refactor/P3_SCENE_RECIPES_20261002.md)。
 
@@ -12,7 +12,6 @@
 | 制作入口（`tools/scene/`） | 输入和资产依赖 | 默认制品与用途 |
 | --- | --- | --- |
 | `build_cycling_forest.py` | 已打开的 Pine Forest 原场景，`assets/scenes/photoreal/pine_forest/` 贴图及 cycling_forest 本地 asphalt_02 贴图 | `assets/scenes/photoreal/cycling_forest/cycling_forest.blend`；`outputs/scenes/cycling_forest/` 中心线 CSV、validation 和预览；骑行林道配方 |
-| `build_reference_riverfront.py` | 程序式几何和材质，参考画面构图，不需要新的下载资产 | `assets/scenes/riverfront/riverfront.blend` 与 `outputs/scenes/riverfront/`；独立河岸示意配方，不是当前 DenseKP 主线资产 |
 | `prepare_hidden_alley.py` | 已打开的 `assets/scenes/photoreal/hidden_alley/ph_hidden_alley.blend` 和相邻 textures | 同目录 `hidden_alley_ready.blend`，`outputs/scenes/photoreal_hidden_alley/`；原场景贴图路径、相机适配，保留原源文件 |
 | `build_urban_street.py` | 程序式街景配方，固定 seed 默认 73 | `assets/scenes/photoreal/urban_street/urban_street.blend`，`outputs/scenes/urban_street/` 报告/预览；资产升级的基底 |
 | `download_urban_assets.py` | Poly Haven apartment kit 下载元数据和网络（本批不运行） | `assets/scenes/photoreal/urban_street/source/modular_urban_apartments_facade/`；下载及既有校验配方 |
@@ -48,11 +47,11 @@ groom 转移直引 `densekp_retrain.clothing.groom_transfer.transfer_groom`，�
 ## 历史透视与外观检查路径
 
 相交诊断的公共计算位于 `densekp_retrain.rendering.blender.intersections.crossings`，
-仍需 Blender/mathutils；轻量包入口不自动导入它。`diagnose_adult_contacts`、两个 commuter audit
-及保留的衣物诊断/修复配方直接使用该实现，旧 `tools/validate/commuter_intersections.py` 已退役。
-失败制作工具暂留待 B4 评审，本次仅改其导入和 src 路径，没有改变制作计算。
-小型测试使用 `tests/blender_geometry_fixture.py` 中的 DQS/scan 参考，不再导入失败制作工具。
-七项合成数值测试不代表衣物质量或制作链验收；详见 [B3.3 记录](../refactor/PRUNING_B3_3_20261003.md)。
+仍需 Blender/mathutils；轻量包入口不自动导入它。当前 `diagnose_adult_contacts` 直接使用公共实现。
+旧相交包装在 B3.3 退役；B4-D 进一步停止失败修复、union、settling、polo 及专用审计制作链，
+并移除只服务其历史 DQS/scan 的参考测试。公共 crossings 四项解析断言保持，不能据此宣称衣物质量通过。
+独立 riverfront 再制作、两个旧 Omni sweep 和 P0 pyrender 专用检查也已退出；已有成功/失败制品不删除。
+历史算法和七项原迁移证据见 [B3.3 记录](../refactor/PRUNING_B3_3_20261003.md)，不作为当前CLI推荐。
 
 以下入口均位于 `tools/render/`，保留旧命令、默认值及报告格式。它们不被强制改成 ERP 管线。
 
@@ -68,7 +67,6 @@ groom 转移直引 `densekp_retrain.clothing.groom_transfer.transfer_groom`，�
 | `finalize_p0_outputs.py` | P0 渲染、投影、深度 → 可见性标签/报告 | 保留旧深度/可见性算法，不接入 DS 标签规则 |
 | `finalize_temporal_case.py` | 序列渲染与标签 → CSV、时序统计与 ffmpeg 视频 | 专用归档/展示，不在导入时执行 |
 | `review_cycling_characters.py` | 候选人体、衣物/groom、材质 → studio 预览与报告 | 角色外观配方；直接调用 P3.4 公共材质/groom |
-| `review_commuter_component.py` | rest/bound/final 组件 → 分阶段 studio 检查 | 保留三阶段含义和原配方 |
 | 公共 `rendering/blender/materials.py`、`groom.py` 与 `clothing/contracts.py` | 材质/发型/衣物契约 | 活动调用方直引公共实现；对应 tools 纯导出已在 B1 删除，制作与渲染配方不变 |
 
 `src/densekp_retrain/rendering/jobs.py` 是两条冻结透视任务的公共组织层：
@@ -83,3 +81,21 @@ groom 转移直引 `densekp_retrain.clothing.groom_transfer.transfer_groom`，�
 - 环境 `render_scene_fisheye.warp` 使用 Lanczos4，DenseKP 后处理有自己的插值/周期和标签规则；不以函数外形相似为合并依据。
 - 灯光、道路参数、森林清障、随机 seed 和材质选择属于具体制作配方。P3.4 公共装配已承接实际复用部分，本批不新增空泛配方基类。
 - 旧 `--` Blender 入口继续保留。新增 main 的四个脚本不承诺原有制作后临时变量作为可导入 API；仓库调用核查没有此类消费者。
+
+
+## 必要外观制品的生产者继续保留
+
+- `tools/experiments/audit_skin_texture.py` 实际写出 `outputs/body_texture_audit/body_uv.npz`
+  的 UV、faces、faces_uv、component_labels；角色准备和程序眼部仍消费它。
+  原 `skin_texture_audit.json` 及资产来源/许可附件保留；通用 UV JSON 审计不等于该 NPZ 生产能力。
+- `tools/experiments/inspect_bedlam2_groom.py` 在 Blender 导入 Alembic，导出 points/offsets/imported_radius
+  和包含 cases/export 的 report，供 bind_commuter_groom/bind_adult_grooms 使用。
+  既有 `outputs/experiments/cycling_commuter_pilot_20260930/groom_import_audit_v2/report.json`
+  记录 Blender 5.1.1、对象变换和来源。导出单位仍须按原报告与绑定入口解释，不能直接假定为米；
+  绑定入口原有缩放未变，原许可/来源限制未解除。
+- `prepare_source_trial_config.py` 仍生产 training_recommendation/regression_reference_audit；
+  它还含历史提案/status写出，不应在活动目录直接重跑。B4-D 只改说明中的 CheckUpdates 公共路径。
+
+人物、简单衣物与 groom 的当前链及 mixed/adult 保存资产消费完整保留。
+B4-D 仅做合成相交与真实 Blender 受控导入，没有制作、渲染或外观验收。
+历史代码使用 `git show ada2295:<仓内路径>` 只读查看；ignored 资产/失败输出没有因此得到备份。

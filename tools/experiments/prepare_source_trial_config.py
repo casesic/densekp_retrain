@@ -55,7 +55,7 @@ def main():
         prerequisites=['approved frozen identity/source split','actual scene/loader acceptance','frozen train/val row indices',
                        'new original-weight baseline','source/intersection validator passed'],
         implementation_notes=['DenseKP.training_step manually zeroes/steps each batch; accumulation >1 is unsupported.',
-                              'Use existing CheckUpdates callback and strict reload probe from train_cycling_smoke.py.',
+                              'Use existing densekp.core.training_audit.CheckUpdates callback and strict reload probe.',
                               'Build new dataset registry entries only from accepted indices; old 51 rows never substitute for missing data.',
                               'No training command is executable yet: candidate NPZ/index files do not exist.'])
     training['effect_criteria_proposed']=dict(units='full 256-square pixels',

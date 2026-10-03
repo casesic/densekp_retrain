@@ -100,9 +100,8 @@ class InferenceTests(unittest.TestCase):
                                         dict(cfg=cfg, map_location='cpu', strict=True)))
             self.assertTrue(model.training)
 
-    def test_historical_predict_is_compatible_and_active_caller_is_direct(self):
-        from tools.experiments import train_cycling_smoke, train_source_isolated_trial
-        self.assertIs(train_cycling_smoke.predict, predict_item)
+    def test_active_caller_is_direct(self):
+        from tools.experiments import train_source_isolated_trial
         self.assertIs(train_source_isolated_trial.predict, predict_item)
 
 

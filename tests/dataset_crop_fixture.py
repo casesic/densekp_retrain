@@ -162,10 +162,7 @@ def rng_state(prefix, arrays):
     )
 
 
-def run_dataset(spec, *, explicit=False, original=False):
-    if original:
-        raise RuntimeError("original Dataset capture retired in B2b; use the saved independent baseline")
-
+def run_dataset(spec, *, explicit=False):
     from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
     from densekp.core.datasets import crop_pipeline as sampling_module
     from densekp.core.datasets import image_processing as image_module

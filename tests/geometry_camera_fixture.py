@@ -27,9 +27,7 @@ TARGETS = {
 }
 
 
-def api(original=False):
-    if original:
-        raise RuntimeError("original geometry capture retired in B2b; use the public API")
+def api():
     functions = {}
     for destination, names in TARGETS.items():
         module = importlib.import_module("densekp_retrain." + destination)

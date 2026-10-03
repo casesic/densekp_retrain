@@ -57,12 +57,10 @@ class TrainingAuditTests(unittest.TestCase):
                 self.assertEqual(array.shape, previous.shape)
                 np.testing.assert_array_equal(array, previous)
 
-    def test_historical_imports_and_active_subclass(self):
-        from tools.experiments import train_cycling_smoke, train_source_isolated_trial
+    def test_active_subclass_uses_public_audit(self):
+        from tools.experiments import train_source_isolated_trial
 
         # Numerical proof is the independent fixture above; this checks imports.
-        self.assertIs(train_cycling_smoke.CheckUpdates, CheckUpdates)
-        self.assertIs(train_cycling_smoke.probes, probes)
         self.assertIs(train_source_isolated_trial.CheckUpdates, CheckUpdates)
         self.assertIs(train_source_isolated_trial.probes, probes)
         self.assertIs(train_source_isolated_trial.RunAudit.__bases__[0], CheckUpdates)

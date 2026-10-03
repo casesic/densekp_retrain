@@ -119,7 +119,7 @@ JSON 策略在 [io/json.py](../src/densekp_retrain/io/json.py)。旧 evaluator �
 
 推理共用操作在 [inference.py](../densekp/core/inference.py)：两种严格加载路径保留各自初始化顺序；
 `predict_batch` 保持模型当前模式并返回原始 tensor，shape/非有限处理仍由评价入口决定。
-`predict_item` 保留旧 smoke 的 eval 副作用和有限输出检查；source trial 直接调用，smoke 旧名兼容导出。
+`predict_item` 保留 eval 副作用和有限输出检查，source trial 直接调用公共定义；旧 smoke CLI/导出已随 B4-D 退役。
 
 第一次先理解 1–4，确认能讲清“框→图像输入→输出坐标”，再进入 loss 和训练。
 之后才精读 [ViT](../densekp/core/backbones/vit.py) 和
@@ -239,3 +239,10 @@ B2 精简的当前边界见 [整体交付检查表](refactor/PRUNING_B2_COMPLETI
 
 P1–P3 完成；公共数据包忽略问题已在 aaf08bd 修复。安装、清理与 P5 文档随本次提交交付。
 P5 已完成实际样本走读与交付核查，当前停止于最终评审；P4/P5 随本次提交交付，未提前标记整个重构通过。
+
+
+B4-D 后的检查路线：日常检查保留原裁剪/增强、来源隔离、成像、归一化、指标/config、
+scene_jobs、人物准备小输入和回归调度桩；不再阅读历史工具整段 AST 或调用其 capture 拒绝分支。
+原数值 fixture 不重录，详情见 [fixture 说明](../tests/fixtures/README.md)。
+真实权重、CUDA 回调与 Blender 装配/后处理的按需检查仍单列在 [命令说明](COMMANDS.md)；
+两个 B4-P 驱动尚保留，B4 整体未完成。当前 CPU 与 Blender 合成/导入检查不证明真实制作、衣物质量或模型效果通过。

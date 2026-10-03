@@ -83,5 +83,29 @@ B2b 停止旧 get_example/get_example_projverts 导入与 tuple 返回，以及
 前者的自动造框、ERP 居中与三相机评分、后者的注册 ID 评分不再支持；当前候选评价
 不是其过滤规则、分母或报告的等价替代。Omni 生成、历史 NPZ 读取和监督权重保持。
 当前裁剪使用 crop_pipeline.crop_example / CropBox / CropResult。
-geometry 迁移工具仅保留 --before 验证，未给该参数会明确拒绝，不再创建 capture 输出。
+B4-D 已退役历史 Dataset/geometry/metrics 等迁移 capture/verify CLI；当前数值契约继续使用原 fixture，历史回放制品保留。
 参见 [退役验收及未运行范围](refactor/PRUNING_B2B_RETIREMENT_20261003.md)。
+
+
+## 按需长期检查与 B4-D 退役范围
+
+B4-D 停止 BVH/BABEL 骑行检索和拟合输入、失败衣物修复/union/settling/polo、
+独立 riverfront 制作、两套旧 Omni sweep、P0 pyrender 检查，以及列明的一次性迁移、smoke 和画廊命令。
+它们不是当前入口的等价别名；原数据、权重、保存预测、失败结果和许可记录继续保留。
+逐文件清单见 [B4-D 实施记录](refactor/PRUNING_B4_DELETE_20261003.md)。
+
+以下检查不属于默认日常命令，不应为了清理代码就启动：
+
+| 检查 | 必要输入/输出 | 计算边界 |
+| --- | --- | --- |
+| `verify_refactor_inference.py`、`verify_fixed_validation.py` | 原独立 before/固定输入及全新 output；仍有历史目录和 GPU1 假设，须先逐项核实 | B4-P 尚未提取，两驱动原样保留；涉及真实模型前向或 CUDA 小网络参数更新。B4-D 未运行；CPU/桩不能替代 |
+| `verify_densekp_model_lifecycle.py` | 显式 phase/checkpoint/output-dir；resume 另需 reference-dir；内部固定 p0_dressed_tiny、trainer=gpu，无 --config 参数 | 真实 DenseKP 更新/保存恢复；需要注册数据与初始化资产，不是无资产检查 |
+| `verify_blender_assembly.py` | 显式 case、mode assembly/render、output | 真实 Blender 装配；只有触及渲染行为才安排有限渲染，不默认重做场景 |
+| `compare_blender_acceptance.py` | 指定 before/after/report | CPU 读取选定制品，含 EXR 通道；不启动渲染 |
+| `verify_blender_postprocess.py` | evidence/run/output，另依赖原 val_000 lens、real masks 与 Aaron 几何 | 真实源 EXR 的 DS/Omni 后处理检查，尚非通用无资产入口；保持两种距离来源差异 |
+
+任何后续 GPU 执行前即时检查设备与进程，不能沿用旧状态。上表不是自动执行清单。
+普通 Python 导入安全只检查 audit_skin_texture、prepare_procedural_eyes、blender_headless_smoke_test；
+三个场景脚本的导入检查在真实 Blender 内单独运行，允许 bpy/mathutils，但禁止 main、资产 IO、场景操作、写出和进程。
+历史完整工具可只读查看，例如 `git show ada2295:tools/experiments/repair_commuter_top.py`；
+Git 不备份 ignored 的 outputs/资产，也不保证历史代码在当前环境无需准备即可执行。
