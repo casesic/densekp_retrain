@@ -1,6 +1,6 @@
 # Datasets
 
-Current scope and acceptance rules: [数据集要求汇总](../docs/data/DATASET_REQUIREMENTS_20260929.md).
+Current scope and acceptance rules: [当前数据与来源划分](../docs/DATA_AND_MODELS.md) and [contracts](../docs/CONTRACTS.md).
 
 This directory holds named, versioned training/validation datasets and existing
 tiny regression fixtures. DenseKP consumes an annotation NPZ plus an image root;

@@ -23,7 +23,7 @@ python tools/fisheye/run_fisheye_camera_p0.py --help
 `--model-contracts` 不加载真实模型；其中几何数组契约需要安装表中的 geometry 依赖（含 smplx 的纯公式），不读取人体资产。第三条验证双包导入，需要先完成 editable 安装或相应开发路径设置。
 第四条只打印 Hydra 配置；`trainer=cpu` 本身不关闭训练，**不能删掉 `--cfg job` 当作数据检查命令**。
 默认 `data=unselected` 不变。后五条仅打印帮助，需各入口的 Python 依赖。
-这些入口的根目录/临时 cwd 行为已在 P4 验证；P5 静态复核参数及执行分支，没有重新运行计算入口。
+这些入口的根目录/临时 cwd 行为已在 P4 验证；B5仅静态复核参数及执行分支，没有重新运行命令。
 
 ## 按用途选择入口
 
@@ -51,7 +51,7 @@ source 先 gate 再 mkdir，box 先 mkdir 再 gate；新增设备前置检查先
 
 旧 `tools/experiments/evaluate_source_trial.py`、`evaluate_box_robustness.py` 已退役，无兼容包装。
 suite 路径配方见 [配置](../configs/regression/suites.json)，不自动选择最新权重或修改活动 status。
-本批只用桩验收调度，没有实际 GPU、推理、汇总或比较；框增强权重仍未获部署替换认可。
+B3调度迁移只用桩验收调度，没有实际 GPU、推理、汇总或比较；框增强权重仍未获部署替换认可。
 
 | 用途与入口 | 必要输入/选择 | 输出与执行边界 | 环境与外部资产 |
 | --- | --- | --- | --- |
@@ -62,11 +62,11 @@ suite 路径配方见 [配置](../configs/regression/suites.json)，不自动选
 | 通用训练：`densekp.train_keypoints` | 显式 Hydra data 组、监督语义、trainer、权重/恢复路径；先用 `--cfg job` 查看 | 去掉配置打印参数后进入真实 train/test 生命周期，写 Hydra 运行目录、日志和 checkpoint；`init_checkpoint` 初始化权重，`ckpt_path` 恢复状态 | model 依赖、数据注册路径或适配入口、ViTPose 和初始模型权重 |
 | 已冻结的 400 步配方：`tools/experiments/train_source_isolated_trial.py` | `--data-root` 含 split、indices、loader/acceptance、original_baseline、training_recommendation；可选 `--box-data`、`--output`、`--gpu` | 默认执行数据/基线审计，不能当作纯配置打印；`--execute-training` 才执行训练。步数等配方保持原值，不作为日常检查 | model 依赖、来源隔离全套资产和原 checkpoint；不自动修补缺失基线 |
 | 透视时间序列渲染：`tools/render/run_temporal_case.py` | `--geometry --output-dir --frames --hdri`；可选 clothing、appearance、Blender 路径 | 直接启动 Blender，输出渲染制品与报告，没有通用 dry-run 承诺 | Blender、人体/衣物、UV/贴图/HDRI；详见配方索引 |
-| Omni 生成/后处理：`tools/fisheye/run_fisheye_camera_p0.py` | 显式 geometry、clothing、output-dir 和 appearance；核对 frame/分辨率 | 默认含渲染；`--skip-render` 仍写相机/几何副本并执行后处理，且依赖输出目录已有源 EXR。默认输出可复用旧目录，不建议裸执行 | Blender（渲染时）、普通 CPU 图像/EXR 依赖、已有几何与外观资产 |
+| Omni 生成/后处理：`tools/fisheye/run_fisheye_camera_p0.py` | 显式 `--geometry --clothing-geometry --output-dir --appearance-manifest`；核对 frame/分辨率 | 默认含渲染；`--skip-render` 仍写相机/几何副本并执行后处理，且依赖输出目录已有源 EXR。默认输出可复用旧目录，不建议裸执行 | Blender（渲染时）、普通 CPU 图像/EXR 依赖、已有几何与外观资产 |
 | DS 多人及场景制作 | 从 [场景配方索引](rendering/SCENE_RECIPE_INDEX.md) 选择具体入口 | 原生多人、链接单人、专用场景制作保留独立默认值和旧 Blender `--` 参数，不互换命令 | 对应 `.blend`、贴图、人体/衣物；本轮不制作任何新资产 |
 
 GPU 计算前先检查设备和进程，不假定 GPU 0 正常；选择的设备应显式传入相应入口。
-这不是 P5 需要执行的步骤：本轮没有推理、训练或渲染。
+文档收尾没有执行设备查询、推理、训练或渲染。
 
 ## 路径与复现
 
@@ -84,7 +84,7 @@ B2b 停止旧 get_example/get_example_projverts 导入与 tuple 返回，以及
 不是其过滤规则、分母或报告的等价替代。Omni 生成、历史 NPZ 读取和监督权重保持。
 当前裁剪使用 crop_pipeline.crop_example / CropBox / CropResult。
 B4-D 已退役历史 Dataset/geometry/metrics 等迁移 capture/verify CLI；当前数值契约继续使用原 fixture，历史回放制品保留。
-参见 [退役验收及未运行范围](refactor/PRUNING_B2B_RETIREMENT_20261003.md)。
+参见 [退役能力和保留边界](KNOWN_BEHAVIOR.md)。
 
 
 ## 按需长期检查与 B4-D 退役范围
@@ -92,7 +92,7 @@ B4-D 已退役历史 Dataset/geometry/metrics 等迁移 capture/verify CLI；当
 B4-D 停止 BVH/BABEL 骑行检索和拟合输入、失败衣物修复/union/settling/polo、
 独立 riverfront 制作、两套旧 Omni sweep、P0 pyrender 检查，以及列明的一次性迁移、smoke 和画廊命令。
 它们不是当前入口的等价别名；原数据、权重、保存预测、失败结果和许可记录继续保留。
-逐文件清单见 [B4-D 实施记录](refactor/PRUNING_B4_DELETE_20261003.md)。
+逐文件清单见 [最终交付及历史清单定位](refactor/PRUNING_FINAL_20261003.md)。
 
 以下检查不属于默认日常命令，不应为了清理代码就启动：
 
@@ -102,7 +102,7 @@ B4-D 停止 BVH/BABEL 骑行检索和拟合输入、失败衣物修复/union/set
 | `check_fixed_validation_runtime.py` | 必填 `--source --before --output --scenario --device --max-updates`；resumed 必须另给 `--resume-checkpoint`（独立 step2）；before 含所选场景 JSON/NPZ | 默认仅打印；`--execute` 使用公共 FixedValidation 和源码 tests.fixed_validation_fixture.run_case。success 4次、resumed 2次、其余每场景2次小网络更新，受累计尝试预算限制；不是无需 tests 的 wheel 入口 |
 | `verify_densekp_model_lifecycle.py` | 显式 phase/checkpoint/output-dir；resume 另需 reference-dir；内部固定 p0_dressed_tiny、trainer=gpu，无 --config 参数 | 真实 DenseKP 更新/保存恢复；需要注册数据与初始化资产，不是无资产检查 |
 | `verify_blender_assembly.py` | 显式 case、mode assembly/render、output | 真实 Blender 装配；只有触及渲染行为才安排有限渲染，不默认重做场景 |
-| `compare_blender_acceptance.py` | 指定 before/after/report | CPU 读取选定制品，含 EXR 通道；不启动渲染 |
+| `compare_blender_acceptance.py` | 位置参数 `before after`，另给 `--report` | CPU 读取选定制品，含 EXR 通道；不启动渲染 |
 | `verify_blender_postprocess.py` | evidence/run/output，另依赖原 val_000 lens、real masks 与 Aaron 几何 | 真实源 EXR 的 DS/Omni 后处理检查，尚非通用无资产入口；保持两种距离来源差异 |
 
 任何后续 GPU 执行前即时检查设备与进程，不能沿用旧状态。上表不是自动执行清单。
@@ -121,5 +121,5 @@ Git 不备份 ignored 的 outputs/资产，也不保证历史代码在当前环�
 
 旧 verify_refactor_inference / verify_fixed_validation CLI 和其历史 capture、AST 提取已退役。
 历史代码可从 `git show 57d19df:tools/validate/verify_fixed_validation.py` 查阅；独立 before 与原结果保留在本地 outputs，Git 不为它们提供备份。
-本次仅实测原始权重、两个固定输入、两路线×batch/item，以及 success/resumed/save_failure；其它回调场景只验参数派发。
-具体输入与计算计数见 [B4-P 验收](refactor/PRUNING_B4_RUNTIME_20261003.md)。不代表新效果评价或部署认可。
+B4-P仅实测原始权重、两个固定输入、两路线×batch/item，以及 success/resumed/save_failure；其它回调场景只验参数派发。
+具体输入与计算计数见 [真实验收范围](VALIDATION.md)。不代表新效果评价或部署认可。

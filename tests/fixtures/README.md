@@ -42,7 +42,7 @@ B4-D 明确退役 legacy_import_bodies_v1.json 和 scene_recipe_bodies_v1.json �
 普通 Python 导入安全仍覆盖三个当前工具；三个场景脚本在真实 Blender 中单独检查。
 历史 AST 和原代码可从 ada2295 查阅；此前 before/after/pickle 证据保留在 outputs/acceptance/refactor_cleanup_20261002。
 
-来源打包的输入构造位于 tests/source_packing_fixture.py，成像逐制品比较位于 tests/artifact_comparison.py；它们只迁移必要辅助，source_packing_v1.json、imaging_pipeline_v1.json 等独立期望均未重新生成。B1 记录见 docs/refactor/PRUNING_B1_20261002.md。
+来源打包的输入构造位于 tests/source_packing_fixture.py，成像逐制品比较位于 tests/artifact_comparison.py；它们只迁移必要辅助，source_packing_v1.json、imaging_pipeline_v1.json 等独立期望均未重新生成。原B1记录可用 `git show d8bd387:docs/refactor/PRUNING_B1_20261002.md` 查看。
 
 ## 当前裁剪调用迁移
 
@@ -73,5 +73,5 @@ coplanar unresolved=None。DQS/scan 参考及后三测试随失败制作能力�
 普通 Python 的 tests.test_import_boundaries 使用三个显式脚本路径，保留原无副作用/RNG/sys.path 约束。
 这些检查不读取人物资产、不渲染、不代表衣物质量；历史 B3.3 数值和 AST 证据仍可追溯。
 
-B4-P 的真实加载/CUDA回调驱动尚未迁移，相关长期数值/生命周期 fixture 与 tests/test_trial_callbacks.py 保持。
+B4-P已由check_inference_runtime与check_fixed_validation_runtime替代历史驱动；后者复用原fixed_validation_fixture。只实测三场景累计8次小网络更新，其余七场景仅派发检查；相关数值/生命周期fixture保持。使用边界见 [VALIDATION](../../docs/VALIDATION.md)。
 所有其它原数值 fixture 不修改、不重录、不放宽容差。

@@ -1,7 +1,7 @@
 # 开发安装、依赖与运行入口
 
 更新：2026-10-02，P4 安装与入口批次。支持保留完整 checkout 的开发和 editable 安装；不承诺 wheel 携带配置、场景或权重。
-本批离线验收见 [实施报告](../refactor/P4_INSTALLATION_20261002.md)。历史 requirements.upstream.txt 保留作上游来源，不能当作当前环境锁文件。
+2026-10-02离线验收的证据入口见 [验证说明](../VALIDATION.md)；以下“本批”均指该安装验收，不是本次文档收尾。历史 requirements.upstream.txt 保留作上游来源，不能当作当前环境锁文件。
 
 ## 双包安装
 

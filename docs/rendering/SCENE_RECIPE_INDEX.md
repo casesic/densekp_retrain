@@ -1,8 +1,8 @@
 # 场景配方、资产与消费入口
 
-更新：2026-10-03，B4-D 历史工具退役。这里描述现有路径，不是要求重新制作资产的运行清单。
+更新：2026-10-03，B1–B4已交付，B5归并导航。这里描述现有路径，不是要求重新制作资产的运行清单。
 配方决定布局、灯光、材质选择与随机参数；公共库负责几何、相机、装配、成像和任务执行。
-本批不新增资产、不重新制作森林或街景。场景链的既有验收范围见 [P3.5 实施记录](../refactor/P3_SCENE_RECIPES_20261002.md)。
+本批不新增资产、不重新制作森林或街景。场景链的既有验收范围见 [验证范围](../VALIDATION.md)。
 
 ## 先找配方，再找消费者
 
@@ -42,7 +42,7 @@ groom 转移直引 `densekp_retrain.clothing.groom_transfer.transfer_groom`，�
 与 `freeze_mixed_candidates` 不依赖退役脚本，source-isolated 仍可复用其保存资产。
 `SOURCES`、`mesh_panel` 的专用配方关系保留。历史实现查 Git，ignored 资产并不由 Git 备份。
 衣物保存与 groom CPU 回放仅写新验收目录，没有运行人物制作 main 或场景链；
-分别见 [B3.1 记录](../refactor/PRUNING_B3_1_20261003.md) 与 [B3.2 记录](../refactor/PRUNING_B3_2_20261003.md)。
+分别见 [验证索引](../VALIDATION.md) 中对应B3.1/B3.2证据。
 
 ## 历史透视与外观检查路径
 
@@ -51,7 +51,7 @@ groom 转移直引 `densekp_retrain.clothing.groom_transfer.transfer_groom`，�
 旧相交包装在 B3.3 退役；B4-D 进一步停止失败修复、union、settling、polo 及专用审计制作链，
 并移除只服务其历史 DQS/scan 的参考测试。公共 crossings 四项解析断言保持，不能据此宣称衣物质量通过。
 独立 riverfront 再制作、两个旧 Omni sweep 和 P0 pyrender 专用检查也已退出；已有成功/失败制品不删除。
-历史算法和七项原迁移证据见 [B3.3 记录](../refactor/PRUNING_B3_3_20261003.md)，不作为当前CLI推荐。
+历史算法和七项原迁移证据见 [历史数值证据](../VALIDATION.md)，不作为当前CLI推荐。
 
 以下入口均位于 `tools/render/`，保留旧命令、默认值及报告格式。它们不被强制改成 ERP 管线。
 
