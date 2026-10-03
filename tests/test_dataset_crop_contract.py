@@ -60,7 +60,7 @@ class DatasetCropContractTests(unittest.TestCase):
         self.assertEqual(DATASET_FOLDERS, folders)
         self.assertEqual(DATASET_FILES, files)
 
-    def test_legacy_tuple_outputs_mutations_failures_and_rng(self):
+    def test_named_outputs_mutations_failures_and_rng(self):
         for fixture in self.fixture["lowlevel"]:
             with self.subTest(case=fixture["spec"]["id"]):
                 self.assert_frozen(*run_lowlevel(fixture["spec"], self.root), fixture)

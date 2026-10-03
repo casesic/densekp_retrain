@@ -335,6 +335,13 @@ affine 只变换 xy。旧 NPZ 的第三字段保持原样；声明了新版策�
 
 ### 4.1 当前框增强样本：框如何改变输入
 
+查看裁剪展示时，从 [visualize_annotation.main](../tools/annotation/visualize_annotation.py) 顺着
+`CropBox → crop_example → CropResult` 阅读：已读图像、源图像素中心/宽高、辅助点和
+`proj_verts.copy()` 共同进入裁剪。`display` 是未归一化的 BGR 裁剪图，`dense_points` 是
+完整裁剪坐标下的标签，`affine` 是二者共用的变换；`plan.box.width/height` 尚未乘增强 scale，
+报告仍使用这两个宽高。该可视化入口自己处理 portrait/closeup 旋转，然后传 ndarray、dataset=None，
+不在裁剪内部再旋转。低层归一化输入则在 `image` 字段；它与 display 的用途不同。
+
 以下来自 P2 独立 before 的 `challenge_001`，并非重新推理的模型结果。
 数据为 `box_robustness_400_20261001/data_v2/loader/val.npz` 第 1 行，图像属于合成
 1536×768 ERP。其保存的 center 为 `[1110.760009765625, 405]`，scale 为

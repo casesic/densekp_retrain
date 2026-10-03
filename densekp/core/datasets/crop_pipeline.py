@@ -47,22 +47,6 @@ class CropResult:
     dense_points: np.ndarray | None
     affine: np.ndarray
 
-    def legacy_tuple(self):
-        box = self.plan.box
-        return (
-            self.image,
-            self.display,
-            self.image_size,
-            box.center_x,
-            box.center_y,
-            box.width,
-            box.height,
-            self.keypoints,
-            self.dense_points,
-            self.affine,
-        )
-
-
 def check_flip_augmentation(do_augment, augm_config):
     """Reject unverified semantics before image IO or random sampling."""
     if do_augment and augm_config.DO_FLIP and augm_config.FLIP_AUG_RATE > 0:

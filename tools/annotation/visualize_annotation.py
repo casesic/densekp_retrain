@@ -12,11 +12,9 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from densekp.core.datasets.utils import (  # noqa: E402
-    expand_to_aspect_ratio,
-    get_example_projverts,
-    trans_points2d_parallel,
-)
+from densekp.core.crop_geometry import trans_points2d_parallel  # noqa: E402
+from densekp.core.datasets.crop_pipeline import CropBox, crop_example  # noqa: E402
+from densekp.core.datasets.image_processing import expand_to_aspect_ratio  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -133,34 +131,29 @@ def main() -> int:
                 raise OSError(f"无法写入: {original_path}")
 
             keypoints = np.zeros((44, 3), dtype=np.float32)
-            _, crop_bgr, _, _, _, final_width, final_height, _, transformed, trans = (
-                get_example_projverts(
-                    image,
-                    float(center[0]),
-                    float(center[1]),
-                    bbox_size,
-                    bbox_size,
-                    keypoints,
-                    [],
-                    proj_verts.copy(),
-                    args.image_size,
-                    args.image_size,
-                    None,
-                    None,
-                    False,
-                    None,
-                    is_bgr=True,
-                    use_skimage_antialias=False,
-                    border_mode=cv2.BORDER_CONSTANT,
-                    dataset=None,
-                )
+            crop = crop_example(
+                image,
+                CropBox(float(center[0]), float(center[1]), bbox_size, bbox_size),
+                keypoints,
+                proj_verts.copy(),
+                patch_size=(args.image_size, args.image_size),
+                mean=None,
+                std=None,
+                do_augment=False,
+                augm_config=None,
+                is_bgr=True,
+                use_skimage_antialias=False,
+                border_mode=cv2.BORDER_CONSTANT,
+                dataset=None,
             )
+            transformed = crop.dense_points
+            trans = crop.affine
             crop_xy = (transformed[:, :2] + 0.5) * args.image_size
             expected_crop_xy = trans_points2d_parallel(proj_verts[:, :2], trans)
             expected_normalized = expected_crop_xy / args.image_size - 0.5
             error = np.abs(expected_normalized - transformed[:, :2])
 
-            cropped = draw_overlay(crop_bgr, crop_xy, args.label_every)
+            cropped = draw_overlay(crop.display, crop_xy, args.label_every)
             cropped_path = cropped_dir / f"sample_{ordinal:03d}.png"
             if not cv2.imwrite(str(cropped_path), cropped):
                 raise OSError(f"无法写入: {cropped_path}")
@@ -178,8 +171,8 @@ def main() -> int:
                 "center_xy": center.tolist(),
                 "scale": scale.tolist(),
                 "bbox_size": bbox_size,
-                "final_width": float(final_width),
-                "final_height": float(final_height),
+                "final_width": float(crop.plan.box.width),
+                "final_height": float(crop.plan.box.height),
                 "finite_points": int(finite.sum()),
                 "in_frame_points": int(in_frame.sum()),
                 "out_of_frame_points": int((finite & ~in_frame).sum()),

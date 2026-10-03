@@ -1,20 +1,12 @@
-"""Active task/logging utilities plus retained Hydra compatibility factories.
-
-instantiate_callbacks, instantiate_loggers and get_metric_value are inherited
-interfaces; current train_keypoints builds its own callback/logger lists. Keep
-the factories for historical dynamic Hydra callers.
-"""
+"""Active task wrapping and logging utilities for the training entry point."""
 
 import time
 import warnings
 from importlib.util import find_spec
 from pathlib import Path
-from typing import Callable, List
+from typing import Callable
 
-import hydra
 from omegaconf import DictConfig, OmegaConf
-from pytorch_lightning import Callback
-from pytorch_lightning.loggers import Logger
 from pytorch_lightning.utilities import rank_zero_only
 
 from . import pylogger, rich_utils
@@ -97,44 +89,6 @@ def save_file(path: str, content: str) -> None:
         file.write(content)
 
 
-def instantiate_callbacks(callbacks_cfg: DictConfig) -> List[Callback]:
-    """Instantiates callbacks from config."""
-    callbacks: List[Callback] = []
-
-    if not callbacks_cfg:
-        log.warning("Callbacks config is empty.")
-        return callbacks
-
-    if not isinstance(callbacks_cfg, DictConfig):
-        raise TypeError("Callbacks config must be a DictConfig!")
-
-    for _, cb_conf in callbacks_cfg.items():
-        if isinstance(cb_conf, DictConfig) and "_target_" in cb_conf:
-            log.info(f"Instantiating callback <{cb_conf._target_}>")
-            callbacks.append(hydra.utils.instantiate(cb_conf))
-
-    return callbacks
-
-
-def instantiate_loggers(logger_cfg: DictConfig) -> List[Logger]:
-    """Instantiates loggers from config."""
-    logger: List[Logger] = []
-
-    if not logger_cfg:
-        log.warning("Logger config is empty.")
-        return logger
-
-    if not isinstance(logger_cfg, DictConfig):
-        raise TypeError("Logger config must be a DictConfig!")
-
-    for _, lg_conf in logger_cfg.items():
-        if isinstance(lg_conf, DictConfig) and "_target_" in lg_conf:
-            log.info(f"Instantiating logger <{lg_conf._target_}>")
-            logger.append(hydra.utils.instantiate(lg_conf))
-
-    return logger
-
-
 @rank_zero_only
 def log_hyperparameters(object_dict: dict) -> None:
     """Controls which config parts are saved by lightning loggers.
@@ -175,26 +129,6 @@ def log_hyperparameters(object_dict: dict) -> None:
 
     # send hparams to all loggers
     trainer.logger.log_hyperparams(hparams)
-
-
-def get_metric_value(metric_dict: dict, metric_name: str) -> float:
-    """Safely retrieves value of the metric logged in LightningModule."""
-
-    if not metric_name:
-        log.info("Metric name is None! Skipping metric value retrieval...")
-        return None
-
-    if metric_name not in metric_dict:
-        raise Exception(
-            f"Metric value not found! <metric_name={metric_name}>\n"
-            "Make sure metric name logged in LightningModule is correct!\n"
-            "Make sure `optimized_metric` name in `hparams_search` config is correct!"
-        )
-
-    metric_value = metric_dict[metric_name].item()
-    log.info(f"Retrieved metric value! <{metric_name}={metric_value}>")
-
-    return metric_value
 
 
 def close_loggers() -> None:

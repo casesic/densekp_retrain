@@ -6,50 +6,35 @@ from pathlib import Path
 import numpy as np
 
 TARGETS = {
-    "body.parameters": {
-        "tools.experiments.prepare_cycling_characters": ["PARAMETERS", "evaluate", "zero_pose"],
-        "tools.experiments.prepare_commuter_pilot": ["rest_body"],
-    },
-    "body.measurements": {
-        "tools.experiments.prepare_commuter_pilot": ["measurement_rows", "measure"]
-    },
-    "io.geometry": {"tools.experiments.prepare_commuter_pilot": ["save_geometry"]},
-    "clothing.shells": {
-        "tools.experiments.prepare_cycling_clothing": ["vertex_normals", "outfit_regions", "shell"],
-        "tools.experiments.refine_cycling_character_clothing": ["clipped_shell"],
-    },
-    "clothing.binding": {
-        "tools.experiments.build_commuter_clothing": [
-            "clip_surface",
-            "closest_surface",
-            "bind_new_points",
-            "pose_rotations",
-        ],
-        "tools.experiments.bind_commuter_groom": ["CONV", "frame", "triangle_frame"],
-    },
-    "body.transforms": {"tools.fisheye.run_fisheye_multiperson_pilot": ["world_points"]},
-    "camera.erp": {
-        "tools.fisheye.run_fisheye_multiperson_pilot": ["project_erp"],
-        "tools.validate.evaluate_omni_densekp": ["erp_points"],
-    },
-    "camera.rig": {"tools.fisheye.run_ds_scene_pair_pilot": ["rig_poses"]},
-    "camera.domain": {"tools.fisheye.run_ds_scene_pair_pilot": ["point_in_view"]},
-    "camera.visibility": {
-        "tools.fisheye.run_fisheye_multiperson_pilot": ["erp_visibility"],
-        "tools.fisheye.build_ds_multiperson_pilot": ["visible_at_instance_points"],
-    },
+    "body.parameters": ["PARAMETERS", "evaluate", "zero_pose", "rest_body"],
+    "body.measurements": ["measurement_rows", "measure"],
+    "io.geometry": ["save_geometry"],
+    "clothing.shells": ["vertex_normals", "outfit_regions", "shell", "clipped_shell"],
+    "clothing.binding": [
+        "clip_surface",
+        "closest_surface",
+        "bind_new_points",
+        "pose_rotations",
+        "CONV",
+        "frame",
+        "triangle_frame",
+    ],
+    "body.transforms": ["world_points"],
+    "camera.erp": ["project_erp", "erp_points"],
+    "camera.rig": ["rig_poses"],
+    "camera.domain": ["point_in_view"],
+    "camera.visibility": ["erp_visibility", "visible_at_instance_points"],
 }
 
 
 def api(original=False):
+    if original:
+        raise RuntimeError("original geometry capture retired in B2b; use the public API")
     functions = {}
-    for destination, sources in TARGETS.items():
-        for source, names in sources.items():
-            module = importlib.import_module(
-                source if original else "densekp_retrain." + destination
-            )
-            for name in names:
-                functions[name] = getattr(module, name)
+    for destination, names in TARGETS.items():
+        module = importlib.import_module("densekp_retrain." + destination)
+        for name in names:
+            functions[name] = getattr(module, name)
     return functions
 
 

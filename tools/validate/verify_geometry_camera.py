@@ -1,4 +1,4 @@
-"""Freeze/replay selected CPU SMPL-X, clothing and camera arrays. Never render."""
+"""Replay selected CPU SMPL-X, clothing and camera arrays with --before. Never render."""
 
 import argparse
 import json
@@ -8,13 +8,11 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / "src")]
-import numpy as np
-import torch
-from tests.geometry_camera_fixture import api, synthetic, Capture
-from densekp_retrain.body.geometry import load_smplx_model, compute_densekp_3d
 
 
 def compare(before, after):
+    import numpy as np
+
     old = {p.relative_to(before) for p in before.rglob("*") if p.is_file()}
     new = {p.relative_to(after) for p in after.rglob("*") if p.is_file()}
     assert old == new, (old - new, new - old)
@@ -54,9 +52,14 @@ def compare(before, after):
 
 
 def run(out, original):
-    f = api(original)
-    if original and not f["evaluate"].__module__.startswith("tools."):
-        raise RuntimeError("Capture requires independent pre-migration implementation")
+    if original:
+        raise RuntimeError("original geometry capture retired in B2b; supply --before for verify")
+    import numpy as np
+    import torch
+    from tests.geometry_camera_fixture import api, synthetic, Capture
+    from densekp_retrain.body.geometry import load_smplx_model, compute_densekp_3d
+
+    f = api()
     torch.set_num_threads(2)
     torch.manual_seed(3102)
     np.random.seed(3102)
@@ -210,9 +213,11 @@ def main():
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--before", type=Path)
     a = p.parse_args()
+    if a.before is None:
+        p.error("geometry capture retired in B2b; supply --before for verify")
     out = a.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
-    run(out, a.before is None)
+    run(out, original=False)
     if a.before:
         result = compare(a.before.resolve(), out)
         (out.parent / (out.name + "_comparison.json")).write_text(

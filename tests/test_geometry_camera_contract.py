@@ -7,7 +7,7 @@ from pathlib import Path
 import unittest
 import warnings
 import numpy as np
-from tests.geometry_camera_fixture import api, synthetic, TARGETS
+from tests.geometry_camera_fixture import api, synthetic
 from densekp_retrain.body.transforms import world_points
 from densekp_retrain.camera.erp import project_erp
 from densekp_retrain.camera.rig import rig_poses
@@ -74,12 +74,6 @@ class GeometryCameraContractTests(unittest.TestCase):
         self.assertFalse(erp_visibility(xy, np.array([3.05]), depth, index, [1])[1][0])
         self.assertFalse(erp_visibility(xy, np.array([3.0]), depth, index, [2])[1][0])
 
-    def test_old_imports_are_compatibility_exports(self):
-        # Identity checks cover compatibility only; the frozen test above proves behavior.
-        before_names = api(original=True)
-        public = api()
-        for name, value in public.items():
-            self.assertIs(before_names[name], value, name)
 
 
 if __name__ == "__main__":

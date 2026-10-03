@@ -17,11 +17,11 @@ from densekp.core.configs import DATASET_FILES, DATASET_FOLDERS, dataset_config
 from densekp.core.crop_geometry import gen_trans_from_patch_cv, normalize_crop_xy, restore_crop_xy, trans_points2d_parallel
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
 from densekp.core.datasets.datamodule_keypoints import DataModule
-from densekp.core.datasets.utils import do_augmentation, get_example_projverts
+from densekp.core.datasets.crop_pipeline import CropBox, crop_example
 from densekp.core.keypoint_contract import validate_annotations
 from densekp.core.keypoint_objective import keypoint_loss, keypoint_error_totals
 from densekp.core.training_config import validate_training_config
-from densekp.core.datasets.augmentation import Augmentation
+from densekp.core.datasets.augmentation import Augmentation, sample_augmentation
 from densekp.core.datasets.configuration import audit_cfg
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,10 +70,10 @@ class GeometryContractTests(TestCase):
         np.testing.assert_allclose(normalized, [[0, 0], [.5, 0], [0, .5], [-.5, 0]], atol=2e-7)
         np.testing.assert_allclose(restore_crop_xy(normalized, affine, (192, 256)), xy, atol=1e-10)
         points = np.column_stack([xy, [1, 0, .25, 1]]).astype(np.float32)
-        result = get_example_projverts(np.zeros((120, 240, 3), np.uint8), *center,
-                                      width, height, points.copy(), [], points.copy(), 192, 256)
-        np.testing.assert_array_equal(result[8][:, 2], points[:, 2])
-        np.testing.assert_allclose(restore_crop_xy(result[8][:, :2], result[9], (192, 256)), xy, atol=1e-5)
+        result = crop_example(np.zeros((120, 240, 3), np.uint8), CropBox(*center, width, height),
+                              points.copy(), points.copy(), patch_size=(192, 256))
+        np.testing.assert_array_equal(result.dense_points[:, 2], points[:, 2])
+        np.testing.assert_allclose(restore_crop_xy(result.dense_points[:, :2], result.affine, (192, 256)), xy, atol=1e-5)
 
     def test_image_and_label_agree_after_scale_rotation_translation(self):
         image = np.zeros((128, 192, 3), dtype=np.uint8)
@@ -82,12 +82,12 @@ class GeometryContractTests(TestCase):
         cfg = audit_cfg('supervision_weight').DATASETS.CONFIG
         sampled = (1.2, 30., False, False, 0, [1., 1., 1.], .1, -.1)
         with mock.patch('densekp.core.datasets.crop_pipeline.sample_augmentation', return_value=Augmentation(*sampled)):
-            result = get_example_projverts(image, 96, 64, 128, 128, np.zeros((44, 3)), [],
-                                          points, 256, 256, do_augment=True, augm_config=cfg)
-        intensity = result[1][..., 0].astype(float)
+            result = crop_example(image, CropBox(96, 64, 128, 128), np.zeros((44, 3)),
+                                  points, patch_size=(256, 256), do_augment=True, augm_config=cfg)
+        intensity = result.display[..., 0].astype(float)
         yy, xx = np.indices(intensity.shape)
         centroid = np.array([(xx * intensity).sum(), (yy * intensity).sum()]) / intensity.sum()
-        label_pixel = (result[8][0, :2] + .5) * 256
+        label_pixel = (result.dense_points[0, :2] + .5) * 256
         np.testing.assert_allclose(centroid, label_pixel, atol=.2)
 
     def test_enabled_flip_fails_before_it_can_corrupt_semantics(self):
@@ -95,24 +95,26 @@ class GeometryContractTests(TestCase):
         cfg.DO_FLIP = True
         cfg.FLIP_AUG_RATE = 1.
         with self.assertRaisesRegex(ValueError, '138-point'):
-            get_example_projverts(np.zeros((64, 96, 3), np.uint8), 48, 32, 64, 64,
-                                  np.zeros((44, 3)), [], np.zeros((138, 3)), 256, 256,
-                                  do_augment=True, augm_config=cfg)
+            crop_example(np.zeros((64, 96, 3), np.uint8), CropBox(48, 32, 64, 64),
+                         np.zeros((44, 3)), np.zeros((138, 3)), patch_size=(256, 256),
+                         do_augment=True, augm_config=cfg)
 
     def test_translation_rate_zero_and_one(self):
         cfg = audit_cfg().DATASETS.CONFIG
         cfg.TRANS_FACTOR = .2
         with mock.patch('numpy.random.randn', return_value=1.):
-            self.assertEqual(do_augmentation(cfg)[-2:], (0., 0.))
+            augmentation = sample_augmentation(cfg)
+            self.assertEqual((augmentation.translation_x, augmentation.translation_y), (0., 0.))
             cfg.TRANS_AUG_RATE = 1.
-            self.assertEqual(do_augmentation(cfg)[-2:], (.2, .2))
+            augmentation = sample_augmentation(cfg)
+            self.assertEqual((augmentation.translation_x, augmentation.translation_y), (.2, .2))
 
     def test_antialias_only_blurs_downsampling(self):
         args = (np.zeros((120, 240, 3), np.uint8), 100, 60)
         for source_size, expected in [(512, True), (64, False)]:
             with mock.patch('densekp.core.datasets.image_processing.gaussian', side_effect=lambda x, **kw: x) as blur:
-                get_example_projverts(*args, source_size, source_size, np.zeros((44, 3)), [],
-                                      np.zeros((138, 3)), 256, 256, use_skimage_antialias=True)
+                crop_example(args[0], CropBox(*args[1:], source_size, source_size), np.zeros((44, 3)),
+                             np.zeros((138, 3)), patch_size=(256, 256), use_skimage_antialias=True)
                 self.assertEqual(blur.called, expected)
 
     def test_annotation_contract_requires_semantics_and_rejects_invalid_data(self):

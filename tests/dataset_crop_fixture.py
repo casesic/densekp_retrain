@@ -163,18 +163,14 @@ def rng_state(prefix, arrays):
 
 
 def run_dataset(spec, *, explicit=False, original=False):
-    from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
-
     if original:
-        from densekp.core.datasets import utils as sampling_module
-        from densekp.core.datasets import utils as image_module
+        raise RuntimeError("original Dataset capture retired in B2b; use the saved independent baseline")
 
-        sampling_name = "do_augmentation"
-    else:
-        from densekp.core.datasets import crop_pipeline as sampling_module
-        from densekp.core.datasets import image_processing as image_module
+    from densekp.core.datasets.dataset_keypoints import DatasetKeypoints
+    from densekp.core.datasets import crop_pipeline as sampling_module
+    from densekp.core.datasets import image_processing as image_module
 
-        sampling_name = "sample_augmentation"
+    sampling_name = "sample_augmentation"
     arrays, trace = {}, []
     sampler = getattr(sampling_module, sampling_name)
     warp = image_module.generate_image_patch_cv2
@@ -265,7 +261,7 @@ def lowlevel_specs():
 
 
 def run_lowlevel(spec, directory):
-    from densekp.core.datasets.utils import get_example_projverts
+    from densekp.core.datasets.crop_pipeline import CropBox, crop_example
 
     cfg = audit_cfg("supervision_weight").DATASETS.CONFIG
     image = cv2.imread(str(directory / "image.png"))
@@ -274,8 +270,7 @@ def run_lowlevel(spec, directory):
     ).astype(np.float32)
     points = np.tile(np.array([62.0, 45.0, 1.0], np.float32), (138, 1))
     options = dict(
-        patch_width=17,
-        patch_height=13,
+        patch_size=(17, 13),
         mean=np.array([100.0, 110.0, 120.0]),
         std=np.array([50.0, 60.0, 70.0]),
         is_bgr=False,
@@ -294,7 +289,9 @@ def run_lowlevel(spec, directory):
     elif name == "no_dense_targets":
         points = None
     elif name == "return_trans_flag":
-        options["return_trans"] = True
+        # The retired wrapper ignored this flag. Keep the original fixture case;
+        # the named result always includes affine without a flag.
+        pass
     elif name in ("augmented", "invalid_width"):
         do_augment = True
         cfg.SCALE_FACTOR = 0.3
@@ -319,18 +316,22 @@ def run_lowlevel(spec, directory):
     before = rng_state("before", arrays)
     error, result = None, ()
     try:
-        result = get_example_projverts(
+        crop = crop_example(
             image,
-            62.25,
-            45.5,
-            width,
-            100.0,
+            CropBox(62.25, 45.5, width, 100.0),
             keypoints,
-            list(range(44)),
             points,
             do_augment=do_augment,
             augm_config=cfg,
             **options,
+        )
+        # Test-only encoding into the original frozen result_N layout. Do not
+        # regenerate the fixture or add this compatibility tuple to runtime code.
+        box = crop.plan.box
+        result = (
+            crop.image, crop.display, crop.image_size,
+            box.center_x, box.center_y, box.width, box.height,
+            crop.keypoints, crop.dense_points, crop.affine,
         )
     except Exception as failure:
         error = dict(type=type(failure).__name__, message=str(failure))

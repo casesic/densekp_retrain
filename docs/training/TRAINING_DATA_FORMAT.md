@@ -1,5 +1,7 @@
 # 训练数据接口（TRAINING_DATA_FORMAT）
 
+> 配置退役提示（2026-10-03）：下文的 `data=densekp_train` 命令及该预设说明属于退役前记录，不能再作为当前运行命令。当前配置选择见[配置索引](../../configs/README.md)，安全的配置打印与使用步骤见[命令表](../COMMANDS.md)。本次只退役命名预设，未删除数据注册表、BEDLAM 或历史 NPZ 读取能力；本文历史正文保留。
+
 > 从 `densekp/train_keypoints.py` 反向追踪到每个 batch 字段。
 > 只记录代码中真实存在的字段，不虚构。
 

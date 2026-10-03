@@ -20,7 +20,7 @@ python tools/fisheye/run_fisheye_camera_p0.py --help
 ```
 
 前两条只检查源码、配置与无资产 CPU 契约，不遍历 outputs、权重或纹理。
-`--model-contracts` 不加载真实模型。第三条验证双包导入，需要先完成 editable 安装或相应开发路径设置。
+`--model-contracts` 不加载真实模型；其中几何数组契约需要安装表中的 geometry 依赖（含 smplx 的纯公式），不读取人体资产。第三条验证双包导入，需要先完成 editable 安装或相应开发路径设置。
 第四条只打印 Hydra 配置；`trainer=cpu` 本身不关闭训练，**不能删掉 `--cfg job` 当作数据检查命令**。
 默认 `data=unselected` 不变。后五条仅打印帮助，需各入口的 Python 依赖。
 这些入口的根目录/临时 cwd 行为已在 P4 验证；P5 静态复核参数及执行分支，没有重新运行计算入口。
@@ -49,3 +49,13 @@ GPU 计算前先检查设备和进程，不假定 GPU 0 正常；选择的设备
 - ViTPose 默认初始化路径仍依赖 cwd 或 `DENSEKP_VITPOSE_BACKBONE`；从其他目录执行真实模型路径需显式准备它。P4 的跨目录 help/config 验收不证明真实权重路径可省略。
 - 六份 Hydra data 配置已补齐交付，未启用原来无效的 loss/head 配置，也未改变默认数据选择。
 - 历史命令/报告保留当时的设备、目录与状态。当前活动版本从 `outputs/experiments/box_robustness_400_20261001/status.json` 的 `active` 字段进入；其部署替换仍未获认可。
+
+## 已退役的裁剪与评分入口
+
+B2b 停止旧 get_example/get_example_projverts 导入与 tuple 返回，以及
+`tools/validate/evaluate_omni_densekp.py`、`tools/validate/evaluate_densekp_npz.py` 两个 CLI。
+前者的自动造框、ERP 居中与三相机评分、后者的注册 ID 评分不再支持；当前候选评价
+不是其过滤规则、分母或报告的等价替代。Omni 生成、历史 NPZ 读取和监督权重保持。
+当前裁剪使用 crop_pipeline.crop_example / CropBox / CropResult。
+geometry 迁移工具仅保留 --before 验证，未给该参数会明确拒绝，不再创建 capture 输出。
+参见 [退役验收及未运行范围](refactor/PRUNING_B2B_RETIREMENT_20261003.md)。

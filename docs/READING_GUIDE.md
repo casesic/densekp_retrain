@@ -78,7 +78,9 @@ flowchart LR
 名称仍保留日志、返回字段及 portrait/closeup 分支含义。
 [augmentation.py](../densekp/core/datasets/augmentation.py) 返回具名随机参数；
 `CropPlan` 表示最终中心与裁剪参数，`CropResult` 表示图像、标签和 affine。
-旧 [utils.py](../densekp/core/datasets/utils.py) 保留十项 tuple 与导入兼容，已不在 Dataset 主路径上；旧 SMPL/HMR 裁剪在 [legacy/crop.py](../densekp/legacy/crop.py)。
+旧 utils/legacy 裁剪导入、tuple 接口与 SMPL/HMR 裁剪能力已退役；可视化、BEDLAM validator 和现行裁剪契约直接引用公共定义。
+两个旧评分 CLI 已移除；Omni 生成、相机数值回归和当前候选评价保留，不能把新旧评分分母视作等价。详见 [B2b 退役验收](refactor/PRUNING_B2B_RETIREMENT_20261003.md)。
+Dataset 验收工具的历史 capture 与测试辅助 original=True 已明确退役，verify 继续使用独立原基线；见 [本批迁移验收](refactor/PRUNING_B2B_CROP_MIGRATION_20261003.md)。
 实测输入、增强和 RNG 对照见 [P2.1/P2.2 验收](refactor/P2_DATASET_CROP_20261002.md)。
 
 读第 8 步时，从公共定义追踪三件事：
@@ -213,11 +215,15 @@ BEDLAM 原始 RGB 标注适配是另一条需要独立核验的路径。不能�
 
 ## 6. 区分核心、配方、兼容与历史
 
+B2 精简的当前边界见 [整体交付检查表](refactor/PRUNING_B2_COMPLETION_20261003.md)。
+`constants.py` 仅保留活动模型/辅助关节常量；训练配置使用 Hydra 与 `dataset_config`，
+旧 `_C/default_config` 和 misc 的三个历史工厂/取指标接口已退役。注册表与 `to_lower` 保留。
+
 | 类型 | 怎样辨认 | 阅读方式 |
 | --- | --- | --- |
 | 核心实现 | densekp/core 的 Dataset/objective/inference；densekp_retrain 的几何/相机/成像/评价 | 新调用直引定义模块；前五节就是阅读主线 |
 | 实验配方 | tools/experiments、tools/scene 和具体渲染/标注入口 | 保留布局、配额、灯光、随机参数；按你的任务选择一个入口，不通读全部脚本 |
-| 尚保留的兼容代码 | datasets/utils.py 与 densekp/legacy/crop.py | 裁剪接口尚待 B2 评审；B1 已删除旧 loss/train_utils 及 Blender/指标纯导出，当前训练仍读 keypoint_objective |
+| 兼容与退役边界 | 剩余工具包装按具体入口维护 | B1 旧 loss/train_utils、B2b 旧裁剪/评分接口已退役；现行 Dataset 仍支持旧 NPZ 权重，训练仍读 keypoint_objective |
 | 历史记录 | docs/refactor、旧代码地图、早期阶段报告与历史 outputs | 查来源和验证边界时读，不能以当时状态覆盖当前实现 |
 
 [B1 精简报告](refactor/PRUNING_B1_20261002.md) 记录当前已退役接口；[此前保留表](refactor/LEGACY_RETENTION_20261002.md) 是上轮状态；[配置索引](../configs/README.md) 区分当前与继承配置。

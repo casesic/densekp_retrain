@@ -1,6 +1,6 @@
 defaults:
   - default.yaml
-  - default_hmr.yaml
+  - loop.yaml
 
 accelerator: mps
 devices: 1

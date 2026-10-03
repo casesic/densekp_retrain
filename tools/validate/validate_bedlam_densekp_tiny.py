@@ -15,7 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from densekp.core.datasets.configuration import audit_cfg  # noqa: E402; historical re-export
 from densekp.core.datasets.dataset_keypoints import DatasetKeypoints  # noqa: E402
-from densekp.core.datasets.utils import trans_points2d_parallel  # noqa: E402
+from densekp.core.crop_geometry import trans_points2d_parallel  # noqa: E402
 
 
 DATASET_NAME = "bedlam-densekp-tiny-audit"
