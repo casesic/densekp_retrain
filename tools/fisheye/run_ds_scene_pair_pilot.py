@@ -286,6 +286,7 @@ def main():
             dense,
             lens_masks=lens_masks,
             lens_metadata=lens_metadata,
+            output_mode="full",
         )
         report.update(
             scene=name,

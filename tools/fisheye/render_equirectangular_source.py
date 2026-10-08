@@ -376,6 +376,7 @@ def main():
     (a.output_dir / "source_manifest.json").write_text(
         json.dumps(
             {
+                "blender_version": bpy.app.version_string,
                 "projection": "equirectangular",
                 "resolution": [a.width, a.height],
                 "frame": f,

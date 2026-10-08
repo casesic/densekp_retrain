@@ -21,9 +21,21 @@ from densekp_retrain.camera.double_sphere import (
     build_fisheye_to_source_erp_lut,
     unproject_double_sphere,
 )
+from densekp_retrain.camera.erp import project_erp
 from densekp_retrain.imaging.source import read_ds_source
 from densekp_retrain.imaging.remap import remap_periodic_erp
 from densekp_retrain.visualization.imaging import draw_overlay
+
+
+OUTPUT_MODES = ("compact", "full")
+
+
+def validate_output_mode(output_mode):
+    if output_mode not in OUTPUT_MODES:
+        raise ValueError(
+            f"output_mode must be one of {OUTPUT_MODES}, got {output_mode!r}"
+        )
+    return output_mode
 
 
 @dataclass
@@ -42,6 +54,7 @@ class DSProjection:
     """Flattened [person*138,2] pixels, metre ranges and boolean point groups."""
 
     xy: np.ndarray
+    source_xy: np.ndarray
     fish_xy: np.ndarray
     ranges: np.ndarray
     domain: np.ndarray
@@ -76,9 +89,16 @@ def read_world_keypoints(people, vertices, dense):
     return world
 
 
-def prepare_ds_domain(name, source, erp_mask, lens_mask):
-    """Nearest-sample explicit lens mask; preserve ERP intersection and rounding."""
-    height, width = source.ray_range_m.shape
+def prepare_ds_domain(name, source, erp_mask, lens_mask, output_size=None):
+    """Prepare the final ERP domain independently of the rendered source size.
+
+    ``output_size`` is ``(width, height)``.  Omitting it preserves the historical
+    behavior where the final ERP raster has the source ERP resolution.
+    """
+    source_height, source_width = source.ray_range_m.shape
+    width, height = (source_width, source_height) if output_size is None else output_size
+    if width < 1 or height < 1:
+        raise ValueError("output_size must contain positive width and height")
     mask = cv2.resize(
         erp_mask.astype(np.uint8), (width, height), interpolation=cv2.INTER_NEAREST
     ).astype(bool)
@@ -106,7 +126,12 @@ def project_ds_scene(world, ids, pose, name, source, domain_result):
     depth, instance = source.ray_range_m, source.instance
     flat = world.reshape(-1, 3)
     xy, fish_xy, ranges, domain, in_view = point_in_view(flat, pose, name, mask)
-    _, source_visible = erp_visibility(xy, ranges, depth, instance, ids)
+    source_height, source_width = depth.shape
+    source_xy, source_ranges = project_erp(
+        flat, pose, source_width, source_height
+    )
+    np.testing.assert_allclose(source_ranges, ranges, atol=0, rtol=0)
+    _, source_visible = erp_visibility(source_xy, ranges, depth, instance, ids)
     visible = source_visible & in_view
     q = (flat - pose[:3, 3]) @ pose[:3, :3]
     rays = q @ CAMERA_EXTRINSIC[name].T
@@ -119,7 +144,15 @@ def project_ds_scene(world, ids, pose, name, source, domain_result):
     if ray_error > 1e-8:
         raise RuntimeError(f"{name}: DS projection roundtrip {ray_error}")
     return DSProjection(
-        xy, fish_xy, ranges, domain, in_view, source_visible, visible, ray_error
+        xy,
+        source_xy,
+        fish_xy,
+        ranges,
+        domain,
+        in_view,
+        source_visible,
+        visible,
+        ray_error,
     )
 
 
@@ -147,13 +180,15 @@ def remap_ds_images(name, source, domain_result):
     return DSImages(fish_rgb, restored, final_instance)
 
 
-def save_ds_images(camera_dir, images, domain_result):
+def save_ds_images(camera_dir, images, domain_result, output_mode="full"):
+    validate_output_mode(output_mode)
     fish_rgb, restored = images.fisheye_rgb, images.normal_erp_rgb
     lens_mask, mask = domain_result.lens_mask, domain_result.valid_mask
-    Image.fromarray(fish_rgb).save(camera_dir / "fisheye.png")
-    Image.fromarray(lens_mask.astype(np.uint8) * 255).save(
-        camera_dir / "reference_lens_mask.png"
-    )
+    if output_mode == "full":
+        Image.fromarray(fish_rgb).save(camera_dir / "fisheye.png")
+        Image.fromarray(lens_mask.astype(np.uint8) * 255).save(
+            camera_dir / "reference_lens_mask.png"
+        )
     Image.fromarray(restored).save(camera_dir / "normal_erp.png")
     Image.fromarray(mask.astype(np.uint8) * 255).save(camera_dir / "valid_mask.png")
 
@@ -180,13 +215,17 @@ def make_ds_annotations(people, ids, world, pose, projection):
     return data
 
 
-def save_ds_annotations(camera_dir, data, ids, images, domain_result):
+def save_ds_annotations(
+    camera_dir, data, ids, images, domain_result, output_mode="full"
+):
+    validate_output_mode(output_mode)
     restored, final_instance = images.normal_erp_rgb, images.normal_erp_instance
     mask = domain_result.valid_mask
     np.savez(camera_dir / "annotations.npz", **data)
-    draw_overlay(restored, data["xy"], data["visible"], data["in_view"], ids).save(
-        camera_dir / "overlay.png"
-    )
+    if output_mode == "full":
+        draw_overlay(
+            restored, data["xy"], data["visible"], data["in_view"], ids
+        ).save(camera_dir / "overlay.png")
     boxes = []
     for index, person_id in enumerate(ids):
         selected = (np.rint(final_instance) == person_id) & mask
@@ -209,7 +248,10 @@ def save_ds_annotations(camera_dir, data, ids, images, domain_result):
     (camera_dir / "boxes.json").write_text(json.dumps(boxes, indent=2) + "\n")
 
 
-def save_scene_pair(output, ids, world, states, camera_reports):
+def save_scene_pair(
+    output, ids, world, states, camera_reports, output_mode="full"
+):
+    validate_output_mode(output_mode)
     paired = []
     for j, person_id in enumerate(ids):
         a, b = states["cam2"]["visible"][j], states["cam4"]["visible"][j]
@@ -230,35 +272,58 @@ def save_scene_pair(output, ids, world, states, camera_reports):
         cam2_xy=states["cam2"]["xy"],
         cam4_xy=states["cam4"]["xy"],
     )
-    panels = [Image.open(output / n / "overlay.png").convert("RGB") for n in ("cam2", "cam4")]
-    sheet = Image.new("RGB", (panels[0].width, 2 * panels[0].height))
-    for i, panel in enumerate(panels):
-        sheet.paste(panel, (0, i * panel.height))
-    sheet.save(output / "pair_review.jpg")
+    if output_mode == "full":
+        panels = [
+            Image.open(output / n / "overlay.png").convert("RGB")
+            for n in ("cam2", "cam4")
+        ]
+        sheet = Image.new("RGB", (panels[0].width, 2 * panels[0].height))
+        for i, panel in enumerate(panels):
+            sheet.paste(panel, (0, i * panel.height))
+        sheet.save(output / "pair_review.jpg")
     return dict(cameras=camera_reports, pairs=paired)
 
 
-def process_scene(output, people, poses, masks, vertices, dense, *, lens_masks, lens_metadata):
+def process_scene(
+    output,
+    people,
+    poses,
+    masks,
+    vertices,
+    dense,
+    *,
+    lens_masks,
+    lens_metadata,
+    output_size=None,
+    output_mode="full",
+    source_dir=None,
+):
     """Read -> prepare mapping/domain -> source-label preflight -> remap -> save.
 
     Preflight remains before raster remapping to preserve historical failures.
     Original range buffers never get replaced with remapped depth. Pixel and
     label saving order is retained, including partial outputs on an exception.
     """
+    validate_output_mode(output_mode)
+    source_dir = output / "source" if source_dir is None else Path(source_dir)
     ids = [person["id"] for person in people]
     world = read_world_keypoints(people, vertices, dense)
     np.save(output / "shared_world_densekp.npy", world)
     camera_reports, states = [], {}
     for name in ("cam2", "cam4"):
-        source = read_ds_source(output / "source", name)
-        domain = prepare_ds_domain(name, source, masks[name], lens_masks[name])
+        source = read_ds_source(source_dir, name)
+        domain = prepare_ds_domain(
+            name, source, masks[name], lens_masks[name], output_size=output_size
+        )
         projection = project_ds_scene(world, ids, poses[name], name, source, domain)
         images = remap_ds_images(name, source, domain)
         camera_dir = output / name
         camera_dir.mkdir(exist_ok=True)
-        save_ds_images(camera_dir, images, domain)
+        save_ds_images(camera_dir, images, domain, output_mode=output_mode)
         data = make_ds_annotations(people, ids, world, poses[name], projection)
-        save_ds_annotations(camera_dir, data, ids, images, domain)
+        save_ds_annotations(
+            camera_dir, data, ids, images, domain, output_mode=output_mode
+        )
         camera_reports.append(
             dict(
                 camera=name,
@@ -272,4 +337,6 @@ def process_scene(output, people, poses, masks, vertices, dense, *, lens_masks, 
             )
         )
         states[name] = data
-    return save_scene_pair(output, ids, world, states, camera_reports)
+    return save_scene_pair(
+        output, ids, world, states, camera_reports, output_mode=output_mode
+    )

@@ -29,7 +29,8 @@ def main():
             '--assets', str(root / 'assets'), '--output', str(output),
             '--characters', *repair['characters'], '--pose-source-ids', *repair['pose_source_ids'],
             '--scene', repair['scene'], '--reuse-layout', repair['reuse_layout'],
-            '--width', '1536', '--samples', '24', '--device', 'CUDA']
+            '--width', '1536', '--samples', '24', '--device', 'CUDA',
+            '--output-mode', 'full']
         started = time.monotonic()
         utc = datetime.now(timezone.utc).isoformat()
         print('START', repair['id'], flush=True)

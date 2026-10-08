@@ -22,9 +22,12 @@ from densekp_retrain.body.transforms import world_points
 from densekp_retrain.camera.domain import point_in_view
 
 
-def validate(directory):
+def validate(directory, *, source_dir=None, output_mode="full"):
+    if output_mode not in ("compact", "full"):
+        raise ValueError(f"Invalid output mode: {output_mode}")
+    source_dir = directory / "source" if source_dir is None else Path(source_dir)
     report = json.loads((directory / 'report.json').read_text())
-    source = json.loads((directory / 'source/source_manifest.json').read_text())
+    source = json.loads((source_dir / 'source_manifest.json').read_text())
     rig = json.loads((directory / 'rig.json').read_text())
     if source['people'] != report['people']:
         raise ValueError('People differ between render and annotations')
@@ -34,21 +37,31 @@ def validate(directory):
     np.testing.assert_allclose(physical[0][2, 3], physical[1][2, 3], atol=1e-12)
     np.testing.assert_allclose(np.linalg.norm(physical[0][:3, 3]-physical[1][:3, 3]), rig['baseline_m'], atol=1e-12)
     arrays, records = [], []
+    projection_max_error = 0.
+    coordinate_tolerance = 2e-4
     for name in ('cam2','cam4'):
         with np.load(directory / name / 'annotations.npz') as archive:
             data = {key:archive[key] for key in archive.files}
         arrays.append(data)
         mask=np.asarray(Image.open(directory/name/'valid_mask.png'))>0
         rgb=np.asarray(Image.open(directory/name/'normal_erp.png'))
-        lens=np.asarray(Image.open(directory/name/'reference_lens_mask.png'))>0
-        fish=np.asarray(Image.open(directory/name/'fisheye.png'))
-        if rgb.shape[:2]!=mask.shape or fish.shape[:2]!=lens.shape:
-            raise ValueError('RGB and explicit mask raster sizes differ')
-        if np.any(rgb[~mask]) or np.any(fish[~lens]):
+        coordinate_tolerance=max(coordinate_tolerance,rgb.shape[1]*np.finfo(np.float32).eps)
+        if rgb.shape[:2]!=mask.shape:
+            raise ValueError('Normal ERP RGB and explicit mask raster sizes differ')
+        if np.any(rgb[~mask]):
             raise ValueError('Nonzero pixels outside the explicit valid mask')
+        if output_mode == 'full':
+            lens=np.asarray(Image.open(directory/name/'reference_lens_mask.png'))>0
+            fish=np.asarray(Image.open(directory/name/'fisheye.png'))
+            if fish.shape[:2]!=lens.shape:
+                raise ValueError('Fisheye RGB and lens mask raster sizes differ')
+            if np.any(fish[~lens]):
+                raise ValueError('Nonzero fisheye pixels outside explicit lens mask')
         projected,_,_,_,valid=point_in_view(data['world_densekp'].reshape(-1,3),
                                           np.asarray(cameras[name]['camera_to_world']),name,mask)
-        np.testing.assert_allclose(projected.reshape(data['xy'].shape),data['xy'],atol=2e-4,rtol=0)
+        projection_error=float(np.max(np.abs(projected.reshape(data['xy'].shape)-data['xy'])))
+        projection_max_error=max(projection_max_error,projection_error)
+        np.testing.assert_allclose(projected.reshape(data['xy'].shape),data['xy'],atol=coordinate_tolerance,rtol=0)
         np.testing.assert_array_equal(valid.reshape(data['in_view'].shape),data['in_view'])
         np.testing.assert_array_equal(data['visible'], data['surface_visible'] & data['in_view'])
         if np.any(data['occluded_in_view'] & data['out_of_view']):
@@ -98,7 +111,7 @@ def validate(directory):
         restored = restore_crop_xy(item['proj_verts_cropped'][:, :2], item['_trans'], (256, 256))
         error = float(np.max(np.abs(restored - item['proj_verts'][:, :2])))
         max_error = max(max_error, error)
-        if error > 0.0002:
+        if error > coordinate_tolerance:
             raise ValueError(f'Crop inverse error {error}')
         if item['img'].shape != (3, 256, 256) or not np.isfinite(item['img']).all():
             raise ValueError('Invalid actual loader model input')
@@ -116,14 +129,15 @@ def validate(directory):
                 draw.ellipse((x - 1.5, y - 1.5, x + 1.5, y + 1.5), fill=color)
         crop_panels[row['person_id'], row['camera']] = panel
     ids=arrays[0]['person_ids'].tolist()
-    sheet=Image.new('RGB',(512,256*len(ids)),(25,25,25))
-    for i, person_id in enumerate(ids):
-        for j,name in enumerate(('cam2','cam4')):
-            if (person_id,name) in crop_panels:
-                sheet.paste(crop_panels[(person_id,name)],(256*j,256*i))
-            else:
-                ImageDraw.Draw(sheet).text((256*j+8,256*i+8),f'{name} / person {person_id}: no box',fill='white')
-    sheet.save(directory/'crop_review.jpg')
+    if output_mode == 'full':
+        sheet=Image.new('RGB',(512,256*len(ids)),(25,25,25))
+        for i, person_id in enumerate(ids):
+            for j,name in enumerate(('cam2','cam4')):
+                if (person_id,name) in crop_panels:
+                    sheet.paste(crop_panels[(person_id,name)],(256*j,256*i))
+                else:
+                    ImageDraw.Draw(sheet).text((256*j+8,256*i+8),f'{name} / person {person_id}: no box',fill='white')
+        sheet.save(directory/'crop_review.jpg')
     # Confirm all referenced 138-row model points against the repository operator.
     regressor = np.load(ROOT/'assets/densekp_regressor_R.npy')
     geom=ROOT/'outputs/baselines/temporal_case_aaron_1095/geometry'
@@ -141,7 +155,7 @@ def validate(directory):
                 raise ValueError('Clothing provenance differs from the target body')
             clothing=np.load(clothing_dir/'clothing_vertices.npy')[person['frame']]
             expected_clothing=world_points(clothing,vertices[person['frame']],person)
-            rendered_clothing=np.load(directory/'source'/f"person_{person['id']}_world_clothing.npy")
+            rendered_clothing=np.load(source_dir/f"person_{person['id']}_world_clothing.npy")
             error=float(np.abs(expected_clothing-rendered_clothing).max())
             if error>5e-6: raise ValueError('Clothing must use the body lift, yaw and location')
             clothing_errors.append(error)
@@ -150,7 +164,7 @@ def validate(directory):
         operator_errors.append(float(np.abs(regressor@vertices[person['frame']]-dense[person['frame']]).max()))
         expected=world_points(dense[person['frame']],vertices[person['frame']],person)
         np.testing.assert_allclose(expected,arrays[0]['world_densekp'][person_index],atol=2e-6,rtol=0)
-        rendered_path=directory/'source'/f"person_{person['id']}_world_vertices.npy"
+        rendered_path=source_dir/f"person_{person['id']}_world_vertices.npy"
         if 'geometry' in person or rendered_path.exists():
             metadata=json.loads(rendered_path.with_name(f"person_{person['id']}_geometry.json").read_text())
             if Path(metadata['geometry']).resolve()!=person_geometry.resolve() or metadata['frame']!=person['frame']:
@@ -171,6 +185,8 @@ def validate(directory):
                 body_aabbs_separated_with_5cm_margin=True,
                 baseline_m=rig['baseline_m'], baseline_status='synthetic value; not a measured baseline',
                 crop_roundtrip_max_px=max_error, operator_max_error_m=operator_error,
+                projection_roundtrip_max_px=projection_max_error,
+                coordinate_tolerance_px=coordinate_tolerance,
                 rendered_mesh_operator_max_error_m=max(rendered_errors) if rendered_errors else None,
                 rendered_clothing_transform_max_error_m=max(clothing_errors) if clothing_errors else None,
                 target_value_semantics='explicit binary supervision mask, not prediction confidence',

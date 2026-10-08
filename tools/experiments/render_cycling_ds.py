@@ -14,6 +14,8 @@ import cv2
 import numpy as np
 from tools.fisheye.run_ds_scene_pair_pilot import SCENES, load_lens_masks, add_lens_mask_arguments
 from densekp_retrain.imaging.ds import process_scene
+from densekp_retrain.imaging.output_modes import (prepare_source_workspace,
+    preserve_source_recipe, complete_output, record_failure)
 from densekp_retrain.camera.double_sphere import DS_20260320
 from densekp_retrain.camera.rig import rig_poses
 from densekp_retrain.camera.domain import point_in_view
@@ -70,7 +72,11 @@ def main():
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--clothing-root',type=Path,help='Per-sample fitted jersey/shorts assets')
     p.add_argument('--blender-bin',type=Path,default=Path('/mnt/data1/khb/app/blender-5.1.1-linux-x64/blender'))
-    p.add_argument('--width',type=int,default=1536)
+    p.add_argument('--width',type=int,default=5760)
+    p.add_argument('--final-width',type=int,default=5760)
+    p.add_argument('--final-height',type=int,default=2880)
+    p.add_argument('--output-mode',choices=['compact','full'],default='compact')
+    p.add_argument('--temporary-root',type=Path,help='Fresh parent for per-scene compact temporary directories')
     p.add_argument('--samples',type=int,default=32)
     p.add_argument('--seed',type=int,default=29)
     p.add_argument('--device',choices=['CPU','CUDA'],default='CUDA')
@@ -92,8 +98,16 @@ def main():
         layout_masks[n]&=cv2.remap(lenses[n].astype(np.uint8),x,y,cv2.INTER_NEAREST).astype(bool)
     appearance,_=load_appearance_baseline()
     args.output=args.output.resolve(); args.output.mkdir(parents=True,exist_ok=False)
+    original_hook=sys.excepthook
     for name,(config_path,origin,yaw_deg) in SCENES.items():
         out=args.output/name; out.mkdir()
+        temporary=(args.temporary_root/name if args.temporary_root else None)
+        source_dir=prepare_source_workspace(out,args.output_mode,temporary)
+        failure_stage={'value':'preflight'}
+        def preserve_failure(error_type,error,traceback):
+            record_failure(out,args.output_mode,source_dir,failure_stage['value'],error)
+            original_hook(error_type,error,traceback)
+        sys.excepthook=preserve_failure
         poses,physical,yaw=rig_poses(origin,yaw_deg,.18)
         people=layout(assets,np.asarray(origin),yaw_deg,yaw,poses,layout_masks)
         if args.clothing_root:
@@ -115,18 +129,22 @@ def main():
                  '--python',str(ROOT/'tools/fisheye/render_equirectangular_source.py'),'--',
                  '--geometry',str(assets[0]),'--people-config',str(out/'people.json'),
                  '--cameras',str(out/'rig.json'),'--scene-blend',str(ROOT/scene['blend_path']),
-                 '--output-dir',str(out/'source'),'--width',str(args.width),'--height',str(args.width//2),
+                 '--output-dir',str(source_dir),'--width',str(args.width),'--height',str(args.width//2),
                  '--samples',str(args.samples),'--seed',str(args.seed),'--device',args.device,
                  '--body-texture',appearance['body_diffuse_texture_path'],'--body-uv',appearance['body_uv_path']]
         (out/'render_command.json').write_text(json.dumps(command,indent=2)+'\n')
         print('Rendering '+name,flush=True)
+        failure_stage['value']='render'
         with (out/'render.log').open('w') as log:
             subprocess.run(command,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,check=True)
-        source=json.loads((out/'source/source_manifest.json').read_text())
+        source=json.loads((source_dir/'source_manifest.json').read_text())
         if source['people']!=people: raise ValueError('Rendered people mismatch')
         for camera in source['sources']:
             np.testing.assert_allclose(camera['camera_to_world'],poses[camera['id']],atol=1e-12,rtol=0)
-        report=process_scene(out,people,poses,masks,None,None,lens_masks=lenses,lens_metadata=lens_metadata)
+        failure_stage['value']='postprocess'
+        report=process_scene(out,people,poses,masks,None,None,lens_masks=lenses,
+            lens_metadata=lens_metadata,output_size=(args.final_width,args.final_height),
+            output_mode=args.output_mode,source_dir=source_dir)
         report.update(scene=name,people=people,conversion_report=str((args.converted/'report.json').resolve()),
                       sequence=False,calibration_group='20260320',baseline_m=.18,
                       valid_mask_source=str((ROOT/'assets_external/real_erp_valid_masks.npz').resolve()),
@@ -135,9 +153,20 @@ def main():
                       appearance=('per-body fitted cycling jersey and shorts' if args.clothing_root
                                   else 'shared body texture; no motion-specific clothing'),
                       limitation='two estimated poses repeated in two scenes; no recovered fingers or real 3D GT',
-                      visibility_rule='source ERP instance plus 4cm ray-range tolerance in 5x5 neighborhood')
+                      visibility_rule='source ERP instance plus 4cm ray-range tolerance in 5x5 neighborhood',
+                      source_resolution=[args.width,args.width//2],
+                      final_erp_resolution=[args.final_width,args.final_height],output_mode=args.output_mode)
         (out/'report.json').write_text(json.dumps(report,indent=2)+'\n')
-        print(json.dumps(validate(out)),flush=True)
+        failure_stage['value']='validation'
+        checked=validate(out,source_dir=source_dir,output_mode=args.output_mode)
+        preserve_source_recipe(out,source_dir,render_command=command,
+            source_buffers_retained=args.output_mode=='full',extra=dict(
+                output_mode=args.output_mode,final_erp_resolution=[args.final_width,args.final_height],
+                ds_resolution=[2880,2880],seed=args.seed,samples=args.samples))
+        failure_stage['value']='cleanup'
+        complete_output(out,args.output_mode,source_dir,checks=checked)
+        print(json.dumps(checked),flush=True)
+    sys.excepthook=original_hook
 
 
 if __name__=='__main__': main()

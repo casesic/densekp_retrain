@@ -94,7 +94,8 @@ def main():
         for camera in source['sources']:
             np.testing.assert_allclose(camera['camera_to_world'], poses[camera['id']], atol=1e-12, rtol=0)
         result = process_scene(output, people, poses, masks, vertices, dense,
-                               lens_masks=lens_masks, lens_metadata=lens_metadata)
+                               lens_masks=lens_masks, lens_metadata=lens_metadata,
+                               output_mode='full')
         result.update(level=level, people=people, scene='urban_street_assets', samples=args.samples,
                       target_id=3, fixed_control_ids=[2,4], occluder_id=1,
                       intervention='remove occluder' if level == 'clear' else ('shift occluder world Y by -0.30m' if level == 'mild' else 'original occluder'),

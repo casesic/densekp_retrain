@@ -17,6 +17,8 @@ from tools.experiments.prepare_cycling_characters import POSES
 from densekp_retrain.io.json import write_json
 from tools.fisheye.run_ds_scene_pair_pilot import SCENES, load_lens_masks, add_lens_mask_arguments
 from densekp_retrain.imaging.ds import process_scene
+from densekp_retrain.imaging.output_modes import (prepare_source_workspace,
+    preserve_source_recipe, complete_output, record_failure)
 from densekp_retrain.camera.double_sphere import DS_20260320
 from densekp_retrain.camera.rig import rig_poses
 from densekp_retrain.body.transforms import world_points
@@ -30,7 +32,11 @@ def main():
     p.add_argument('--review-acceptance',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--blender-bin',type=Path,default=Path('/mnt/data1/khb/app/blender-5.1.1-linux-x64/blender'))
-    p.add_argument('--width',type=int,default=1536)
+    p.add_argument('--width',type=int,default=5760)
+    p.add_argument('--final-width',type=int,default=5760)
+    p.add_argument('--final-height',type=int,default=2880)
+    p.add_argument('--output-mode',choices=['compact','full'],default='compact')
+    p.add_argument('--temporary-root',type=Path,help='Fresh parent for per-scene compact temporary directories')
     p.add_argument('--samples',type=int,default=32)
     p.add_argument('--seed',type=int,default=29)
     p.add_argument('--device',choices=['CPU','CUDA'],default='CUDA')
@@ -56,9 +62,16 @@ def main():
         layout_masks[n]=cv2.resize(masks[n].astype(np.uint8),(a.width,a.width//2),interpolation=cv2.INTER_NEAREST).astype(bool)
         layout_masks[n]&=cv2.remap(lenses[n].astype(np.uint8),x,y,cv2.INTER_NEAREST).astype(bool)
     a.output=a.output.resolve(); a.output.mkdir(parents=True,exist_ok=False)
-    validations=[]; coverage=[]
+    validations=[]; coverage=[]; original_hook=sys.excepthook
     for scene_index,(name,(config_path,origin,yaw_deg)) in enumerate(SCENES.items()):
         out=a.output/name; out.mkdir()
+        temporary=(a.temporary_root/name if a.temporary_root else None)
+        source_dir=prepare_source_workspace(out,a.output_mode,temporary)
+        failure_stage={'value':'preflight'}
+        def preserve_failure(error_type,error,traceback):
+            record_failure(out,a.output_mode,source_dir,failure_stage['value'],error)
+            original_hook(error_type,error,traceback)
+        sys.excepthook=preserve_failure
         pose_ids=[POSES[scene_index],POSES[scene_index],POSES[1-scene_index],POSES[1-scene_index]]
         selected=[next(d for d in assets['derivatives'] if d['character_id']==cid and d['pose_source_id']==pid)
                   for cid,pid in zip(characters,pose_ids)]
@@ -89,32 +102,46 @@ def main():
                  '--python',str(ROOT/'tools/fisheye/render_equirectangular_source.py'),'--',
                  '--geometry',str(geometries[0]),'--people-config',str(out/'people.json'),
                  '--cameras',str(out/'rig.json'),'--scene-blend',str(ROOT/scene['blend_path']),
-                 '--output-dir',str(out/'source'),'--width',str(a.width),'--height',str(a.width//2),
+                 '--output-dir',str(source_dir),'--width',str(a.width),'--height',str(a.width//2),
                  '--samples',str(a.samples),'--seed',str(a.seed),'--device',a.device]
         write_json(out/'render_command.json',command)
         render_start=time.monotonic()
+        failure_stage['value']='render'
         with (out/'render.log').open('w') as log:
             subprocess.run(command,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,check=True)
-        source=json.loads((out/'source/source_manifest.json').read_text())
+        source=json.loads((source_dir/'source_manifest.json').read_text())
         if source['people']!=people: raise ValueError('Rendered identity differs from labels')
         for camera in source['sources']:
             np.testing.assert_allclose(camera['camera_to_world'],poses[camera['id']],atol=1e-12,rtol=0)
-        result=process_scene(out,people,poses,masks,None,None,lens_masks=lenses,lens_metadata=lens_metadata)
+        failure_stage['value']='postprocess'
+        result=process_scene(out,people,poses,masks,None,None,lens_masks=lenses,
+            lens_metadata=lens_metadata,output_size=(a.final_width,a.final_height),
+            output_mode=a.output_mode,source_dir=source_dir)
         result.update(scene=name,people=people,split='integration_only',sequence=False,
                       render_seconds=time.monotonic()-render_start,baseline_m=.18,calibration_group='20260320',
                       appearance='per-character skin and procedural eyes; fitted common-palette jersey/shorts; albedo hair only',
                       regressor_source=str(ROOT/'assets/densekp_regressor_R.npy'),
                       visibility_rule='fresh source depth/instance, 4cm ray-range tolerance in 5x5 neighborhood',
-                      limitation='two estimated photo poses, four synthetic identities; no independent split')
+                      limitation='two estimated photo poses, four synthetic identities; no independent split',
+                      source_resolution=[a.width,a.width//2],
+                      final_erp_resolution=[a.final_width,a.final_height],output_mode=a.output_mode)
         write_json(out/'report.json',result)
-        checked=validate(out); validations.append(checked)
+        failure_stage['value']='validation'
+        checked=validate(out,source_dir=source_dir,output_mode=a.output_mode); validations.append(checked)
         seen=set()
         for camera in poses:
             boxes=json.loads((out/camera/'boxes.json').read_text())
             seen.update(b['person_id'] for b in boxes if b['bbox_xyxy_exclusive'] is not None)
         if seen!={1,2,3,4}: raise ValueError('A derivative has no actual oracle crop in either camera')
         coverage.extend(dict(character_id=p['character_id'],pose_source_id=p['pose_source_id'],scene=name,person_id=p['id']) for p in people)
+        preserve_source_recipe(out,source_dir,render_command=command,
+            source_buffers_retained=a.output_mode=='full',extra=dict(
+                output_mode=a.output_mode,final_erp_resolution=[a.final_width,a.final_height],
+                ds_resolution=[2880,2880],seed=a.seed,samples=a.samples))
+        failure_stage['value']='cleanup'
+        complete_output(out,a.output_mode,source_dir,checks=checked)
         print(json.dumps(checked),flush=True)
+    sys.excepthook=original_hook
     write_json(a.output/'report.json',dict(status='passed',split='integration_only',coverage=coverage,
                scene_validations=validations,seconds=time.monotonic()-start,
                loader_rows=sum(v['loader_rows'] for v in validations),

@@ -31,7 +31,8 @@ def main():
         command=[sys.executable,str(ROOT/'tools/experiments/render_adult_candidates_ds.py'),
             '--assets',str(root/'assets'),'--output',str(out),'--characters',*[p['character_id'] for p in keep],
             '--pose-source-ids',*[p['pose_source_id'] for p in keep],'--scene',job['scene'],
-            '--reuse-layout',str(base),'--width','1536','--samples','24','--device','CUDA']
+            '--reuse-layout',str(base),'--width','1536','--samples','24','--device','CUDA',
+            '--output-mode','full']
         started=time.monotonic()
         recovered=out.exists()
         if recovered:

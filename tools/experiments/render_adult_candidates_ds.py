@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+import shutil
 import cv2
 import numpy as np
 from PIL import Image,ImageDraw
@@ -16,6 +17,8 @@ from densekp_retrain.io.json import write_json
 from tools.experiments.render_cycling_ds import layout
 from tools.fisheye.run_ds_scene_pair_pilot import SCENES
 from densekp_retrain.imaging.ds import process_scene
+from densekp_retrain.imaging.output_modes import (prepare_source_workspace,
+    preserve_source_recipe, complete_output, record_failure)
 from densekp_retrain.camera.double_sphere import DS_20260320
 from densekp_retrain.camera.rig import rig_poses
 from densekp_retrain.body.transforms import world_points
@@ -64,7 +67,10 @@ def main():
     p.add_argument('--reuse-rendered-source',type=Path,help='Completed source directory from the exact reused layout; postprocess only into a new output')
     p.add_argument('--layout-slots',nargs='+',type=int,help='0/1 paired edge, 2 rear overlap, 3 full control')
     p.add_argument('--scene',choices=list(SCENES),default='cycling_forest')
-    p.add_argument('--samples',type=int,default=24);p.add_argument('--width',type=int,default=1536)
+    p.add_argument('--samples',type=int,default=24);p.add_argument('--width',type=int,default=5760)
+    p.add_argument('--final-width',type=int,default=5760);p.add_argument('--final-height',type=int,default=2880)
+    p.add_argument('--output-mode',choices=['compact','full'],default='compact')
+    p.add_argument('--temporary-root',type=Path,help='Fresh compact-owned temporary directory')
     p.add_argument('--device',choices=['CPU','CUDA'],default='CUDA');a=p.parse_args();start=time.monotonic()
     if not 2<=len(a.characters)<=4:raise ValueError('Bounded layout requires 2..4 people')
     assets=json.loads((a.assets/'report.json').read_text());selected=[]
@@ -75,6 +81,13 @@ def main():
     for cid,pose_id in zip(a.characters,pose_ids):
         selected.append(next(d for d in assets['derivatives'] if d['character_id']==cid and d['pose_source_id']==pose_id))
     out=a.output.resolve();out.mkdir(parents=True,exist_ok=False)
+    source_dir=prepare_source_workspace(out,a.output_mode,a.temporary_root)
+    failure_stage={'value':'preflight'}
+    original_hook=sys.excepthook
+    def preserve_failure(error_type,error,traceback):
+        record_failure(out,a.output_mode,source_dir,failure_stage['value'],error)
+        original_hook(error_type,error,traceback)
+    sys.excepthook=preserve_failure
     old=ROOT/'outputs/experiments/cycling_four_characters_20260929/ds_v1/cycling_forest'
     lenses={n:np.array(Image.open(old/n/'reference_lens_mask.png'))>0 for n in ('cam2','cam4')}
     old_report=json.loads((old/'report.json').read_text())
@@ -150,7 +163,7 @@ def main():
     command=['/mnt/data1/khb/app/blender-5.1.1-linux-x64/blender','-b','-t','8','--disable-autoexec','--python-exit-code','1',
         '--python',str(ROOT/'tools/fisheye/render_equirectangular_source.py'),'--','--geometry',selected[0]['geometry'],
         '--people-config',str(out/'people.json'),'--cameras',str(out/'rig.json'),'--scene-blend',str(ROOT/scene['blend_path']),
-        '--output-dir',str(out/'source'),'--width',str(a.width),'--height',str(a.width//2),'--samples',str(a.samples),'--seed','29','--device',a.device]
+        '--output-dir',str(source_dir),'--width',str(a.width),'--height',str(a.width//2),'--samples',str(a.samples),'--seed','29','--device',a.device]
     write_json(out/'render_command.json',command)
     if a.reuse_rendered_source:
         source=a.reuse_rendered_source.resolve()
@@ -162,32 +175,50 @@ def main():
             raise ValueError('Cannot reuse render after changing cameras')
         for name in ['source_manifest.json','cam2.exr','cam4.exr']:
             if not (source/name).is_file():raise ValueError('Source render is incomplete')
-        (out/'source').symlink_to(source,target_is_directory=True)
+        if a.output_mode == 'compact':
+            for path in source.iterdir():
+                target=source_dir/path.name
+                shutil.copytree(path,target) if path.is_dir() else shutil.copy2(path,target)
+        else:
+            source_dir.rmdir();source_dir.symlink_to(source,target_is_directory=True)
         write_json(out/'render_reuse.json',dict(source=str(source),render_executed=False,
             reason='Complete existing render; interrupted downstream processing resumed in a new directory'))
     else:
+        failure_stage['value']='render'
         with (out/'render.log').open('w') as log:subprocess.run(command,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,check=True)
-    result=process_scene(out,people,poses,masks,None,None,lens_masks=lenses,lens_metadata=metadata)
+    failure_stage['value']='postprocess'
+    result=process_scene(out,people,poses,masks,None,None,lens_masks=lenses,lens_metadata=metadata,
+        output_size=(a.final_width,a.final_height),output_mode=a.output_mode,source_dir=source_dir)
     result.update(scene=a.scene,people=people,split='integration_only',quality_state='diagnostic_render',
         appearance_acceptance='pending actual ERP/square/network-center review',seconds=time.monotonic()-start,
-        source_resolution=[a.width,a.width//2],physical_fisheye_resolution=[2880,2880],real_erp_resolution=[5760,2880])
+        source_resolution=[a.width,a.width//2],physical_fisheye_resolution=[2880,2880],
+        final_erp_resolution=[a.final_width,a.final_height],output_mode=a.output_mode)
     if variation:result['layout_variation']=variation
-    write_json(out/'report.json',result);checked=validate(out)
+    write_json(out/'report.json',result);failure_stage['value']='validation'
+    checked=validate(out,source_dir=source_dir,output_mode=a.output_mode)
     hair_checks=[]
     for person in people:
         folder=Path(person['groom_geometry']);info=json.loads((folder/'groom_manifest.json').read_text())
         points=np.load(folder/'points.npy');offsets=np.load(folder/'curve_offsets.npy')
         active=np.load(folder/'active_curve_mask.npy') if (folder/'active_curve_mask.npy').exists() else np.ones(len(offsets)-1,bool)
         expected=world_points(points[np.repeat(active,np.diff(offsets))],np.load(Path(person['geometry'])/'vertices.npy')[0],person)
-        actual=np.load(out/'source'/f"person_{person['id']}_world_groom.npy")
+        actual=np.load(source_dir/f"person_{person['id']}_world_groom.npy")
         if actual.shape!=expected.shape:raise ValueError('Rendered groom point count mismatch')
         error=float(np.abs(expected-actual).max())
         if error>5e-6:raise ValueError('Groom world-transform gate failed')
-        meta=json.loads((out/'source'/f"person_{person['id']}_groom.json").read_text())
+        meta=json.loads((source_dir/f"person_{person['id']}_groom.json").read_text())
         if any(o['pass_index']!=person['id'] for o in meta['objects']):raise ValueError('Groom instance ID mismatch')
         hair_checks.append(dict(character_id=person['character_id'],world_max_m=error,actual_control_points=len(actual),instance_id=person['id']))
-    crops(out);write_json(out/'groom_validation.json',dict(status='world_transform_and_instance_assignment_passed',cases=hair_checks,
+    if a.output_mode == 'full':crops(out)
+    write_json(out/'groom_validation.json',dict(status='world_transform_and_instance_assignment_passed',cases=hair_checks,
         limitation='actual curve control points and opaque render assignment; final image contacts require separate review'))
+    preserve_source_recipe(out,source_dir,render_command=command,
+        source_buffers_retained=a.output_mode=='full',extra=dict(
+        output_mode=a.output_mode,final_erp_resolution=[a.final_width,a.final_height],
+        ds_resolution=[2880,2880],seed=29,samples=a.samples))
+    failure_stage['value']='cleanup'
+    complete_output(out,a.output_mode,source_dir,checks=checked)
+    sys.excepthook=original_hook
     print(json.dumps(checked),flush=True)
 
 if __name__=='__main__':main()

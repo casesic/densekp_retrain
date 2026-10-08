@@ -65,6 +65,23 @@ B3调度迁移只用桩验收调度，没有实际 GPU、推理、汇总或比�
 | Omni 生成/后处理：`tools/fisheye/run_fisheye_camera_p0.py` | 显式 `--geometry --clothing-geometry --output-dir --appearance-manifest`；核对 frame/分辨率 | 默认含渲染；`--skip-render` 仍写相机/几何副本并执行后处理，且依赖输出目录已有源 EXR。默认输出可复用旧目录，不建议裸执行 | Blender（渲染时）、普通 CPU 图像/EXR 依赖、已有几何与外观资产 |
 | DS 多人及场景制作 | 从 [场景配方索引](rendering/SCENE_RECIPE_INDEX.md) 选择具体入口 | 原生多人、链接单人、专用场景制作保留独立默认值和旧 Blender `--` 参数，不互换命令 | 对应 `.blend`、贴图、人体/衣物；本轮不制作任何新资产 |
 
+后续 DS 生成入口 `render_cycling_ds.py`、`render_cycling_characters_ds.py` 和
+`render_adult_candidates_ds.py` 默认采用 compact 与 C 组尺寸（源/最终 ERP 均
+5760×2880，DS 2880×2880）；需要调试证据时显式给 `--output-mode full`。
+compact 临时目录可用 `--temporary-root` 指向尚不存在的任务独占目录；失败会保留，
+成功回读后才清理。最小形式如下（其他人物、资产和真实鱼眼 mask 参数仍按各入口 `--help`）：
+
+```bash
+python tools/experiments/render_adult_candidates_ds.py \
+  --assets /path/to/assets --output /new/output \
+  --characters ID1 ID2 --output-mode compact
+```
+
+历史复核命令应显式 `--output-mode full` 并保留原 `--width`，不得用新默认改写旧实验。
+有界验收入口为 `tools/validate/validate_ds_output_modes.py --output /new/acceptance`；它复用
+已有 C 源缓冲，不启动 Blender、模型或推理，但会复制约 0.9 GiB 源文件并运行两次 CPU 后处理。
+已完成结果和失败记录见 [验收报告](rendering/DS_OUTPUT_MODES_20261008.md)。
+
 GPU 计算前先检查设备和进程，不假定 GPU 0 正常；选择的设备应显式传入相应入口。
 文档收尾没有执行设备查询、推理、训练或渲染。
 

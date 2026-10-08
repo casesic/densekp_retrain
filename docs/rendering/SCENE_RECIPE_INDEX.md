@@ -28,6 +28,13 @@
 3. `tools/fisheye/render_equirectangular_source.py` 打开原生多人场景；`render_equirectangular_scene_source.py` 是历史单人链接路径。它们直接使用 `densekp_retrain.rendering.blender`，保留不同灯光、实例 ID 和默认值。
 4. `densekp_retrain.imaging.ds` / `omni` 读取源制品，生成有效 mask、人物框、138 点和可见性；标注入口消费 manifest，随后打包为 Dataset。
 
+上述三个后续 DS 生成入口默认 `--output-mode compact --width 5760
+--final-width 5760 --final-height 2880`；鱼眼标定栅格固定 2880×2880。compact
+仅省略持久化的源缓冲和调试图，数值计算路径不变，并在回读成功后清理带所有权标记的临时源目录。
+full 保留历史源 EXR、源预览、鱼眼图、overlay 和 review。公共 `imaging.ds.process_scene`
+未传模式时仍为 full；旧 pilot、遮挡控制、来源隔离批处理及 A/B/C 分辨率实验显式传 full，
+仍保留原有 1536 或 A/B/C 配方。验收与限制见 [DS 输出模式报告](DS_OUTPUT_MODES_20261008.md)。
+
 `render_source_ground_repairs.py` 是选定候选的修复重放配方，消费已有探针/布局与场景，输出修复目录及执行状态；其固定分辨率、采样和 GPU 配方保持，不是通用渲染 API，本批未运行。
 成人候选复用 `render_cycling_ds.layout`，街景升级复用 `build_urban_street.blender_main` 作特定预览；这是配方之间明确的组合，公共库没有反向导入它们。
 
