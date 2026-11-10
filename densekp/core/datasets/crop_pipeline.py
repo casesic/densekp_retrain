@@ -11,6 +11,7 @@ from .augmentation import (
     extreme_cropping_aggressive,
 )
 from . import image_processing as image_ops
+from .image_layout import warp_roi_image
 
 
 @dataclass(frozen=True)
@@ -100,33 +101,42 @@ def transform_crop(
     is_bgr=True,
     use_skimage_antialias=False,
     border_mode=cv2.BORDER_CONSTANT,
+    image_layout=None,
 ):
     """Preprocess → warp → normalize image → transform labels, in that order."""
     box, augmentation = plan.box, plan.augmentation
     patch_width, patch_height = patch_size
-    pixels = image_ops.preprocess_image(
-        image.pixels, box, augmentation, patch_size, use_skimage_antialias, do_augment, augm_config
-    )
-    display, affine = image_ops.generate_image_patch_cv2(
-        pixels,
-        box.center_x,
-        box.center_y,
-        box.width,
-        box.height,
-        patch_width,
-        patch_height,
-        augmentation.flip,
-        augmentation.scale,
-        augmentation.rotation,
-        border_mode=border_mode,
-    )
+    if image_layout is not None and tuple(image.size_hw[::-1]) != image_layout.stored_size_wh:
+        raise ValueError("stored_image_size_conflict")
+    if image_layout is not None and image_layout.kind == "roi_image":
+        display, affine = warp_roi_image(image.pixels, plan, patch_size, image_layout,
+            use_skimage_antialias=use_skimage_antialias, do_augment=do_augment,
+            augm_config=augm_config, border_mode=border_mode)
+    else:
+        pixels = image_ops.preprocess_image(
+            image.pixels, box, augmentation, patch_size, use_skimage_antialias, do_augment, augm_config
+        )
+        display, affine = image_ops.generate_image_patch_cv2(
+            pixels,
+            box.center_x,
+            box.center_y,
+            box.width,
+            box.height,
+            patch_width,
+            patch_height,
+            augmentation.flip,
+            augmentation.scale,
+            augmentation.rotation,
+            border_mode=border_mode,
+        )
     normalized = image_ops.normalize_image(
         display, image.channels, augmentation.color_scale, mean, std, is_bgr
     )
     image_ops.transform_labels(keypoints, affine, patch_size)
     if dense_points is not None:
         image_ops.transform_labels(dense_points, affine, patch_size)
-    return CropResult(normalized, display, image.size_hw, plan, keypoints, dense_points, affine)
+    size_hw = np.array(image_layout.full_size_wh[::-1]) if image_layout is not None else image.size_hw
+    return CropResult(normalized, display, size_hw, plan, keypoints, dense_points, affine)
 
 
 def crop_example(

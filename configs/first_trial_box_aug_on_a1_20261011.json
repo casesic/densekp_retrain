@@ -1,0 +1,13 @@
+{
+  "review_status": "pending_review",
+  "parent_episode_plan": "outputs/plans/first_dataset_preparation_a1_20261011/episode_plan.json",
+  "parent_sample_order": "same_frozen_parent_rows_v1",
+  "source_weights": "assets_external/densekp.ckpt",
+  "optimizer": {"name":"AdamW","learning_rate":0.000001,"weight_decay":0.0001},
+  "optimizer_updates": 200,
+  "batch_size": 1,
+  "gradient_accumulation": 1,
+  "other_augmentation": "unchanged_neutral_geometric_v1",
+  "evaluation": {"native_boxes":true,"fixed_challenge_boxes":true,"random_box_augmentation":false},
+  "BOX_AUGMENTATION": {"enabled":true,"seed":20261041,"policy":{"version":"bounded_native_box_v1","native_probability":0.5,"center_probability":0.25,"scale_probability":0.15,"one_side_probability":0.1,"max_center_fraction":0.03,"scale_range":[0.9,1.1],"max_one_side_fraction":0.1,"crop_policy":"deployment","boundary_policy":"erp_reject_seam","interpolation_margin_px":2}}
+}

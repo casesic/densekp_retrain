@@ -1,0 +1,46 @@
+{
+  "schema": "front_back_side_camera_rig_v1",
+  "source_prepared": "outputs/experiments/dispersed_cyclists_4_5_multirig_a1_20261011/city_5p/prepared_edge",
+  "scene_episode_id": "city_dispersed_5p_s20261031",
+  "camera_master_seed": 20261034,
+  "comparison_seed": 20261035,
+  "target_person_id": 1,
+  "candidate_limit_each_view": 16,
+  "maximum_exact_support_candidates_each_view": 4,
+  "front": {
+    "roadside_x_centers_m": [2.75, 3.15, -2.75, -3.15],
+    "along_road_y_centers_m": [8.0, 8.8],
+    "seam_yaw_offsets_deg": [-4.0, 4.0],
+    "minimum_view_common_frames": 16,
+    "minimum_view_common_run": 6,
+    "minimum_common_physical_frames": 16
+  },
+  "back": {
+    "inherited_rig_id": "rig_edge",
+    "minimum_view_common_frames": 16,
+    "minimum_view_common_run": 6,
+    "minimum_dual_edge_frames": 16
+  },
+  "side": {
+    "roadside_x_centers_m": [2.75, 3.15, -2.75, -3.15],
+    "along_road_y_centers_m": [2.55, 2.75, 2.95, 3.15],
+    "seam_yaw_offsets_deg": [0.0],
+    "minimum_view_common_run": 3,
+    "minimum_common_physical_frames": 16,
+    "require_road_cross_section": true
+  },
+  "jitter_xy_m": 0.025,
+  "jitter_yaw_deg": 0.2,
+  "minimum_camera_to_person_root_m": 0.5,
+  "minimum_camera_road_x_abs_m": 2.6,
+  "minimum_common_points": 8,
+  "maximum_union_roi_pixels": 7000000,
+  "integration_only": true,
+  "source_grouping": "five_people_all_three_rigs_one_shared_source_diagnostic",
+  "render_order": ["rig_back", "rig_front", "rig_side"],
+  "planned_frames": 31,
+  "planned_camera_calls": 186,
+  "planned_observation_slots": 930,
+  "cpu_preflight_budget_seconds": 900,
+  "render_and_finish_budget_seconds": 3600
+}

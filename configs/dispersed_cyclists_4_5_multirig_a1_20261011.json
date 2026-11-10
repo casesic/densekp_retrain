@@ -1,0 +1,27 @@
+{
+  "schema": "dispersed_cyclists_4_5_multirig_a1_v1",
+  "environment_id": "urban_street_assets",
+  "scene_episode_source": "outputs/experiments/cycling_team_relative_layout_a1_20261010/city_attempt5_cpu_only_correction1/prepared",
+  "rig_source": "outputs/experiments/urban_three_cyclists_multirig_a1_20261011/production",
+  "episode_clock": {"frame_count": 31, "time_base": [1, 10]},
+  "episodes": [
+    {"person_count": 4, "layout_seed": 20261030, "camera_seed": 20261032},
+    {"person_count": 5, "layout_seed": 20261031, "camera_seed": 20261033}
+  ],
+  "people": [
+    {"person_id": 1, "body_id": "M01", "motion_id": "APD6526", "clothing_id": "M02_simple", "hair_id": "M01_groom", "reuse_person": 1},
+    {"person_id": 2, "body_id": "M02", "motion_id": "p1_comfortable", "clothing_id": "M01_simple", "hair_id": "F02_groom", "reuse_person": 2},
+    {"person_id": 3, "body_id": "F02", "motion_id": "p2_straight", "clothing_id": "F02_simple", "hair_id": "F02_groom", "reuse_person": 3},
+    {"person_id": 4, "body_id": "M03", "motion_id": "p1_alternate", "clothing_id": "M03_simple", "hair_id": "M03_groom", "new_combination": true},
+    {"person_id": 5, "body_id": "M04", "motion_id": "p2_straight", "clothing_id": "M04_simple", "hair_id": "M04_groom", "new_combination": true}
+  ],
+  "layout_candidate_limit_per_episode": 12,
+  "camera_candidate_limit_per_episode": 12,
+  "max_union_roi_pixels_per_camera": 7000000,
+  "target_person_id": 1,
+  "edge_goal": {"min_in_each": 8, "min_out_each": 5, "min_common": 8, "min_frames": 16, "min_window_span_seconds": 0.5},
+  "front_oblique_goal": {"angle_degrees": [45, 80], "min_common": 8, "min_window_frames": 6, "min_common_frames": 16},
+  "usage": "integration_only/shared_source_diagnostic",
+  "budget_seconds_total": 5400,
+  "budget_seconds_render_finish": 4200
+}

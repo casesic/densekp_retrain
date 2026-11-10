@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import os
 import numpy as np
 from ..configs import DATASET_FILES, DATASET_FOLDERS
+from .image_layout import LAYOUT_FIELDS
 
 
 @dataclass(frozen=True)
@@ -47,5 +48,7 @@ def read_annotations(annotation_path):
             "supervision_policy",
             "in_view",
             "visible",
+            "parent_bbox_xyxy",
+            "box_augmentation_reserved_policy",
         )
-        return {key: archive[key] for key in fields if key in archive}
+        return {key: archive[key] for key in (*fields, *LAYOUT_FIELDS) if key in archive}

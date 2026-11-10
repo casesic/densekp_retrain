@@ -1,0 +1,15 @@
+{
+  "schema": "densekp_asset_composition_recipes_v1",
+  "registry": "configs/asset_composition_a2_20261010/components.json",
+  "recipes": {
+    "baseline_m02_p1": {"body_id": "M02", "motion_id": "p1_comfortable", "clothing_id": "M02_simple", "hair_id": "M02_groom", "window": [0, 96], "root_policy": "fixed_pelvis_scene_owns_progression", "output_dir": "outputs/experiments/asset_composition_pipeline_a2_20261010"},
+    "baseline_f02_bikefit": {"body_id": "F02", "motion_id": "bikefit", "clothing_id": "F02_simple", "hair_id": "F02_groom", "window": [0, 120], "root_policy": "fixed_pelvis_scene_owns_progression", "output_dir": "outputs/experiments/asset_composition_pipeline_a2_20261010"},
+    "A_f02_p2": {"body_id": "F02", "motion_id": "p2_straight", "clothing_id": "F02_simple", "hair_id": "F02_groom", "window": [0, 120], "root_policy": "fixed_pelvis_scene_owns_progression", "output_dir": "outputs/experiments/asset_composition_pipeline_a2_20261010"},
+    "B_f02_p2_m02_cloth": {"body_id": "F02", "motion_id": "p2_straight", "clothing_id": "M02_simple", "hair_id": "F02_groom", "window": [0, 120], "root_policy": "fixed_pelvis_scene_owns_progression", "output_dir": "outputs/experiments/asset_composition_pipeline_a2_20261010"},
+    "C_f02_p2_m02_cloth_hair": {"body_id": "F02", "motion_id": "p2_straight", "clothing_id": "M02_simple", "hair_id": "M02_groom", "window": [0, 120], "root_policy": "fixed_pelvis_scene_owns_progression", "output_dir": "outputs/experiments/asset_composition_pipeline_a2_20261010"},
+    "M04_KIT425_walk_replay": {"body_id": "M04", "motion_id": "KIT425_walk", "clothing_id": "M04_simple", "hair_id": "M04_groom", "window": [0, 94], "root_policy": "source_root_relative_to_start_plus_fixed_scene_matrix", "output_dir": "outputs/experiments/walking_composition_a2_20261010"},
+    "M04_KIT425_walk_replay_v2": {"body_id": "M04", "motion_id": "KIT425_walk", "clothing_id": "M04_simple", "hair_id": "M04_groom", "window": [0, 94], "root_policy": "source_root_relative_to_start_plus_fixed_scene_matrix", "output_dir": "outputs/experiments/walking_composition_a2_20261010"},
+    "M03_KIT11_walk": {"body_id": "M03", "motion_id": "KIT11_walk", "clothing_id": "M03_simple", "hair_id": "M03_groom", "window": [0, 120], "root_policy": "source_root_relative_to_start_plus_fixed_scene_matrix", "output_dir": "outputs/experiments/walking_composition_a2_20261010"},
+    "M03_KIT11_BEDLAM_transfer": {"body_id": "M03", "motion_id": "KIT11_walk", "clothing_id": "M03_KIT11_BEDLAM_transfer", "hair_id": "M03_groom", "window": [0, 120], "root_policy": "source_root_relative_to_start_plus_fixed_scene_matrix", "output_dir": "outputs/experiments/bedlam_m03_native_cloth_transfer_a2_20261010"}
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "second_environment_boundary_pass_a1_v1",
+  "master_seed": 20261021,
+  "reference_prepared_episode": "outputs/experiments/seeded_scene_modes_a1_20261010/preflight/single_cyclist_boundary_pass_s20261010/single_cyclist_boundary_pass_s20261010_e00",
+  "reference_rendered_episode": "outputs/experiments/seeded_scene_modes_a1_20261010/runs/single_cyclist_boundary_pass_s20261010_e00",
+  "frame_count": 31,
+  "probe_frames": [0, 1, 2],
+  "candidate_limit_per_environment": 12,
+  "edge_min_count": 16,
+  "edge_min_continuous_seconds": 0.5,
+  "transition": "enter_valid",
+  "max_roi_pixels_per_camera": 7000000,
+  "road_edge_margin_m": 0.1,
+  "environments": {
+    "cycling_forest": {
+      "scene_config": "configs/second_environment_forest_a1_20261010.json",
+      "blend_path": "assets/scenes/photoreal/cycling_forest/cycling_forest.blend",
+      "anchor_y_range_m": [-4.75, -3.75],
+      "road_y_range_m": [-96, 96],
+      "road_half_width_m": 2.5,
+      "road_centerline": "15+10*sin(y/32)",
+      "road_tangent": "analytic_at_anchor",
+      "road_object_names": ["Asphalt_5m_continuous"],
+      "road_object_prefixes": ["Dashed_center_line"],
+      "lod_camera_anchor_object": "Camera1",
+      "scene_settings_after_configure_render": {
+        "view_transform": "Filmic", "look": "Medium High Contrast", "exposure": 1.0, "gamma": 1.0,
+        "display_device": "sRGB", "view_use_curve_mapping": false, "world": "belfast_sunset_puresky",
+        "bounces": {"max_bounces": 7, "diffuse_bounces": 4, "glossy_bounces": 4, "transmission_bounces": 12, "volume_bounces": 4, "transparent_max_bounces": 12},
+        "png_color_mode": "RGBA", "png_color_depth": "8", "png_compression": 15,
+        "film_transparent": false, "filter_type": "BLACKMAN_HARRIS", "filter_width": 1.5
+      }
+    },
+    "riverfront": {
+      "scene_config": "configs/second_environment_riverfront_a1_20261010.json",
+      "blend_path": "assets/scenes/riverfront/riverfront.blend",
+      "anchor_y_range_m": [-0.5, 0.5],
+      "road_y_range_m": [-20, 20],
+      "road_half_width_m": 2.5,
+      "road_centerline": "x=0",
+      "road_tangent": "positive_y",
+      "road_object_names": ["Promenade_ground"],
+      "road_object_prefixes": ["Promenade_limestone_"],
+      "scene_settings_after_configure_render": {
+        "view_transform": "AgX", "look": "AgX - Medium High Contrast", "exposure": 0.0, "gamma": 1.0,
+        "display_device": "sRGB", "view_use_curve_mapping": false, "world": "Soft overcast blue daylight",
+        "bounces": {"max_bounces": 5, "diffuse_bounces": 4, "glossy_bounces": 4, "transmission_bounces": 12, "volume_bounces": 0, "transparent_max_bounces": 8},
+        "png_color_mode": "RGBA", "png_color_depth": "8", "png_compression": 15,
+        "film_transparent": false, "filter_type": "BLACKMAN_HARRIS", "filter_width": 1.5
+      }
+    }
+  }
+}

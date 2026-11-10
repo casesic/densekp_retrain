@@ -30,7 +30,7 @@ def main():
             '--characters', *repair['characters'], '--pose-source-ids', *repair['pose_source_ids'],
             '--scene', repair['scene'], '--reuse-layout', repair['reuse_layout'],
             '--width', '1536', '--samples', '24', '--device', 'CUDA',
-            '--output-mode', 'full']
+            '--output-mode', 'full', '--final-width', '1536', '--final-height', '768']
         started = time.monotonic()
         utc = datetime.now(timezone.utc).isoformat()
         print('START', repair['id'], flush=True)

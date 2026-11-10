@@ -37,6 +37,8 @@ zip/
 .env
 .env.*
 !.env.example
+# Local credential store (contains OPENAI_API_KEY); never commit.
+auth.json
 *credentials*
 *.pem
 *.key
@@ -47,6 +49,8 @@ zip/
 *.hdr
 *.exr
 *.blend
+*.blend1
+*.blend2
 *.abc
 *.fbx
 *.npz
@@ -57,3 +61,8 @@ zip/
 *.png
 *.jpg
 *.jpeg
+*.pptx
+*.part0
+*.part1
+*.part2
+*.part3

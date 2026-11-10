@@ -29,8 +29,136 @@ from densekp_retrain.data.boxes import (
     box_rejection,
     trial_crop_from_box,
     support_rejection,
+    BoxRejected,
+    CROP_EXPANSIONS,
+    HISTORICAL_MIN_SIDE_PX,
+    change_box_for_image,
+    crop_from_box,
+    rejection_record,
+    validate_box_context,
 )
-from densekp_retrain.data.packing import pack_derivative_rows
+from densekp_retrain.data.packing import pack_derivative_rows, pack_index_rows
+
+
+def prepare_sized_derivatives(parents, variants, output, *, min_side_px,
+                              min_points, min_target_crop_pixels,
+                              shift_reference_expansion, boundary_policy):
+    """Consume explicit parent records; retain metadata in an ordered index sidecar.
+
+    Each parent declares image, manifest (final_erp_resolution), valid/person masks,
+    mask_person_id, person_id, camera, bbox_kind/source, given_bbox_xyxy and loader
+    input/row. Each variant declares name, parameters and crop_policy. Thresholds
+    refer to source-raster side pixels and full 256-square target-support pixels.
+    No source buffers, model, random sampling, split assignment or training.
+    """
+    output = Path(output).resolve()
+    output.mkdir(parents=True, exist_ok=False)
+    records, arrays, rejected = [], [], []
+    for parent_index, parent in enumerate(parents):
+        box = parent["given_bbox_xyxy"]
+        try:
+            with Image.open(parent["image"]) as image:
+                size = image.size
+            manifest = json.loads(Path(parent["manifest"]).read_text())
+            valid = np.asarray(Image.open(parent["valid_mask"])) > 0
+            person = np.asarray(Image.open(parent["person_mask"])) > 0
+            with np.load(parent["loader_input"], allow_pickle=False) as archive:
+                if str(archive["supervision_policy"]) != SUPERVISION_POLICY:
+                    raise BoxRejected("supervision_policy_mismatch")
+                sample = {k: archive[k][parent["loader_row"]].copy()
+                          for k in archive.files if archive[k].ndim}
+            if str(sample["camera_id"]) != parent["camera"]:
+                raise BoxRejected("camera_identity_mismatch")
+            target = validate_box_context(
+                box, bbox_kind=parent["bbox_kind"], bbox_source=parent["bbox_source"],
+                person_id=parent["person_id"], mask_person_id=parent["mask_person_id"],
+                annotation_person_id=int(sample["person_id"]), image_size_wh=size,
+                manifest_size_wh=manifest["final_erp_resolution"], valid_mask=valid,
+                person_mask=person, boundary_policy=boundary_policy, min_side_px=min_side_px,
+            )
+            # Retain the renderer's floor/modulo domain convention for labels only.
+            # No box or crop coordinates are wrapped.
+            xy = sample["proj_verts"][:, :2]
+            active = sample["in_view"]
+            if not np.isfinite(xy[active]).all():
+                raise BoxRejected("nonfinite_in_view_GT")
+            coords = np.floor(xy[active]).astype(np.int64)
+            if (coords[:, 1] < 0).any() or (coords[:, 1] >= size[1]).any():
+                raise BoxRejected("in_view_GT_outside_image")
+            if not valid[coords[:, 1], coords[:, 0] % size[0]].all():
+                raise BoxRejected("in_view_GT_outside_valid_mask")
+            sample["imgname"] = np.asarray(str(Path(parent["image"]).resolve()))
+        except BoxRejected as error:
+            rejected.append(rejection_record(error, stage="parent", parent_row=parent_index, box=box))
+            continue
+        for variant in variants:
+            changed = box
+            try:
+                changed = change_box_for_image(
+                    box, image_size_wh=size, boundary_policy=boundary_policy,
+                    min_side_px=min_side_px, shift_reference_expansion=shift_reference_expansion,
+                    **variant["parameters"],
+                )
+                candidate = {key: value.copy() for key, value in sample.items()}
+                candidate["center"], candidate["scale"] = crop_from_box(
+                    changed, image_size_wh=size, boundary_policy=boundary_policy,
+                    crop_policy=variant["crop_policy"], min_side_px=min_side_px,
+                )
+                probe = output / "candidate_probe.npz"
+                np.savez(probe, **pack_derivative_rows([candidate]), supervision_policy=SUPERVISION_POLICY)
+                item = load_box_dataset(probe)[0]
+                supervision = supervision_for_crop(active, item["proj_verts_cropped"][:, :2])
+                np.testing.assert_array_equal(supervision, item["proj_verts_cropped"][:, 2] > 0)
+                support = cv2.warpAffine(target.astype(np.uint8), item["_trans"], (256, 256),
+                                         flags=cv2.INTER_NEAREST)
+                failure = support_rejection(supervision, support, min_points, min_target_crop_pixels)
+                if failure:
+                    raise BoxRejected(failure)
+                candidate["proj_verts"][:, 2] = supervision
+                i = len(records)
+                geometry = output / f"geometry_{i:03d}.npz"
+                np.savez(geometry, affine=item["_trans"], crop_xy=item["proj_verts_cropped"],
+                         target_support=support, supervision=supervision)
+                records.append(dict(
+                    parent, parent_row=parent_index, parent_bbox_kind=parent["bbox_kind"],
+                    parent_bbox_xyxy=box, bbox_kind="synthetic_perturbation",
+                    bbox_source="explicit perturbation of declared parent; interface validation only",
+                    given_bbox_xyxy=changed.tolist(), image_size_wh=list(size),
+                    box_variant=variant["name"], box_parameters=variant["parameters"],
+                    boundary_policy=boundary_policy, crop_policy=variant["crop_policy"],
+                    crop_expansion=CROP_EXPANSIONS[variant["crop_policy"]],
+                    shift_reference_expansion=shift_reference_expansion,
+                    dx_dy_units="original_bbox_max_side_px * shift_reference_expansion",
+                    min_side_source_px=min_side_px, min_points=min_points,
+                    min_target_full_crop_pixels=min_target_crop_pixels,
+                    supervised_points=int(supervision.sum()),
+                    supervised_occluded_points=int((supervision & ~sample["visible"]).sum()),
+                    target_crop_pixels=int(support.sum()), geometry=str(geometry),
+                    parent_loader_input=parent["loader_input"], parent_loader_row=parent["loader_row"],
+                    loader_input=str(output / "derivatives.npz"), loader_row=i,
+                ))
+                arrays.append(candidate)
+            except BoxRejected as error:
+                rejected.append(rejection_record(error, stage="candidate", parent_row=parent_index,
+                                variant=variant, box=changed))
+    index = dict(rows=records, excluded_rows=rejected, scope="interface_validation_only")
+    if arrays:
+        fields = pack_derivative_rows(arrays)
+        np.savez(output / "derivatives.npz", **fields, supervision_policy=SUPERVISION_POLICY)
+        packed = pack_index_rows(index)
+        for key, values in packed.items():
+            np.testing.assert_array_equal(values, fields[key])
+        np.savez(output / "packed.npz", **packed, supervision_policy=SUPERVISION_POLICY)
+        dataset = load_box_dataset(output / "packed.npz")
+        for i, row in enumerate(records):
+            item = dataset[i]
+            with np.load(row["geometry"]) as geometry:
+                np.testing.assert_array_equal(item["_trans"], geometry["affine"])
+                np.testing.assert_array_equal(item["proj_verts_cropped"], geometry["crop_xy"])
+    write_json(output / "index.json", index)
+    write_json(output / "rejections.json", dict(
+        count=len(rejected), reasons=dict(Counter(r["reason"] for r in rejected)), rows=rejected))
+    return index
 
 
 def main():
@@ -105,9 +233,21 @@ def main():
             )
             valid = np.array(Image.open(camera / "valid_mask.png")) > 0
             target &= valid
-            yy, xx = np.where(target)
-            actual = [int(xx.min()), int(yy.min()), int(xx.max() + 1), int(yy.max() + 1)]
-            np.testing.assert_array_equal(actual, parent_record["given_bbox_xyxy"])
+            with Image.open(parent_record["image"]) as image:
+                image_size_wh = image.size
+            # This CLI replays a frozen 1536 trial; use prepare_sized_derivatives
+            # for new dimensions and explicit policies, never inherit this default.
+            kind = parent_record.get("bbox_kind", "visible_instance_tight")
+            target = validate_box_context(
+                parent_record["given_bbox_xyxy"], bbox_kind=kind,
+                bbox_source=parent_record.get("bbox_source", "historical visible instance mask"
+                                              if kind == "visible_instance_tight" else ""),
+                person_id=parent_record["person_id"], mask_person_id=parent_record["person_id"],
+                annotation_person_id=int(parent_arrays["person_id"][parent]),
+                image_size_wh=image_size_wh, manifest_size_wh=(1536, 768),
+                valid_mask=valid, person_mask=target, boundary_policy="raster_clip",
+                min_side_px=HISTORICAL_MIN_SIDE_PX,
+            )
             # in_view also contains geometric-domain validity. All in_view points must lie in explicit mask.
             xy = parent_arrays["proj_verts"][parent, :, :2]
             # Frozen renderer uses floor, not delivery's nearest-pixel prediction diagnostic.

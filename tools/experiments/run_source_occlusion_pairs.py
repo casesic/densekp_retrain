@@ -32,7 +32,7 @@ def main():
             '--assets',str(root/'assets'),'--output',str(out),'--characters',*[p['character_id'] for p in keep],
             '--pose-source-ids',*[p['pose_source_id'] for p in keep],'--scene',job['scene'],
             '--reuse-layout',str(base),'--width','1536','--samples','24','--device','CUDA',
-            '--output-mode','full']
+            '--output-mode','full','--final-width','1536','--final-height','768']
         started=time.monotonic()
         recovered=out.exists()
         if recovered:

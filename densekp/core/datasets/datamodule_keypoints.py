@@ -34,6 +34,13 @@ class DataModule(pl.LightningDataModule):
                     self._names(self.cfg.DATASETS.DATASETS_AND_RATIOS)]
         return torch.utils.data.ConcatDataset(datasets)
 
+    def set_box_augmentation_epoch(self, epoch):
+        """Call before the next loader iterator; no worker-order RNG state."""
+        if self.train_dataset is None:
+            raise ValueError('train_dataset_not_prepared')
+        for dataset in self.train_dataset.datasets:
+            dataset.set_box_augmentation_epoch(epoch)
+
     def val_dataset_prepare(self):
         return [DatasetKeypoints(self.cfg, name, is_train=False) for name in
                 self._names(self.cfg.DATASETS.VAL_DATASETS)]

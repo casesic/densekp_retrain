@@ -1,0 +1,12 @@
+{
+  "schema": "a2_composition_scope_v1",
+  "date": "2026-10-10",
+  "standard": "standard_smplx_10475_model_y_up_metres",
+  "baseline_cases": ["M02+p1_comfortable+M02_cloth+M02_hair", "F02+bikefit+F02_cloth+F02_hair"],
+  "new_cases": ["F02+p2+F02_cloth+F02_hair", "F02+p2+M02_cloth+F02_hair", "F02+p2+M02_cloth+M02_hair"],
+  "motion_window": "p2 original 120 frames [5700,5820); new previews first 60 consecutive native frames",
+  "compute_budget_seconds": 2700,
+  "protected": ["docs/TODO.md", "src/densekp_retrain/data/dynamic_scene.py", "src/densekp_retrain/data/person_time.py", "original body/clothing/groom and accepted preview directories", "pano-stitch read-only"],
+  "no_scene_render_or_training": true,
+  "all_new_assets": "integration_only"
+}

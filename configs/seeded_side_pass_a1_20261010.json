@@ -1,0 +1,22 @@
+{
+  "schema": "fixed_person_seeded_rig_side_pass_v1",
+  "coverage_goal": "side_pass_edge_coverage",
+  "master_seed": 20261024,
+  "plan_only_comparison_seed": 20261025,
+  "reference_prepared_episode": "outputs/experiments/second_environment_boundary_pass_a1_20261010/prepared_riverfront",
+  "candidate_limit": 32,
+  "camera_side": "positive_x_park_side",
+  "camera_origin_x_m": [2.75, 3.15, 3.55, 3.95],
+  "camera_origin_y_m": [2.25, 2.75],
+  "seam_yaw_offset_deg": [-3.0, -1.0, 1.0, 3.0],
+  "camera_road_edge_clearance_min_m": 0.2,
+  "road_half_width_m": 2.5,
+  "edge_min_inside_each": 8,
+  "edge_min_outside_each": 5,
+  "edge_min_common": 8,
+  "edge_min_count": 16,
+  "side_min_overlap_frames": 6,
+  "max_roi_pixels_per_camera": 7000000,
+  "render_budget_seconds": 1500,
+  "integration_only": true
+}

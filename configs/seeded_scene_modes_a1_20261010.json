@@ -1,0 +1,216 @@
+{
+  "schema": "accepted_bound_combinations_v1",
+  "status": "integration_only",
+  "selection_note": "body, cloth, groom, motion are one accepted combination; no cross-binding",
+  "internal_source_groups": [
+    "APD6526_original_recording",
+    "bikefit_XBLMidr4dps_original_recording",
+    "KIT425_walking_medium05_original_recording"
+  ],
+  "riders": [
+    {
+      "asset_id": "cycling_M01_v2_APD6526_30_106_simple_v1",
+      "asset_manifest": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/cycling_roi_integration_a1_20261009/plan/cycling_m01_road_pass/asset_adapter.json",
+      "reference_recipe": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/cycling_roi_integration_a1_20261009/run/recipe.json",
+      "base_config": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/mixed_walk_cycling_edge_a1_20261009/config.json",
+      "source_group": "APD6526_original_recording",
+      "accepted_internal": true,
+      "license": "internal_shared_source_only",
+      "fixed_scene_rotation": [
+        [
+          -0.9961308390907506,
+          0.0,
+          -0.08788260016839056
+        ],
+        [
+          -0.08788260016839056,
+          0.0,
+          0.9961308390907506
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ]
+      ],
+      "placement_height_m": 1.2,
+      "support_checks": {
+        "body_min_clearance_m": [
+          0.05,
+          0.7
+        ],
+        "pelvis_height_above_road_m": [
+          1.0,
+          1.6
+        ],
+        "road_z_tolerance_m": 0.03,
+        "road_object_names": [
+          "Road_surface_7m"
+        ],
+        "road_object_prefixes": [
+          "Center_dash"
+        ]
+      },
+      "parameter_ranges": {
+        "single_cyclist_boundary_pass": {
+          "target_x_m": [
+            -0.04,
+            0.02
+          ],
+          "target_y_m": [
+            1.8,
+            2.05
+          ],
+          "cycling_speed_m_s": [
+            0.42,
+            0.65
+          ]
+        },
+        "mixed_walk_cycle_crossing": {
+          "target_x_m": [
+            -0.025,
+            0.02
+          ],
+          "target_y_m": [
+            1.85,
+            1.95
+          ],
+          "cycling_speed_m_s": [
+            0.45,
+            0.6
+          ],
+          "walker_x_m": [
+            -1.8,
+            -1.55
+          ],
+          "walker_y_m": [
+            1.05,
+            1.15
+          ]
+        }
+      },
+      "character_family": "cycling_M01",
+      "motion_source_id": "APD/5724486/6526/source30_106",
+      "source_ref": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/apd_6526_smplx_pilot_20261008/delivery_manifest.json",
+      "authority_manifest": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/continuous_cycling_asset_a2_20261009/accepted/manifest.json",
+      "manifest_source_group": "APD_5724486_v1_identity_session_unknown",
+      "prior_split": null,
+      "actor_or_session_status": "not independently confirmed"
+    },
+    {
+      "asset_id": "cycling_F02_v3_bikefit_XBLMidr4dps_8662_8782_simple_v1",
+      "asset_manifest": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/mtb_f02_dressed_asset_a2_20261009/a1_asset_adapter.json",
+      "reference_recipe": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/f02_mtb_mixed_scene_repair_a1_20261010/freeze/f02_base_recipe.json",
+      "base_config": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/f02_mtb_mixed_scene_repair_a1_20261010/freeze/config.json",
+      "source_group": "bikefit_XBLMidr4dps_original_recording",
+      "accepted_internal": true,
+      "license": "unknown",
+      "fixed_scene_rotation": [
+        [
+          0.3047730509910364,
+          0.0,
+          -0.9524250035512587
+        ],
+        [
+          -0.9524250035512587,
+          0.0,
+          -0.3047730509910364
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ]
+      ],
+      "placement_height_m": 1.1,
+      "support_checks": {
+        "body_min_clearance_m": [
+          0.05,
+          0.7
+        ],
+        "pelvis_height_above_road_m": [
+          1.05,
+          1.15
+        ],
+        "road_z_tolerance_m": 0.03,
+        "road_object_names": [
+          "Road_surface_7m"
+        ],
+        "road_object_prefixes": [
+          "Center_dash"
+        ]
+      },
+      "parameter_ranges": {
+        "single_cyclist_boundary_pass": {
+          "target_x_m": [
+            -0.075,
+            -0.05
+          ],
+          "target_y_m": [
+            0.97,
+            1.06
+          ],
+          "cycling_speed_m_s": [
+            0.46,
+            0.5
+          ]
+        },
+        "mixed_walk_cycle_crossing": {
+          "target_x_m": [
+            -0.075,
+            -0.05
+          ],
+          "target_y_m": [
+            0.97,
+            1.06
+          ],
+          "cycling_speed_m_s": [
+            0.46,
+            0.5
+          ],
+          "walker_x_m": [
+            -1.67,
+            -1.54
+          ],
+          "walker_y_m": [
+            1.07,
+            1.2
+          ]
+        }
+      },
+      "character_family": "cycling_F02",
+      "motion_source_id": "bikefit_XBLMidr4dps/source8662_8782",
+      "source_ref": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/mtb_video_smplx_pilot_a2_20261009/delivery_manifest.json",
+      "authority_manifest": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/mtb_f02_dressed_asset_a2_20261009/frozen_recipe.json",
+      "manifest_source_group": "bikefit_XBLMidr4dps",
+      "prior_split": null,
+      "actor_or_session_status": "not independently confirmed"
+    }
+  ],
+  "walker": {
+    "asset_id": "cycling_M04_v1_local_walk",
+    "asset_manifest": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/pedestrian_seeded_pilot_a1_20261009/assets_attempt_2/cycling_M04_v1/manifest.json",
+    "reference_recipe": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/pedestrian_seeded_pilot_a1_20261009/layout_attempt_2/road_pass_00/recipe.json",
+    "source_group": "KIT425_walking_medium05_original_recording",
+    "accepted_internal": true,
+    "appearance_status": "existing M04 shared-source diagnostic",
+    "fixed_rotation_deg": -90,
+    "character_family": "cycling_M04",
+    "motion_source_id": "KIT/425/walking_medium05",
+    "source_ref": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/source_isolated_pilot_20260930/sources/us_2495_L_2200.npz",
+    "authority_manifest": null,
+    "manifest_source_group": null,
+    "prior_split": "historical_validation_source",
+    "actor_or_session_status": "KIT425; original 100fps mapping uncertain",
+    "license": "unknown"
+  },
+  "not_ready": [
+    "p2/M02",
+    "unadapted BVH"
+  ],
+  "rig_policy": "fixed 20260320-riding-dataset3 target; 0.18m synthetic baseline",
+  "current_supported_modes": [
+    "single_cyclist_boundary_pass",
+    "mixed_walk_cycle_crossing"
+  ]
+}

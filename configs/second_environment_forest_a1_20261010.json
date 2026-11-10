@@ -1,0 +1,12 @@
+{
+  "blend_path": "assets/scenes/photoreal/cycling_forest/cycling_forest.blend",
+  "collection": null,
+  "hide_objects": [],
+  "ground_mode": "scene_native",
+  "environment_id": "cycling_forest",
+  "road_centerline": "x=15+10*sin(y/32)",
+  "road_width_m": 5,
+  "lod_camera_anchor_object": "Camera1",
+  "ground_object_names": ["Asphalt_5m_continuous"],
+  "notes": "Original forest blend is read-only; Camera1 is a fixed scatter LOD anchor at the dual-rig midpoint for the full episode."
+}

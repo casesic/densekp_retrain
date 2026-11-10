@@ -66,7 +66,7 @@ def main():
             '--pose-source-ids',*job['pose_source_ids'],'--layout-slots',*[str(v) for v in job['slots']],
             '--scene',job['scene'],'--pedestrian-layout','--control-distance',str(job['control_distance_m']),
             '--layout-config',str(config),'--width','1536','--samples','24','--device','CUDA',
-            '--output-mode','full']
+            '--output-mode','full','--final-width','1536','--final-height','768']
         start=time.monotonic();print('START',job['id'],job['characters'],job['actions'],flush=True)
         with (root/f"{job['id']}.log").open('w') as log:
             done=subprocess.run(command,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT)

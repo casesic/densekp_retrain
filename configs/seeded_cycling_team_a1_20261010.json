@@ -1,0 +1,225 @@
+{
+  "schema": "cycling_team_boundary_pass_v1",
+  "master_seed": 20261022,
+  "registry": "configs/asset_composition_a2_20261010/components.json",
+  "legacy_pool": "configs/seeded_scene_modes_a1_20261010.json",
+  "episodes": [
+    {
+      "environment_id": "riverfront",
+      "person_count": 2
+    },
+    {
+      "environment_id": "urban_street_assets",
+      "person_count": 3
+    }
+  ],
+  "component_candidate_limit": 4,
+  "layout_candidate_limit": 12,
+  "max_roi_pixels": 7000000,
+  "allowed": {
+    "bodies": [
+      "M01",
+      "M02",
+      "F02"
+    ],
+    "motions": [
+      "APD6526",
+      "p2_straight",
+      "p1_comfortable",
+      "p1_alternate"
+    ],
+    "clothing": [
+      "M01_simple",
+      "M02_simple",
+      "F02_simple"
+    ],
+    "hair": [
+      "M01_groom",
+      "M02_groom",
+      "F02_groom"
+    ],
+    "character_families": [
+      "cycling_M01",
+      "cycling_M02",
+      "cycling_F02"
+    ],
+    "motion_source_groups": [
+      "APD_5724486_v1_identity_session_unknown",
+      "zenodo_10668611_participant_2",
+      "zenodo_10668611_participant_1"
+    ],
+    "motion_licenses": [
+      "APD CC BY; see source delivery",
+      "CC BY 4.0; Kyriakou et al."
+    ],
+    "walker_source_groups": [
+      "KIT425_walking_medium05_original_recording"
+    ]
+  },
+  "compatibility": {
+    "model_standard": "standard_smplx_10475_y_up_metres_flat_hand_mean_full_axis_angle",
+    "root_policy": "fixed_pelvis_scene_owns_progression",
+    "clothing_kind": "simple_fixed_barycentric_normal_offset",
+    "hair_kind": "static_curves_head_rigid",
+    "window": "entire_registered_motion; scene selects valid original-time origin",
+    "unsupported_native_simulated_cache": "reject"
+  },
+  "physical_masks": {
+    "cam2": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/pedestrian_seeded_pilot_a1_20261009/layout_attempt_2/road_pass_00/frame_000/cam2/valid_mask.png",
+    "cam4": "/mnt/data1/yy/home/yy/Projects/densekp_retrain/outputs/experiments/pedestrian_seeded_pilot_a1_20261009/layout_attempt_2/road_pass_00/frame_000/cam4/valid_mask.png"
+  },
+  "occlusion_metric": {
+    "version": "central_ray_consensus_v1",
+    "target_person_id": 1,
+    "denominator": "target reliable GT in both physical domains, independent of visible box/crop",
+    "neighbor_evidence": "original not-visible AND central ray other known person ID nearer by >0.04m AND >=5/9 same-ID nearer hits in 3x3",
+    "delta": 0.15,
+    "consecutive": 3,
+    "window_rule": "three adjacent synthetic10Hz selected episode records per stage; same 15/15pp conservative rule",
+    "unresolved": "not counted as neighbor; retained denominator",
+    "CPU_screen": "convex hull with complete occluder depth envelope in front; not actual occlusion"
+  },
+  "environments": {
+    "riverfront": {
+      "scene_config": "configs/second_environment_riverfront_a1_20261010.json",
+      "road_bounds_xyxy": [
+        -2.4,
+        -19.5,
+        2.4,
+        19.5
+      ],
+      "road_object_names": [
+        "Promenade_ground"
+      ],
+      "road_object_prefixes": [
+        "Promenade_limestone_"
+      ],
+      "render_settings": {
+        "view_transform": "AgX",
+        "look": "AgX - Medium High Contrast",
+        "exposure": 0.0,
+        "gamma": 1.0,
+        "display_device": "sRGB",
+        "view_use_curve_mapping": false,
+        "world": "Soft overcast blue daylight",
+        "bounces": {
+          "max_bounces": 5,
+          "diffuse_bounces": 4,
+          "glossy_bounces": 4,
+          "transmission_bounces": 12,
+          "volume_bounces": 0,
+          "transparent_max_bounces": 8
+        },
+        "png_color_mode": "RGBA",
+        "png_color_depth": "8",
+        "png_compression": 15,
+        "film_transparent": false,
+        "filter_type": "BLACKMAN_HARRIS",
+        "filter_width": 1.5
+      },
+      "parameter_ranges": {
+        "rig_x_m": [
+          -0.12,
+          0.12
+        ],
+        "rig_y_m": [
+          -0.1,
+          0.1
+        ],
+        "rig_yaw_deg": [
+          89,
+          94
+        ],
+        "p1_x_m": [
+          -0.13,
+          0.02
+        ],
+        "p1_y_m": [
+          1.65,
+          2.25
+        ],
+        "p1_speed_m_s": [
+          0.45,
+          0.6
+        ],
+        "p2_x_m": [
+          0.1,
+          0.5
+        ],
+        "p2_y_m": [
+          0.1,
+          0.8
+        ],
+        "p2_speed_m_s": [
+          0.42,
+          0.56
+        ]
+      }
+    },
+    "urban_street_assets": {
+      "scene_config": "configs/fisheye_scene_urban_street_assets.json",
+      "road_bounds_xyxy": [
+        -3.1,
+        -15,
+        3.1,
+        15
+      ],
+      "road_object_names": [
+        "Road_surface_7m"
+      ],
+      "road_object_prefixes": [
+        "Center_dash"
+      ],
+      "parameter_ranges": {
+        "rig_x_m": [
+          -0.12,
+          0.12
+        ],
+        "rig_y_m": [
+          -0.1,
+          0.1
+        ],
+        "rig_yaw_deg": [
+          89,
+          94
+        ],
+        "p1_x_m": [
+          -0.13,
+          0.02
+        ],
+        "p1_y_m": [
+          1.65,
+          2.25
+        ],
+        "p1_speed_m_s": [
+          0.45,
+          0.6
+        ],
+        "p2_x_m": [
+          0.1,
+          0.5
+        ],
+        "p2_y_m": [
+          0.1,
+          0.8
+        ],
+        "p2_speed_m_s": [
+          0.42,
+          0.56
+        ],
+        "p3_x_m": [
+          -0.5,
+          -0.1
+        ],
+        "p3_y_m": [
+          3.2,
+          3.8
+        ],
+        "p3_speed_m_s": [
+          0.44,
+          0.58
+        ]
+      }
+    }
+  }
+}

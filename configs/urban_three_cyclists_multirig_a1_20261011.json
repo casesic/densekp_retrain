@@ -1,0 +1,20 @@
+{
+  "schema": "urban_three_cyclists_multirig_a1_v1",
+  "source_prepared": "outputs/experiments/cycling_team_relative_layout_a1_20261010/city_attempt5_cpu_only_correction1/prepared",
+  "scene_episode_id": "urban_three_cyclists_s20261027_attempt5",
+  "camera_seed": 20261028,
+  "comparison_camera_seed": 20261029,
+  "camera_x_m": [-3.25, -2.75, 2.75, 3.25],
+  "camera_y_m": [4.2, 4.6],
+  "seam_yaw_offset_deg": [-4.0, 0.0, 4.0],
+  "candidate_limit": 24,
+  "target_person_id": 1,
+  "front_oblique_range_deg": [45.0, 80.0],
+  "minimum_front_oblique_common_run": 6,
+  "minimum_common_physical_frames": 16,
+  "minimum_common_points": 8,
+  "maximum_union_roi_pixels": 7000000,
+  "minimum_camera_to_person_root_m": 0.5,
+  "integration_only": true,
+  "use_policy": "shared_source_diagnostic"
+}

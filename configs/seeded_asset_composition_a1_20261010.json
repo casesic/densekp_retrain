@@ -1,0 +1,41 @@
+{
+  "schema": "seeded_asset_composition_a1_v1",
+  "algorithm_version": "component_conditional_streams_v1",
+  "placement_policy_version": "heading_minimax_fixed_yaw_v2",
+  "registry": "configs/asset_composition_a2_20261010/components.json",
+  "legacy_pool": "configs/seeded_scene_modes_a1_20261010.json",
+  "viewpoint_pool": "configs/seeded_viewpoints_a1_20261010.json",
+  "master_seed": 20261020,
+  "plan_count": 8,
+  "production_quota": 2,
+  "view_quota": ["front", "back"],
+  "coverage_goal": "edge_coverage",
+  "mode": "single_cyclist_boundary_pass",
+  "allowed": {
+    "bodies": ["M01", "M02", "F02"],
+    "motions": ["APD6526", "bikefit", "p2_straight", "p1_comfortable", "p1_alternate"],
+    "clothing": ["M01_simple", "M02_simple", "F02_simple"],
+    "hair": ["M01_groom", "M02_groom", "F02_groom"],
+    "character_families": ["cycling_M01", "cycling_M02", "cycling_F02"],
+    "motion_source_groups": ["APD_5724486_v1_identity_session_unknown", "bikefit_XBLMidr4dps", "zenodo_10668611_participant_1", "zenodo_10668611_participant_2"],
+    "motion_licenses": ["APD CC BY; see source delivery", "unknown; internal integration only", "CC BY 4.0; Kyriakou et al."],
+    "walker_source_groups": ["KIT425_walking_medium05_original_recording"]
+  },
+  "compatibility": {
+    "model_standard": "standard_smplx_10475_y_up_metres_flat_hand_mean_full_axis_angle",
+    "root_policy": "fixed_pelvis_scene_owns_progression",
+    "clothing_kind": "simple_fixed_barycentric_normal_offset",
+    "hair_kind": "static_curves_head_rigid",
+    "window": "entire_registered_motion; scene selects valid original-time origin",
+    "unsupported_native_simulated_cache": "reject"
+  },
+  "scene": {
+    "episode_times": {"frame_count": 31, "time_base": [1, 10]},
+    "layout_attempt_limit": 12,
+    "max_union_roi_pixels_per_camera": 7000000,
+    "technical_candidate_use": "integration_only_numeric_passed_no_inherited_human_acceptance",
+    "selection": "first two quota-satisfying plans in frozen order; no retry by model result",
+    "camera_rig": "synthetic_0.18m_relative_rig_fixed_within_episode",
+    "box_policy": "native_visible_instance_tight_deployment_1.0"
+  }
+}

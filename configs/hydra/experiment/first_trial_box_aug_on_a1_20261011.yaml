@@ -1,0 +1,29 @@
+# @package _global_
+# Pending review. Merge with the same frozen data, optimizer and checkpoint config.
+DATASETS:
+  TARGET_VALUE_SEMANTICS: supervision_weight
+  CONFIG:
+    SCALE_FACTOR: 0.0
+    ROT_FACTOR: 0.0
+    TRANS_FACTOR: 0.0
+    ROT_AUG_RATE: 0.0
+    TRANS_AUG_RATE: 0.0
+    DO_FLIP: false
+    FLIP_AUG_RATE: 0.0
+    EXTREME_CROP_AUG_RATE: 0.0
+    USE_ALB: false
+  BOX_AUGMENTATION:
+    enabled: true
+    seed: 20261041
+    policy:
+      version: bounded_native_box_v1
+      native_probability: 0.50
+      center_probability: 0.25
+      scale_probability: 0.15
+      one_side_probability: 0.10
+      max_center_fraction: 0.03
+      scale_range: [0.9, 1.1]
+      max_one_side_fraction: 0.10
+      crop_policy: deployment
+      boundary_policy: erp_reject_seam
+      interpolation_margin_px: 2

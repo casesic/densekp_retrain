@@ -1,0 +1,22 @@
+{
+  "schema": "t_junction_multirig_camera_v1",
+  "scene_episode_id": "city_t_junction_3p_s20261040",
+  "trajectory_master_seed": 20261040,
+  "camera_master_seed": 20261041,
+  "source_prepared": "outputs/experiments/t_junction_multirig_a1_20261011/prepared_scene",
+  "target_person_id": 1,
+  "rig_order": ["rig_back", "rig_front", "rig_side"],
+  "candidate_limit_per_rig": 16,
+  "exact_support_limit_per_rig": 3,
+  "minimum_window_frames": 6,
+  "minimum_common_points": 8,
+  "minimum_target_proxy_height_px": {"back": 180, "front": 280, "side": 180},
+  "maximum_union_roi_pixels": 7000000,
+  "front": {"x_m": [4.4, 5.0, 5.7, 6.4], "y_m": [88.4, 89.1], "yaw_offsets_deg": [-4, 4]},
+  "back": {"x_m": [-3.7, -4.4, -5.1, -5.8], "y_m": [76.0, 77.0], "yaw_offsets_deg": [-4, 4]},
+  "side": {"x_m": [4.3, 4.9, 5.5, 6.1], "y_m": [76.4, 77.2], "yaw_offsets_deg": [-4, 4]},
+  "position_jitter_m": 0.02,
+  "yaw_jitter_deg": 0.2,
+  "integration_only": true,
+  "render_and_finish_budget_seconds": 3600
+}

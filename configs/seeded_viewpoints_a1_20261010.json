@@ -1,0 +1,223 @@
+{
+  "schema": "seeded_viewpoint_pool_overlay_v1",
+  "base_pool_ref": "seeded_scene_modes_a1_20261010.json",
+  "range_basis": "urban_street road x within \u00b13.1m; rig XY engineering bounds, not measured device motion; x separates front_oblique from front; Y co-translates the path; rig height/pitch/roll and 0.18m synthetic baseline fixed",
+  "viewpoint_ranges": {
+    "single_cyclist_boundary_pass": {
+      "front": {
+        "layout_ranges": {},
+        "camera_ranges": {
+          "origin_x_m": [
+            -0.12,
+            0.12
+          ],
+          "origin_y_m": [
+            -0.08,
+            0.08
+          ],
+          "yaw_deg": [
+            87.5,
+            93.5
+          ]
+        },
+        "travel_direction_options": [
+          -1
+        ],
+        "crossing_transition": "exit_valid"
+      },
+      "front_oblique": {
+        "layout_ranges": {},
+        "camera_ranges": {
+          "origin_x_m": [
+            -1.45,
+            -1.15
+          ],
+          "origin_y_m": [
+            -0.08,
+            0.12
+          ],
+          "yaw_deg": [
+            87.5,
+            93.5
+          ]
+        },
+        "travel_direction_options": [
+          -1
+        ],
+        "crossing_transition": "either"
+      },
+      "side": {
+        "layout_ranges": {},
+        "camera_ranges": {
+          "origin_x_m": [
+            -2.6,
+            -2.2
+          ],
+          "origin_y_m": [
+            -0.08,
+            0.12
+          ],
+          "yaw_deg": [
+            87.5,
+            93.5
+          ]
+        },
+        "travel_direction_options": [
+          -1,
+          1
+        ],
+        "crossing_transition": "either"
+      },
+      "rear_oblique": {
+        "layout_ranges": {},
+        "camera_ranges": {
+          "origin_x_m": [
+            -1.45,
+            -1.15
+          ],
+          "origin_y_m": [
+            -0.08,
+            0.12
+          ],
+          "yaw_deg": [
+            87.5,
+            93.5
+          ]
+        },
+        "travel_direction_options": [
+          1
+        ],
+        "crossing_transition": "enter_valid"
+      },
+      "back": {
+        "layout_ranges": {},
+        "camera_ranges": {
+          "origin_x_m": [
+            -0.12,
+            0.12
+          ],
+          "origin_y_m": [
+            -0.08,
+            0.08
+          ],
+          "yaw_deg": [
+            87.5,
+            93.5
+          ]
+        },
+        "travel_direction_options": [
+          1
+        ],
+        "crossing_transition": "enter_valid"
+      }
+    },
+    "mixed_walk_cycle_crossing": {
+      "front": {
+        "layout_ranges": {},
+        "camera_ranges": {
+          "origin_x_m": [
+            -0.12,
+            0.12
+          ],
+          "origin_y_m": [
+            -0.08,
+            0.08
+          ],
+          "yaw_deg": [
+            87.5,
+            93.5
+          ]
+        },
+        "travel_direction_options": [
+          -1
+        ],
+        "crossing_transition": "exit_valid"
+      },
+      "front_oblique": {
+        "layout_ranges": {},
+        "camera_ranges": {
+          "origin_x_m": [
+            -1.45,
+            -1.15
+          ],
+          "origin_y_m": [
+            -0.08,
+            0.12
+          ],
+          "yaw_deg": [
+            87.5,
+            93.5
+          ]
+        },
+        "travel_direction_options": [
+          -1
+        ],
+        "crossing_transition": "either"
+      },
+      "side": {
+        "layout_ranges": {},
+        "camera_ranges": {
+          "origin_x_m": [
+            -2.6,
+            -2.2
+          ],
+          "origin_y_m": [
+            -0.08,
+            0.12
+          ],
+          "yaw_deg": [
+            87.5,
+            93.5
+          ]
+        },
+        "travel_direction_options": [
+          -1,
+          1
+        ],
+        "crossing_transition": "either"
+      },
+      "rear_oblique": {
+        "layout_ranges": {},
+        "camera_ranges": {
+          "origin_x_m": [
+            -1.45,
+            -1.15
+          ],
+          "origin_y_m": [
+            -0.08,
+            0.12
+          ],
+          "yaw_deg": [
+            87.5,
+            93.5
+          ]
+        },
+        "travel_direction_options": [
+          1
+        ],
+        "crossing_transition": "enter_valid"
+      },
+      "back": {
+        "layout_ranges": {},
+        "camera_ranges": {
+          "origin_x_m": [
+            -0.12,
+            0.12
+          ],
+          "origin_y_m": [
+            -0.08,
+            0.08
+          ],
+          "yaw_deg": [
+            87.5,
+            93.5
+          ]
+        },
+        "travel_direction_options": [
+          1
+        ],
+        "crossing_transition": "enter_valid"
+      }
+    }
+  }
+}

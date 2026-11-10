@@ -1,0 +1,11 @@
+{
+  "blend_path": "assets/scenes/riverfront/riverfront.blend",
+  "collection": null,
+  "hide_objects": [],
+  "ground_mode": "scene_native",
+  "environment_id": "riverfront",
+  "road_centerline": "x=0",
+  "road_width_m": 5,
+  "ground_object_names": ["Promenade_ground"],
+  "notes": "Original riverfront blend is read-only; current calibrated dual rig replaces its preview cameras."
+}

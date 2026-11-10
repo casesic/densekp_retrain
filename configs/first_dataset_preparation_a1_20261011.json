@@ -1,0 +1,15 @@
+{
+  "schema": "first_dataset_seed_recipe_v1",
+  "review_status": "pending_review",
+  "source_proposal_id": "primary_recording_and_character_isolated",
+  "master_seed": 20261041,
+  "episodes": [
+    {"mode":"single_cyclist_boundary_pass","environment":"urban_street_assets","split_pool":"train_candidate","allowed_person_counts":[1],"allowed_combinations":["p2_M01"],"rig_ids":["rig_edge"]},
+    {"mode":"single_cyclist_boundary_pass","environment":"riverfront","split_pool":"val_candidate","allowed_person_counts":[1],"allowed_combinations":["p1_comfortable_M02","p1_alternate_M02"],"rig_ids":["rig_edge"]},
+    {"mode":"mixed_walk_cycle_crossing","environment":"urban_street_assets","split_pool":"train_candidate","allowed_person_counts":[2],"allowed_combinations":["p2_M01","KIT425_M04"],"rig_ids":["rig_front","rig_back"]},
+    {"mode":"mixed_walk_cycle_crossing","environment":"urban_street_assets","split_pool":"val_candidate","allowed_person_counts":[2],"allowed_combinations":["p1_comfortable_M02","p1_alternate_M02","KIT11_M03_simple"],"rig_ids":["rig_front","rig_back"]}
+  ],
+  "allowed_modes": ["single_cyclist_boundary_pass","mixed_walk_cycle_crossing","dispersed_cyclists","city_t_junction"],
+  "box_augmentation": {"render_reservation": "bounded_native_box_v1", "training_default_enabled": false},
+  "production_authorized": false
+}

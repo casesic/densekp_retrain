@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DenseKP A2 explicit asset combinations",
+  "type": "object",
+  "required": ["schema", "registry", "recipes"],
+  "properties": {
+    "schema": {"const": "densekp_asset_composition_recipes_v1"},
+    "registry": {"type": "string"},
+    "recipes": {"type": "object", "additionalProperties": {"type": "object", "required": ["body_id", "motion_id", "clothing_id", "hair_id", "window", "root_policy", "output_dir"], "properties": {"body_id": {"type": "string"}, "motion_id": {"type": "string"}, "clothing_id": {"type": "string"}, "hair_id": {"type": "string"}, "window": {"type": "array", "prefixItems": [{"type": "integer", "minimum": 0}, {"type": "integer", "minimum": 1}], "minItems": 2, "maxItems": 2}, "root_policy": {"enum": ["fixed_pelvis_scene_owns_progression", "source_root_relative_to_start_plus_fixed_scene_matrix"]}, "output_dir": {"type": "string"}}}}
+  }
+}

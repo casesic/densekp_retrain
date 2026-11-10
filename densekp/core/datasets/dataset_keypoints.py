@@ -6,6 +6,7 @@ from torch.utils.data import Dataset
 from .image_processing import expand_to_aspect_ratio, read_image
 from .crop_pipeline import CropBox, check_flip_augmentation, determine_crop, transform_crop
 from .loading import resolve_source, resolve_image_path, read_annotations
+from .image_layout import read_layouts
 from ..keypoint_contract import validate_annotations
 from ..keypoint_supervision import SUPERVISION_POLICY, supervision_for_crop
 from ..constants import NUM_JOINTS
@@ -63,6 +64,35 @@ class DatasetKeypoints(Dataset):
         self.data = read_annotations(self.annotation_path)
         validate_annotations(self.data, cfg.DATASETS.get("TARGET_VALUE_SEMANTICS"))
         self.imgname = self.data["imgname"]
+        self.image_layouts = read_layouts(self.data, len(self.imgname))
+        # Optional bounded box perturbation uses a separate deterministic RNG.
+        # Old configs and validation never enter this branch.
+        self.box_augmentation = cfg.DATASETS.get("BOX_AUGMENTATION", {"enabled": False})
+        self.box_augmentation_epoch = 0
+        self.box_augmentation_visit_index = 0
+        if self.box_augmentation.get("enabled", False) and is_train:
+            from densekp_retrain.data.box_augmentation import (
+                validate_box_policy, require_full_box_family_support, policy_within_reservation,
+            )
+            import json
+            policy = validate_box_policy(dict(self.box_augmentation["policy"]))
+            geometric = ("EXTREME_CROP_AUG_RATE", "ROT_AUG_RATE", "SCALE_FACTOR",
+                         "TRANS_AUG_RATE", "FLIP_AUG_RATE")
+            if self.use_augmentation and (any(cfg.DATASETS.CONFIG.get(k, 0) for k in geometric)
+                    or cfg.DATASETS.CONFIG.get("USE_ALB", False)
+                    or self.use_skimage_antialias):
+                raise ValueError("box_augmentation_combined_geometric_or_prefilter_not_supported")
+            if "parent_bbox_xyxy" not in self.data or "box_augmentation_reserved_policy" not in self.data:
+                raise ValueError("box_augmentation_requires_parent_and_reserved_policy")
+            for i in range(len(self.imgname)):
+                declared = json.loads(str(self.data["box_augmentation_reserved_policy"][i]))
+                if not policy_within_reservation(policy,declared):
+                    raise ValueError("box_augmentation_policy_exceeds_reserved_support")
+                layout = self.image_layouts[i] if self.image_layouts is not None else None
+                if layout is None:
+                    raise ValueError("box_augmentation_requires_explicit_image_layout")
+                require_full_box_family_support(self.data["parent_bbox_xyxy"][i],
+                    layout.roi_xyxy, layout.full_size_wh, policy)
         # Bounding boxes are assumed to be in the center and scale format
         self.scale = self.data["scale"]
         self.center = self.data["center"]
@@ -85,6 +115,16 @@ class DatasetKeypoints(Dataset):
         # Select the stored box/labels; scale is in original-image pixels / 200.
         scale = self.scale[index].copy()
         center = self.center[index].copy()
+        if self.is_train and self.box_augmentation.get("enabled", False):
+            from densekp_retrain.data.box_augmentation import sample_box_variant
+            layout = self.image_layouts[index]
+            variant = sample_box_variant(self.data["parent_bbox_xyxy"][index],
+                policy=dict(self.box_augmentation["policy"]),
+                seed=self.box_augmentation["seed"],
+                observation_key=(self.box_augmentation_epoch, index, self.box_augmentation_visit_index),
+                roi_xyxy=layout.roi_xyxy, image_size_wh=layout.full_size_wh)
+            center = np.asarray(variant["center"], dtype=np.float32)
+            scale = np.float32(variant["scale"])
         keypoints = self.keypoints[index].copy()
         bbox_size = expand_to_aspect_ratio(scale * 200, target_aspect_ratio=self.BBOX_SHAPE).max()
         if bbox_size < 1:
@@ -96,6 +136,9 @@ class DatasetKeypoints(Dataset):
 
         # Read → determine crop → transform pixels and labels → recompute supervision.
         check_flip_augmentation(do_augment, augm_config)
+        layout = self.image_layouts[index] if self.image_layouts is not None else None
+        if layout is not None and layout.kind == "roi_image" and ("portrait" in self.dataset or "closeup" in self.dataset):
+            raise ValueError("roi_image_dataset_rotation_not_supported")
         image = read_image(imgname, self.dataset)
         plan = determine_crop(
             CropBox(center[0], center[1], bbox_size, bbox_size), keypoints, do_augment, augm_config
@@ -113,6 +156,7 @@ class DatasetKeypoints(Dataset):
             is_bgr=True,
             use_skimage_antialias=self.use_skimage_antialias,
             border_mode=self.border_mode,
+            image_layout=layout,
         )
         new_center = np.array([plan.box.center_x, plan.box.center_y])
         img_patch = example.image[:3, :, :]
@@ -151,3 +195,15 @@ class DatasetKeypoints(Dataset):
 
     def __len__(self):
         return int(len(self.imgname))
+
+    def set_box_augmentation_epoch(self, epoch):
+        """Set before worker creation; repeated visits in one epoch use draw zero."""
+        if type(epoch) is not int or epoch < 0:
+            raise ValueError("invalid_box_augmentation_epoch")
+        self.box_augmentation_epoch = epoch
+
+    def set_box_augmentation_visit_index(self, visit_index):
+        """Optional explicit repeat index; never inferred from worker scheduling."""
+        if type(visit_index) is not int or visit_index < 0:
+            raise ValueError("invalid_box_augmentation_visit_index")
+        self.box_augmentation_visit_index = visit_index

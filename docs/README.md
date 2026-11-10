@@ -4,6 +4,9 @@
 
 | 主题 | 当前说明 |
 | --- | --- |
+| 下一阶段：双视角边缘人体、连续动作、随机场景与重训 | [执行计划](training/DUAL_VIEW_TEMPORAL_PLAN_20261008.md) |
+| MAMMA 512 当前生成入口 | [独立 human_data_generator](../../human_data_generator/README.md)、[迁移记录](../../human_data_generator/docs/MIGRATION_A3_20261022.md) |
+| 旧仓库 A3 小试与结构整理 | [历史主流程](data/MAMMA_GENERATION_REFACTOR_A3_20261022.md) |
 | 语义点、几何、坐标、mask、监督、来源 | [技术契约](CONTRACTS.md) |
 | 核心实现与少量关键函数 | [代码阅读指南](READING_GUIDE.md) |
 | 推荐命令、输入输出、计算边界 | [命令表](COMMANDS.md) |

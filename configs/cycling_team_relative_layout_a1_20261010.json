@@ -1,0 +1,34 @@
+{
+  "schema": "cycling_team_relative_layout_v1",
+  "layout_master_seed": 20261023,
+  "component_master_seed": 20261022,
+  "projected_occlusion_policy": "diagnostic_only",
+  "legacy_default_projected_occlusion_policy": "require_event",
+  "candidate_limit": 32,
+  "different_seed_plan_check": 20261024,
+  "layout_method": "Keep the accepted riverfront single-rider person1/rig relationship; enumerate 4 forward gaps x 4 lateral offsets x 2 speed differences, seeded order and bounded cell jitter. Person2 uses its own verified asset, origin and fixed height.",
+  "riverfront_anchor_source": "outputs/experiments/second_environment_boundary_pass_a1_20261010/prepared_riverfront/recipe.json",
+  "riverfront_anchor_parameters": {
+    "rig_x_m": 0.0,
+    "rig_y_m": -0.0676685317844754,
+    "rig_yaw_deg": 90.70578757417066,
+    "p1_x_m": -0.004427311000095517,
+    "p1_y_m": 1.8049928795116499,
+    "p1_speed_m_s": 0.49598856561944354
+  },
+  "relative_cells": {
+    "forward_gap_m": [1.4, 1.7, 2.0, 2.3],
+    "lateral_offset_m": [-0.34, -0.18, 0.18, 0.34],
+    "speed_difference_m_s": [-0.05, 0.05],
+    "jitter_half_widths": {"gap_m": 0.035, "lateral_m": 0.02, "speed_difference_m_s": 0.01}
+  },
+  "hard_gates": {
+    "target_dual_edge": "same tick both cameras >=8 R138 inside and >=5 outside, >=8 common; >=16/31 ticks, >=0.5 s consecutive",
+    "road_and_person_separation": "existing per-person road/body-cloth envelope and pairwise 0.1m envelope clearance/0.9m root distance",
+    "ROI": "per-person conservative full-square union including exact active groom; <=7000000 pixels per camera; full ERP raster and nonperiodic seam support"
+  },
+  "actual_occlusion_status_before_render": "not_evaluated",
+  "cpu_layout_budget_seconds": 900,
+  "overall_compute_budget_seconds": 2700,
+  "integration_only": true
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DenseKP A2 registered standard-SMPL-X asset components",
+  "type": "object",
+  "required": ["schema", "model_standard", "bodies", "motions", "clothing", "hair"],
+  "properties": {
+    "schema": {"const": "densekp_asset_components_v1"},
+    "model_standard": {"const": "standard_smplx_10475_y_up_metres_flat_hand_mean_full_axis_angle"},
+    "bodies": {"type": "object", "additionalProperties": {"type": "object", "required": ["version", "manifest", "character_family", "parent_family"], "properties": {"version": {"type": "string"}, "manifest": {"type": "string"}, "character_family": {"type": "string"}, "parent_family": {"type": "string"}}}},
+    "motions": {"type": "object", "additionalProperties": {"type": "object", "required": ["version", "parameters", "timeline", "fitted_body", "source_group", "root_mode", "license"], "properties": {"version": {"type": "string"}, "parameters": {"type": "string"}, "timeline": {"type": "string"}, "fitted_body": {"type": "string"}, "source_group": {"type": "string"}, "root_mode": {"enum": ["fixed_pelvis_scene_owns_progression", "source_root_relative_to_start_plus_fixed_scene_matrix"]}, "root_reference_source_frame": {"type": "integer"}, "expression_policy": {"enum": ["neutral_zero_missing"]}, "license": {"type": "string"}}}},
+    "clothing": {"type": "object", "additionalProperties": {"type": "object", "required": ["version", "reference_body", "kind", "transfer", "license"], "properties": {"version": {"type": "string"}, "reference_body": {"type": "string"}, "kind": {"enum": ["simple_fixed_barycentric_normal_offset", "native_simulated_cache_locked_body_motion_time", "retargeted_native_cache_locked_body_motion_time"]}, "reference": {"type": "string"}, "offset_m": {"type": "number", "exclusiveMinimum": 0}, "transfer": {"type": "string"}, "license": {"type": "string"}, "locked_body": {"type": "string"}, "locked_motion": {"type": "string"}, "locked_hair": {"type": "string"}, "locked_window": {"type": "array", "prefixItems": [{"type": "integer"}, {"type": "integer"}], "minItems": 2, "maxItems": 2}, "asset_manifest": {"type": "string"}, "locked_asset_id": {"type": "string"}, "locked_body_manifest": {"type": "string"}, "locked_body_vertices": {"type": "string"}}}},
+    "hair": {"type": "object", "additionalProperties": {"type": "object", "required": ["version", "reference_body", "kind", "reference", "transfer", "license"], "properties": {"version": {"type": "string"}, "reference_body": {"type": "string"}, "kind": {"const": "static_curves_head_rigid"}, "reference": {"type": "string"}, "transfer": {"const": "rest_scalp_triangle_frames"}, "license": {"type": "string"}}}}
+  }
+}
