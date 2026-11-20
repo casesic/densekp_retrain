@@ -1,6 +1,7 @@
 # 历史快照，不再维护。上游（detectron2 / 4D-Humans 一侧）的一次环境导出，
 # 留在这里只为追溯来源，不是当前环境的锁文件。
 #
+# 这条上游路线（detectron2 / ViTPose 一侧）作者已于 2026-11-20 确认废弃，不用再修。
 # 已知问题：chumpy 在 Python 3.10+ 经常装不上（setup 阶段报 numpy 兼容错误）。
 # 这个文件不打算修——当前环境请按 docs/environment/INSTALLATION.md 与
 # pyproject.toml 的 [project] dependencies 安装。
