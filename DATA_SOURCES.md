@@ -16,7 +16,7 @@
 | `assets/scenes/` | 12 GB | 场景几何、纹理、HDRI（含 Hidden Alley / Riverfront） | Poly Haven `https://polyhaven.com/`（CC0），另见 `assets/README.md` |
 | `outputs/` | 163 GB | 实验产物：重建、训练、渲染、评估、对比报告 | 由本仓库脚本重新生成，无法直接下载 |
 | `datasets/*_tiny/` | 139 MB | 合成小数据集（p0_dressed、omni/ds multiperson） | 生成脚本见 `tools/`，或从 `outputs/` 重建 |
-| `third_party/` | 110 MB | 上游依赖源码（如 4D-Humans） | 上游仓库，版本见 `requirements.upstream.txt` |
+| `third_party/` | 110 MB | 上游依赖源码（如 4D-Humans） | 上游仓库，版本见 `docs/legacy/requirements.upstream.txt`（历史快照） |
 | `auth.json` | — | 本机 Codex CLI 登录态（含 API key），与本项目代码无关 | **不备份、不分发**，换机后重新登录即可 |
 
 ## 三类关键外部依赖
@@ -33,7 +33,9 @@
 ## 重建顺序
 
 ```bash
-pip install -r requirements.upstream.txt
+pip install -e .        # 当前依赖：pyproject.toml 的 [project] dependencies
+# 上游的一次性环境快照（不再维护，chumpy 在 Python 3.10+ 通常装不上）：
+#   docs/legacy/requirements.upstream.txt
 # 1. 取得 SMPL-X / BEDLAM2 资产，放到 assets_external/ 与 datasets/
 # 2. 准备场景与人体几何
 # 3. 按 docs/COMMANDS.md 依次运行重建 → 训练 → 渲染
