@@ -12,6 +12,8 @@ DenseKP 为一个指定人体框预测固定 **138 个语义点**，服务跨相
 
 按需查 [数据与权重](docs/DATA_AND_MODELS.md)、[资产与来源](docs/ASSETS.md)、[验证与历史证据](docs/VALIDATION.md)、[已知行为和退役能力](docs/KNOWN_BEHAVIOR.md)。无需先读阶段报告。
 
+四个仓库怎么交接（本仓的输入从哪来、138 点模型给谁用）：[PIPELINE_CONTRACT](https://github.com/casesic/mamma_retrain/blob/main/docs/PIPELINE_CONTRACT.md)。
+
 ```text
 人物/姿态来源 → 人体、衣物、groom → 场景、相机、成像 → 图像、138点、框
  → 读取 → 确定裁剪 → 同变换图像与标签 → 计算监督 → DenseKP → 还原与评价
